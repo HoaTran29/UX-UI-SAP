@@ -1,0 +1,6 @@
+<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
+    <Page showHeader="false">
+        <Title text="Khu vực Cấu hình Ngày Lễ của Hoàng" titleStyle="H2" class="sapUiMediumMargin"/>
+        <Text text="Hoàng sẽ gọi API OData ZI_HR_HOLIDAY lên đây..." class="sapUiMediumMargin"/>
+    </Page>
+</mvc:View>

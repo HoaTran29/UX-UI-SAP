@@ -1,0 +1,51 @@
+<mvc:View controllerName="com.app.zu26g13.app.controller.App"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:tnt="sap.tnt">
+<App id="app">
+        <!-- Sử dụng ToolPage để chia màn hình thành Menu trái và Nội dung phải -->
+        <tnt:ToolPage id="toolPage">
+            
+            <!-- Phần Header trên cùng -->
+            <tnt:header>
+                <tnt:ToolHeader>
+                    <Button id="sideNavigationToggleButton" icon="sap-icon://menu2" type="Transparent" press=".onCollapseExpandPress" />
+                    <Title text="Workforce Management Portal" />
+                    <ToolbarSpacer />
+                    <Button icon="sap-icon://bell" type="Transparent" tooltip="Notifications" />
+                    <Button icon="sap-icon://account" type="Transparent" tooltip="User Profile" />
+                </tnt:ToolHeader>
+            </tnt:header>
+
+            <!-- Phần Menu bên trái (Side Navigation) -->
+            <tnt:sideContent>
+                <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
+                    <tnt:item>
+                        <tnt:NavigationList>
+                            <tnt:NavigationListItem text="Dashboard" icon="sap-icon://barchart" key="dashboard" />
+                            <tnt:NavigationListItem text="Timesheet (In/Out)" icon="sap-icon://history" key="timesheet" />
+                            <tnt:NavigationListItem text="Dispute Reports" icon="sap-icon://user-edit" key="dispute" />
+                        </tnt:NavigationList>
+                    </tnt:item>
+                    <tnt:fixedItem>
+                        <tnt:NavigationList>
+                            <tnt:NavigationListItem text="Master Data" icon="sap-icon://action-settings" expanded="false">
+                                <tnt:NavigationListItem text="Employees" key="employee" />
+                                <tnt:NavigationListItem text="Schedules" key="schedule" />
+                                <tnt:NavigationListItem text="Holidays" key="holiday" />
+                            </tnt:NavigationListItem>
+                        </tnt:NavigationList>
+                    </tnt:fixedItem>
+                </tnt:SideNavigation>
+            </tnt:sideContent>
+
+            <!-- Phần Nội dung chính (Sẽ tự động tráo đổi khi bấm Menu) -->
+            <tnt:mainContents>
+                <NavContainer id="pageContainer">
+                    <!-- Các màn hình con (Lễ, Ca, Nhân viên...) lát nữa sẽ được nhét vào đây -->
+                </NavContainer>
+            </tnt:mainContents>
+
+        </tnt:ToolPage>
+    </App>
+</mvc:View>

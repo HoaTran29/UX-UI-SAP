@@ -1,0 +1,69 @@
+<mvc:View
+    controllerName="com.app.zu26g13.app.controller.Dashboard"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:layout="sap.ui.layout">
+
+    <Page showHeader="false" class="sapUiContentPadding">
+        
+        <layout:Grid defaultSpan="XL4 L4 M4 S12" class="sapUiBottomMargin">
+            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" frameType="OneByOne">
+                <TileContent>
+                    <NumericContent value="120" icon="sap-icon://employee" valueColor="Good"/>
+                </TileContent>
+            </GenericTile>
+
+            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Giờ OT tuần này" subheader="Toàn nhà máy (Giờ)" frameType="OneByOne">
+                <TileContent>
+                    <NumericContent value="45.5" icon="sap-icon://history" valueColor="Critical"/>
+                </TileContent>
+            </GenericTile>
+
+            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Đơn Report" subheader="Đang chờ duyệt" frameType="OneByOne" press=".onGoToDispute">
+                <TileContent>
+                    <NumericContent value="5" icon="sap-icon://alert" valueColor="Error"/>
+                </TileContent>
+            </GenericTile>
+        </layout:Grid>
+
+        <Title text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+
+        <Table id="timesheetTable"
+               items="{/Timesheet}"
+               growing="true"
+               growingThreshold="10"
+               class="sapUiElevationCore3">
+            
+            <columns>
+                <Column><Text text="Mã NV / Ca" /></Column>
+                <Column><Text text="Ngày làm việc" /></Column>
+                <Column demandPopin="true" minScreenWidth="Tablet"><Text text="Phòng ban" /></Column>
+                <Column demandPopin="true" minScreenWidth="Tablet"><Text text="Giờ In / Out" /></Column>
+                <Column hAlign="Center"><Text text="Giờ thực tế / Tiêu chuẩn" /></Column>
+                <Column hAlign="Center"><Text text="Trạng thái" /></Column>
+            </columns>
+
+            <items>
+                <ColumnListItem type="Active">
+                    <cells>
+                        <ObjectIdentifier title="{Pernr}" text="Ca: {ShiftId}"/>
+                        <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                        <Text text="{DeptId}" />
+                        
+                        <Text text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                        
+                        <ObjectNumber 
+                            number="{TotHours} / {WorkHours}" 
+                            unit="Giờ" 
+                            state="{= ${TotHours} >= ${WorkHours} ? 'Success' : 'Warning' }"/>
+                        
+                        <ObjectStatus 
+                            text="{Status}" 
+                            state="{= ${Status} === 'APPROVED' ? 'Success' : (${Status} === 'PENDING' ? 'Warning' : 'None') }" />
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+
+    </Page>
+</mvc:View>

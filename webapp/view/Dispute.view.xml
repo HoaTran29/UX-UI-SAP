@@ -1,0 +1,48 @@
+<mvc:View
+    controllerName="com.app.zu26g13.app.controller.Dispute"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Page showHeader="false" class="sapUiContentPadding">
+        
+        <Title text="Phê duyệt đơn Report" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+        <Text text="Chỉ hiển thị các đơn đang ở trạng thái chờ duyệt (PENDING)." class="sapUiBottomMargin" />
+
+        <Table id="disputeTable"
+               items="{
+                   path: '/Dispute',
+                   filters: [{ path: 'Status', operator: 'EQ', value1: 'PENDING' }]
+               }"
+               growing="true"
+               class="sapUiElevationCore3">
+            
+            <columns>
+                <Column><Text text="Mã NV" /></Column>
+                <Column><Text text="Loại yêu cầu" /></Column>
+                <Column><Text text="Ngày làm việc" /></Column>
+                <Column><Text text="Giờ xin sửa (In - Out)" /></Column>
+                <Column width="20%"><Text text="Lý do" /></Column>
+                <Column hAlign="Center"><Text text="Thao tác" /></Column>
+            </columns>
+
+            <items>
+                <ColumnListItem>
+                    <cells>
+                        <ObjectIdentifier title="{Pernr}" />
+                        <Text text="{RequestType}" />
+                        <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                        <Text text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                        <Text text="{Reason}" wrapping="true" />
+                        
+                        <HBox justifyContent="Center">
+                            <Button icon="sap-icon://accept" type="Accept" text="Duyệt" class="sapUiTinyMarginEnd" press=".onApprove"/>
+                            <Button icon="sap-icon://decline" type="Reject" text="Từ chối" press=".onReject"/>
+                        </HBox>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+
+    </Page>
+</mvc:View>

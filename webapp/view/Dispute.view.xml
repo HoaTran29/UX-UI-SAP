@@ -4,10 +4,9 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
-    <Page showHeader="false" class="sapUiContentPadding">
+<Page id="pageDispute" showHeader="false" class="sapUiContentPadding">
         
-        <Title text="Phê duyệt đơn Report" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
-        <Text text="Chỉ hiển thị các đơn đang ở trạng thái chờ duyệt (PENDING)." class="sapUiBottomMargin" />
+        <Title id="titleDispute" text="Phê duyệt đơn Report" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
 
         <Table id="disputeTable"
                items="{
@@ -18,26 +17,26 @@
                class="sapUiElevationCore3">
             
             <columns>
-                <Column><Text text="Mã NV" /></Column>
-                <Column><Text text="Loại yêu cầu" /></Column>
-                <Column><Text text="Ngày làm việc" /></Column>
-                <Column><Text text="Giờ xin sửa (In - Out)" /></Column>
-                <Column width="20%"><Text text="Lý do" /></Column>
-                <Column hAlign="Center"><Text text="Thao tác" /></Column>
+                <Column id="colEmpId"><Text id="txtEmpId" text="Mã NV" /></Column>
+                <Column id="colReqType"><Text id="txtReqType" text="Loại yêu cầu" /></Column>
+                <Column id="colWorkDate"><Text id="txtWorkDate" text="Ngày làm việc" /></Column>
+                <Column id="colTimeEdit"><Text id="txtTimeEdit" text="Giờ xin sửa (In - Out)" /></Column>
+                <Column id="colReason" width="20%"><Text id="txtReason" text="Lý do" /></Column>
+                <Column id="colAction" hAlign="Center"><Text id="txtAction" text="Thao tác" /></Column>
             </columns>
 
             <items>
-                <ColumnListItem>
+                <ColumnListItem id="cliDisputeItem">
                     <cells>
-                        <ObjectIdentifier title="{Pernr}" />
-                        <Text text="{RequestType}" />
-                        <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                        <Text text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
-                        <Text text="{Reason}" wrapping="true" />
+                        <ObjectIdentifier id="objEmpId" title="{Pernr}" />
+                        <Text id="txtReqTypeVal" text="{RequestType}" />
+                        <Text id="txtWorkDateVal" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                        <Text id="txtTimeEditVal" text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                        <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
                         
-                        <HBox justifyContent="Center">
-                            <Button icon="sap-icon://accept" type="Accept" text="Duyệt" class="sapUiTinyMarginEnd" press=".onApprove"/>
-                            <Button icon="sap-icon://decline" type="Reject" text="Từ chối" press=".onReject"/>
+                        <HBox id="hboxActions" justifyContent="Center">
+                            <Button id="btnApprove" icon="sap-icon://accept" type="Accept" text="Duyệt" class="sapUiTinyMarginEnd" press=".onApprove"/>
+                            <Button id="btnReject" icon="sap-icon://decline" type="Reject" text="Từ chối" press=".onReject"/>
                         </HBox>
                     </cells>
                 </ColumnListItem>

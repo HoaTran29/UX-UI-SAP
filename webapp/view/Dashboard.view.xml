@@ -4,29 +4,29 @@
     xmlns="sap.m"
     xmlns:layout="sap.ui.layout">
 
-    <Page showHeader="false" class="sapUiContentPadding">
+    <Page id="pageDashboard" showHeader="false" class="sapUiContentPadding">
         
-        <layout:Grid defaultSpan="XL4 L4 M4 S12" class="sapUiBottomMargin">
-            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" frameType="OneByOne">
-                <TileContent>
-                    <NumericContent value="120" icon="sap-icon://employee" valueColor="Good"/>
+        <layout:Grid id="gridKPI" defaultSpan="XL4 L4 M4 S12" class="sapUiBottomMargin">
+            <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" frameType="OneByOne">
+                <TileContent id="tcEmp">
+                    <NumericContent id="ncEmp" value="120" icon="sap-icon://employee" valueColor="Good"/>
                 </TileContent>
             </GenericTile>
 
-            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Giờ OT tuần này" subheader="Toàn nhà máy (Giờ)" frameType="OneByOne">
-                <TileContent>
-                    <NumericContent value="45.5" icon="sap-icon://history" valueColor="Critical"/>
+            <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Giờ OT tuần này" subheader="Toàn nhà máy (Giờ)" frameType="OneByOne">
+                <TileContent id="tcOT">
+                    <NumericContent id="ncOT" value="45.5" icon="sap-icon://history" valueColor="Critical"/>
                 </TileContent>
             </GenericTile>
 
-            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Đơn Report" subheader="Đang chờ duyệt" frameType="OneByOne" press=".onGoToDispute">
-                <TileContent>
-                    <NumericContent value="5" icon="sap-icon://alert" valueColor="Error"/>
+            <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Đơn Report" subheader="Đang chờ duyệt" frameType="OneByOne" press=".onGoToDispute">
+                <TileContent id="tcReport">
+                    <NumericContent id="ncReport" value="5" icon="sap-icon://alert" valueColor="Error"/>
                 </TileContent>
             </GenericTile>
         </layout:Grid>
 
-        <Title text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+        <Title id="titleTimesheet" text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
 
         <Table id="timesheetTable"
                items="{/Timesheet}"
@@ -35,29 +35,29 @@
                class="sapUiElevationCore3">
             
             <columns>
-                <Column><Text text="Mã NV / Ca" /></Column>
-                <Column><Text text="Ngày làm việc" /></Column>
-                <Column demandPopin="true" minScreenWidth="Tablet"><Text text="Phòng ban" /></Column>
-                <Column demandPopin="true" minScreenWidth="Tablet"><Text text="Giờ In / Out" /></Column>
-                <Column hAlign="Center"><Text text="Giờ thực tế / Tiêu chuẩn" /></Column>
-                <Column hAlign="Center"><Text text="Trạng thái" /></Column>
+                <Column id="colEmp"><Text id="txtColEmp" text="Mã NV / Ca" /></Column>
+                <Column id="colDate"><Text id="txtColDate" text="Ngày làm việc" /></Column>
+                <Column id="colDept" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColDept" text="Phòng ban" /></Column>
+                <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="Giờ In / Out" /></Column>
+                <Column id="colRatio" hAlign="Center"><Text id="txtColRatio" text="Giờ thực tế / Tiêu chuẩn" /></Column>
+                <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="Trạng thái" /></Column>
             </columns>
 
             <items>
-                <ColumnListItem type="Active">
+                <ColumnListItem id="cliTimesheet" type="Active">
                     <cells>
-                        <ObjectIdentifier title="{Pernr}" text="Ca: {ShiftId}"/>
-                        <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                        <Text text="{DeptId}" />
+                        <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Ca: {ShiftId}"/>
+                        <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                        <Text id="txtCellDept" text="{DeptId}" />
                         
-                        <Text text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                        <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
                         
-                        <ObjectNumber 
+                        <ObjectNumber id="objNumRatio"
                             number="{TotHours} / {WorkHours}" 
                             unit="Giờ" 
                             state="{= ${TotHours} >= ${WorkHours} ? 'Success' : 'Warning' }"/>
                         
-                        <ObjectStatus 
+                        <ObjectStatus id="objStatStatus"
                             text="{Status}" 
                             state="{= ${Status} === 'APPROVED' ? 'Success' : (${Status} === 'PENDING' ? 'Warning' : 'None') }" />
                     </cells>

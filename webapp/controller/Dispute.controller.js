@@ -12,12 +12,12 @@ sap.ui.define([
 
         // Hàm gọi khi sếp bấm nút "Duyệt"
         onApprove: function (oEvent) {
-            this._callAction(oEvent, "DisputeApprove", "Đã duyệt đơn và cập nhật Timesheet thành công!");
+            this._callAction(oEvent, "Approve", "Đã duyệt đơn và cập nhật Timesheet thành công!");
         },
 
         // Hàm gọi khi sếp bấm nút "Từ chối"
         onReject: function (oEvent) {
-            this._callAction(oEvent, "DisputeReject", "Đã từ chối đơn report!");
+            this._callAction(oEvent, "Reject", "Đã từ chối đơn report!");
         },
 
         // Hàm dùng chung để gọi OData Function Import

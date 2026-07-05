@@ -38,6 +38,7 @@
   },
   "sap.ui": {
     "technology": "UI5",
+    "fullWidth": true,
     "icons": {
       "icon": "",
       "favIcon": "",
@@ -87,7 +88,7 @@
         }
       ]
     },
-    "routing": {
+"routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",
         "viewType": "XML",
@@ -100,12 +101,14 @@
       "routes": [
         { "name": "dashboard", "pattern": "", "target": [ "TargetDashboard" ] },
         { "name": "holiday", "pattern": "holiday", "target": [ "TargetHoliday" ] },
-        { "name": "dispute", "pattern": "dispute", "target": [ "TargetDispute" ] }
+        { "name": "dispute", "pattern": "dispute", "target": [ "TargetDispute" ] },
+        { "name": "schedule", "pattern": "schedule", "target": [ "TargetSchedule" ] }
       ],
       "targets": {
         "TargetDashboard": { "viewType": "XML", "viewId": "Dashboard", "viewName": "Dashboard" },
         "TargetHoliday": { "viewType": "XML", "viewId": "Holiday", "viewName": "Holiday" },
-        "TargetDispute": { "viewType": "XML", "viewId": "Dispute", "viewName": "Dispute" }
+        "TargetDispute": { "viewType": "XML", "viewId": "Dispute", "viewName": "Dispute" },
+        "TargetSchedule": { "viewType": "XML", "viewId": "Schedule", "viewName": "Schedule" }
       }
     },
     "rootView": {

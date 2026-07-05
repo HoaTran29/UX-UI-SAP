@@ -2,7 +2,8 @@
     xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
     xmlns="sap.m"
     xmlns:tnt="sap.tnt">
-    <App id="app">
+    
+    <App id="app" appWidthLimited="false">
         <tnt:ToolPage id="toolPage">
             
             <tnt:header>
@@ -38,7 +39,7 @@
 
             <tnt:mainContents>
                 <NavContainer id="pageContainer">
-                    </NavContainer>
+                </NavContainer>
             </tnt:mainContents>
 
         </tnt:ToolPage>

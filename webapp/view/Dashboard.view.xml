@@ -2,7 +2,9 @@
     controllerName="com.app.zu26g13.app.controller.Dashboard"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:layout="sap.ui.layout">
+    xmlns:layout="sap.ui.layout"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core">
 
     <Page id="pageDashboard" showHeader="false">
         
@@ -35,39 +37,82 @@
             </layout:Grid>
 
             <Title id="titleTimesheet" text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+            <fb:FilterBar id="filterBar" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
+                <fb:filterGroupItems>
+                    <fb:FilterGroupItem groupName="G1" name="Pernr" label="Mã Nhân Viên" visibleInFilterBar="true">
+                        <fb:control>
+                            <Input id="fltEmp" placeholder="Nhập mã NV..." />
+                        </fb:control>
+                    </fb:FilterGroupItem>
 
+                    <fb:FilterGroupItem groupName="G1" name="Dept" label="Phòng ban" visibleInFilterBar="true">
+                        <fb:control>
+                            <ComboBox id="fltDept" placeholder="Chọn phòng ban">
+                                <core:Item key="IT" text="Phòng IT" />
+                                <core:Item key="HR" text="Phòng Nhân Sự" />
+                                <core:Item key="PROD" text="Khối Sản Xuất" />
+                            </ComboBox>
+                        </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem groupName="G1" name="Date" label="Ngày làm việc" visibleInFilterBar="true">
+                        <fb:control>
+                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="Chọn ngày..." />
+                        </fb:control>
+                    </fb:FilterGroupItem>
+                </fb:filterGroupItems>
+            </fb:FilterBar>
             <Table id="timesheetTable"
-                   items="{/Timesheet}"
+                   items="{
+                       path: '/Timesheet',
+                       sorter: [
+                           { path: 'WorkDate', descending: false },
+                           { path: 'DeptId', descending: false }
+                       ]
+                   }"
                    growing="true"
                    growingThreshold="10"
                    class="sapUiElevationCore3">
                 
                 <columns>
-                    <Column id="colEmp"><Text id="txtColEmp" text="Mã NV / Ca" /></Column>
+                    <Column id="colEmp"><Text id="txtColEmp" text="Nhân viên / Ca" /></Column>
                     <Column id="colDate"><Text id="txtColDate" text="Ngày làm việc" /></Column>
-                    <Column id="colDept" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColDept" text="Phòng ban" /></Column>
                     <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="Giờ In / Out" /></Column>
-                    <Column id="colRatio" hAlign="Center"><Text id="txtColRatio" text="Giờ thực tế / Tiêu chuẩn" /></Column>
+                    <Column id="colStdHours" hAlign="Center"><Text id="txtColStdHours" text="Giờ tiêu chuẩn" /></Column>
+                    <Column id="colActHours" hAlign="Center"><Text id="txtColActHours" text="Giờ thực tế" /></Column>
+                    <Column id="colOtHours" hAlign="Center"><Text id="txtColOtHours" text="Giờ OT" /></Column>
                     <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="Trạng thái" /></Column>
                 </columns>
 
                 <items>
                     <ColumnListItem id="cliTimesheet" type="Active">
                         <cells>
-                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Ca: {ShiftId}"/>
+                            <ObjectIdentifier id="objIdEmp" 
+                                title="{Pernr}" 
+                                text="Ca: {ShiftId}"/>
+                            
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                            <Text id="txtCellDept" text="{DeptId}" />
                             
                             <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
                             
-                            <ObjectNumber id="objNumRatio"
-                                number="{TotHours} / {WorkHours}" 
-                                unit="Giờ" 
-                                state="{= ${TotHours} >= ${WorkHours} ? 'Success' : 'Warning' }"/>
+                            <ObjectNumber id="objNumStd" number="{WorkHours}" />
+
+                            <ObjectNumber id="objNumAct"
+                                number="{TotHours}" 
+                                state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
+
+                            <ObjectNumber id="objNumOt"
+                                number="{OtHours}" 
+                                state="Warning"
+                                visible="{= parseFloat(${OtHours}) > 0 }"/>
                             
                             <ObjectStatus id="objStatStatus"
                                 text="{Status}" 
-                                state="{= ${Status} === 'APPROVED' ? 'Success' : (${Status} === 'PENDING' ? 'Warning' : 'None') }" />
+                                inverted="true"
+                                state="{= ${Status} === 'APPROVED' ? 'Success' : 
+                                         (${Status} === 'PENDING' ? 'Warning' : 
+                                         (${Status} === 'LATE_IN' || ${Status} === 'EARLY_OUT' ? 'Error' : 
+                                         (${Status} === 'ON_TIME' ? 'Indication05' : 'None'))) }" />
                         </cells>
                     </ColumnListItem>
                 </items>

@@ -19,18 +19,20 @@
             <tnt:sideContent>
                 <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
                     <tnt:item>
-                        <tnt:NavigationList id="navListMain">
-                            <tnt:NavigationListItem id="navDashboard" text="Dashboard" icon="sap-icon://barchart" key="dashboard" />
-                            <tnt:NavigationListItem id="navTimesheet" text="Timesheet (In/Out)" icon="sap-icon://history" key="timesheet" />
-                            <tnt:NavigationListItem id="navDispute" text="Dispute Reports" icon="sap-icon://user-edit" key="dispute" />
+                        <tnt:NavigationList>
+                            <tnt:NavigationListItem text="Dashboard" icon="sap-icon://barchart" key="dashboard" />
+                            <tnt:NavigationListItem text="Timesheet (In/Out)" icon="sap-icon://history" key="timesheet" />
+                            <tnt:NavigationListItem text="Dispute Reports" icon="sap-icon://user-edit" key="dispute" />
+                            
                         </tnt:NavigationList>
                     </tnt:item>
                     <tnt:fixedItem>
-                        <tnt:NavigationList id="navListFixed">
-                            <tnt:NavigationListItem id="navMasterData" text="Master Data" icon="sap-icon://action-settings" expanded="false">
-                                <tnt:NavigationListItem id="navEmployee" text="Employees" key="employee" />
-                                <tnt:NavigationListItem id="navSchedule" text="Schedules" key="schedule" />
-                                <tnt:NavigationListItem id="navHoliday" text="Holidays" key="holiday" />
+                        <tnt:NavigationList>
+                            <tnt:NavigationListItem text="Master Data" icon="sap-icon://action-settings" expanded="false">
+                                
+                                <tnt:NavigationListItem id="menuEmployeeConfigId" text="Employees" key="employeeConfig" />
+                                <tnt:NavigationListItem text="Schedules" key="schedule" />
+                                <tnt:NavigationListItem text="Holidays" key="holiday" />
                             </tnt:NavigationListItem>
                         </tnt:NavigationList>
                     </tnt:fixedItem>

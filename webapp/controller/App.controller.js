@@ -1,38 +1,34 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller",
-    "sap/m/MessageToast"
-], function (Controller, MessageToast) {
+    "sap/ui/core/mvc/Controller"
+], function (Controller) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.App", {
         
         onInit: function () {
+            // Khởi tạo ứng dụng gốc
         },
 
-        // Xử lý hiệu ứng thu/phóng khi bấm vào nút Menu (Hamburger)
+        // Hàm xử lý khi bấm nút "3 gạch" trên header để thu gọn/mở rộng menu
         onCollapseExpandPress: function () {
-            var oToolPage = this.byId("toolPage");
-            var bSideExpanded = oToolPage.getSideExpanded();
-            
-            // Đảo ngược trạng thái hiện tại (Đang mở thì đóng, đang đóng thì mở)
-            oToolPage.setSideExpanded(!bSideExpanded);
+            var oToolPage = this.byId("toolPage"); // Bạn kiểm tra xem id thẻ ToolPage ở App.view.xml đúng là "toolPage" chưa nhé
+            if (oToolPage) {
+                var bExpanded = oToolPage.getSideExpanded();
+                oToolPage.setSideExpanded(!bExpanded);
+            }
         },
 
-        // Xử lý nhảy trang khi click vào các dòng Menu
+        // Hàm xử lý khi bấm vào các mục menu bên trái (Tự động điều hướng động)
         onItemSelect: function (oEvent) {
             var oItem = oEvent.getParameter("item");
-            var sKey = oItem.getKey();
-            
-            // Bẫy lỗi: Vì trong manifest.json ông chưa có route cho "timesheet" và "employee"
-            // Nên tui chặn lại để nó khỏi báo lỗi văng app, khi nào rảnh code 2 trang đó sau
-            if (sKey === "timesheet" || sKey === "employee") {
-                MessageToast.show("Tính năng này đang được phát triển!");
-                return;
-            }
+            var sKey = oItem.getKey(); // Bắt cái key mình đã khai báo ở XML (dashboard, timesheet, employee-config...)
 
-            // Lấy Router và nhảy sang trang (Ví dụ sKey = 'dashboard', 'schedule', 'dispute', 'holiday')
-            var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo(sKey);
+
+            if (sKey) {
+                // Gọi Router hệ thống để thực hiện đổi màn hình tự động dựa vào key
+                var oRouter = this.getOwnerComponent().getRouter();
+                oRouter.navTo(sKey);
+            }
         }
 
     });

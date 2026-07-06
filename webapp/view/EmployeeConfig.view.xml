@@ -1,0 +1,84 @@
+<mvc:View
+    id="employeeConfigView"
+    controllerName="com.app.zu26g13.app.controller.EmployeeConfig"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:f="sap.f"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core">
+
+    <f:DynamicPage id="dynamicPageId">
+        <f:title>
+            <f:DynamicPageTitle id="pageTitleId">
+                <f:heading>
+                    <Title id="mainTitleId" text="Cấu hình nhân viên" />
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+
+        <f:header>
+            <f:DynamicPageHeader id="dynamicPageHeaderId">
+                <fb:FilterBar id="filterBarId" search=".onSearch">
+                    <fb:filterGroupItems>
+                        <fb:FilterGroupItem id="filterGroupPernr" name="Pernr" label="Mã nhân viên" groupName="Group1" visibleInFilterBar="true">
+                            <fb:control>
+                                <Input id="filterPernr" placeholder="Nhập mã nhân viên..." />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                        
+                        <fb:FilterGroupItem id="filterGroupDept" name="DeptId" label="Phòng ban" groupName="Group1" visibleInFilterBar="true">
+                            <fb:control>
+                                <ComboBox id="filterDept" placeholder="Chọn phòng ban" items="{/Department}">
+                                    <core:Item id="deptItemTemplate" key="{DeptId}" text="{DeptName} ({DeptId})" />
+                                </ComboBox>
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                    </fb:filterGroupItems>
+                </fb:FilterBar>
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <f:content>
+            <Table id="employeeTable"
+                   items="{path: '/Employee'}"
+                   growing="true"
+                   growingThreshold="20">
+                <headerToolbar>
+                    <OverflowToolbar id="tableToolbarId">
+                        <Title id="tableTitleId" text="Danh sách nhân viên" level="H2"/>
+                        <ToolbarSpacer id="toolbarSpacerId" />
+                        <Button id="btnCreateId"
+                                text="Tạo mới nhân viên" 
+                                icon="sap-icon://add" 
+                                type="Emphasized" 
+                                press=".onOpenCreateDialog" />
+                    </OverflowToolbar>
+                </headerToolbar>
+                <columns>
+                    <Column id="colPernr"><Text id="txtColPernr" text="Mã NV (PERNR)" /></Column>
+                    <Column id="colEname"><Text id="txtColEname" text="Họ và Tên (ENAME)" /></Column>
+                    <Column id="colCardId"><Text id="txtColCardId" text="Mã thẻ (CARD_ID)" /></Column>
+                    <Column id="colDept"><Text id="txtColDept" text="Mã Phòng ban" /></Column>
+                    <Column id="colRole"><Text id="txtColRole" text="Mã Vai trò" /></Column>
+                    <Column id="colAction" width="8rem"><Text id="txtColAction" text="Thao tác" /></Column>
+                </columns>
+                <items>
+                    <ColumnListItem id="rowTemplateId" vAlign="Middle">
+                        <cells>
+                            <Text id="cellPernr" text="{Pernr}" />
+                            <Text id="cellEname" text="{Ename}" />
+                            <Text id="cellCardId" text="{CardId}" />
+                            <ObjectAttribute id="cellDept" text="{DeptId}" />
+                            <ObjectAttribute id="cellRole" text="{RoleId}" />
+                            <Button id="btnEditRowId"
+                                    icon="sap-icon://edit" 
+                                    text="Sửa"
+                                    type="Transparent" 
+                                    press=".onOpenEditDialog" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+    </f:DynamicPage>
+</mvc:View>

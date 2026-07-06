@@ -1,0 +1,37 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form">
+    <Dialog id="employeeDialog" title="Thông tin nhân viên" contentWidth="450px">
+        <content>
+            <f:SimpleForm id="employeeFormId" editable="true" layout="ResponsiveGridLayout">
+                <f:content>
+                    <Label id="lblPernr" text="Mã nhân viên (PERNR)" required="true" />
+                    <Input id="inputPernr" maxLength="8" type="Number" placeholder="Nhập số PERNR..." />
+
+                    <Label id="lblEname" text="Tên nhân viên (ENAME)" required="true" />
+                    <Input id="inputEname" maxLength="40" placeholder="Nhập họ tên..." />
+
+                    <Label id="lblCardId" text="Mã số thẻ (CARD_ID)" />
+                    <Input id="inputCardId" maxLength="20" placeholder="Nhập mã thẻ quẹt..." />
+
+                    <Label id="lblDept" text="Phòng ban" required="true" />
+<Select id="selectDept" items="{path: '/Department'}">
+    <core:Item id="deptItemFragTemplate" key="{DeptId}" text="{DeptName}" />
+</Select>
+
+<Label id="lblRole" text="Vai trò" required="true" />
+<Select id="selectRole" items="{path: '/Role'}">
+    <core:Item id="roleItemFragTemplate" key="{RoleId}" text="{RoleDesc}" />
+</Select>
+                </f:content>
+            </f:SimpleForm>
+        </content>
+        <beginButton>
+            <Button id="btnSaveDialogId" text="Lưu" type="Emphasized" press=".onSaveEmployee" />
+        </beginButton>
+        <endButton>
+            <Button id="btnCancelDialogId" text="Hủy" press=".onCloseDialog" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

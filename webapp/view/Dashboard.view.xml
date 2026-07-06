@@ -2,68 +2,122 @@
     controllerName="com.app.zu26g13.app.controller.Dashboard"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:layout="sap.ui.layout">
+    xmlns:layout="sap.ui.layout"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core">
 
-    <Page showHeader="false" class="sapUiContentPadding">
+    <Page id="pageDashboard" showHeader="false">
         
-        <layout:Grid defaultSpan="XL4 L4 M4 S12" class="sapUiBottomMargin">
-            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" frameType="OneByOne">
-                <TileContent>
-                    <NumericContent value="120" icon="sap-icon://employee" valueColor="Good"/>
-                </TileContent>
-            </GenericTile>
-
-            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Giờ OT tuần này" subheader="Toàn nhà máy (Giờ)" frameType="OneByOne">
-                <TileContent>
-                    <NumericContent value="45.5" icon="sap-icon://history" valueColor="Critical"/>
-                </TileContent>
-            </GenericTile>
-
-            <GenericTile class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Đơn Report" subheader="Đang chờ duyệt" frameType="OneByOne" press=".onGoToDispute">
-                <TileContent>
-                    <NumericContent value="5" icon="sap-icon://alert" valueColor="Error"/>
-                </TileContent>
-            </GenericTile>
-        </layout:Grid>
-
-        <Title text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
-
-        <Table id="timesheetTable"
-               items="{/Timesheet}"
-               growing="true"
-               growingThreshold="10"
-               class="sapUiElevationCore3">
+        <VBox class="sapUiSmallMargin">
             
-            <columns>
-                <Column><Text text="Mã NV / Ca" /></Column>
-                <Column><Text text="Ngày làm việc" /></Column>
-                <Column demandPopin="true" minScreenWidth="Tablet"><Text text="Phòng ban" /></Column>
-                <Column demandPopin="true" minScreenWidth="Tablet"><Text text="Giờ In / Out" /></Column>
-                <Column hAlign="Center"><Text text="Giờ thực tế / Tiêu chuẩn" /></Column>
-                <Column hAlign="Center"><Text text="Trạng thái" /></Column>
-            </columns>
+            <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
+                <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" frameType="OneByOne">
+                    <TileContent id="tcEmp">
+                        <NumericContent id="ncEmp" value="{kpi>/totalEmp}" icon="sap-icon://employee" valueColor="Good"/>
+                    </TileContent>
+                </GenericTile>
 
-            <items>
-                <ColumnListItem type="Active">
-                    <cells>
-                        <ObjectIdentifier title="{Pernr}" text="Ca: {ShiftId}"/>
-                        <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                        <Text text="{DeptId}" />
-                        
-                        <Text text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
-                        
-                        <ObjectNumber 
-                            number="{TotHours} / {WorkHours}" 
-                            unit="Giờ" 
-                            state="{= ${TotHours} >= ${WorkHours} ? 'Success' : 'Warning' }"/>
-                        
-                        <ObjectStatus 
-                            text="{Status}" 
-                            state="{= ${Status} === 'APPROVED' ? 'Success' : (${Status} === 'PENDING' ? 'Warning' : 'None') }" />
-                    </cells>
-                </ColumnListItem>
-            </items>
-        </Table>
+                <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Giờ OT tuần này" subheader="Toàn nhà máy (Giờ)" frameType="OneByOne">
+                    <TileContent id="tcOT">
+                        <NumericContent id="ncOT" value="{kpi>/totalOT}" icon="sap-icon://history" valueColor="Critical"/>
+                    </TileContent>
+                </GenericTile>
 
+                <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Đơn Report" subheader="Đang chờ duyệt" frameType="OneByOne" press=".onGoToDispute">
+                    <TileContent id="tcReport">
+                        <NumericContent id="ncReport" value="{kpi>/pendingDisputes}" icon="sap-icon://alert" valueColor="Error"/>
+                    </TileContent>
+                </GenericTile>
+
+                <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Lịch Phân Ca" subheader="Quản lý thời gian làm việc" frameType="OneByOne" press=".onNavToSchedule">
+                    <TileContent id="tcSchedule">
+                        <ImageContent src="sap-icon://calendar" />
+                    </TileContent>
+                </GenericTile>
+            </layout:Grid>
+
+            <Title id="titleTimesheet" text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+            <fb:FilterBar id="filterBar" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
+                <fb:filterGroupItems>
+                    <fb:FilterGroupItem groupName="G1" name="Pernr" label="Mã Nhân Viên" visibleInFilterBar="true">
+                        <fb:control>
+                            <Input id="fltEmp" placeholder="Nhập mã NV..." />
+                        </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem groupName="G1" name="Dept" label="Phòng ban" visibleInFilterBar="true">
+                        <fb:control>
+                            <ComboBox id="fltDept" placeholder="Chọn phòng ban">
+                                <core:Item key="IT" text="Phòng IT" />
+                                <core:Item key="HR" text="Phòng Nhân Sự" />
+                                <core:Item key="PROD" text="Khối Sản Xuất" />
+                            </ComboBox>
+                        </fb:control>
+                    </fb:FilterGroupItem>
+
+                    <fb:FilterGroupItem groupName="G1" name="Date" label="Ngày làm việc" visibleInFilterBar="true">
+                        <fb:control>
+                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="Chọn ngày..." />
+                        </fb:control>
+                    </fb:FilterGroupItem>
+                </fb:filterGroupItems>
+            </fb:FilterBar>
+            <Table id="timesheetTable"
+                   items="{
+                       path: '/Timesheet',
+                       sorter: [
+                           { path: 'WorkDate', descending: false },
+                           { path: 'DeptId', descending: false }
+                       ]
+                   }"
+                   growing="true"
+                   growingThreshold="10"
+                   class="sapUiElevationCore3">
+                
+                <columns>
+                    <Column id="colEmp"><Text id="txtColEmp" text="Nhân viên / Ca" /></Column>
+                    <Column id="colDate"><Text id="txtColDate" text="Ngày làm việc" /></Column>
+                    <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="Giờ In / Out" /></Column>
+                    <Column id="colStdHours" hAlign="Center"><Text id="txtColStdHours" text="Giờ tiêu chuẩn" /></Column>
+                    <Column id="colActHours" hAlign="Center"><Text id="txtColActHours" text="Giờ thực tế" /></Column>
+                    <Column id="colOtHours" hAlign="Center"><Text id="txtColOtHours" text="Giờ OT" /></Column>
+                    <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="Trạng thái" /></Column>
+                </columns>
+
+                <items>
+                    <ColumnListItem id="cliTimesheet" type="Active">
+                        <cells>
+                            <ObjectIdentifier id="objIdEmp" 
+                                title="{Pernr}" 
+                                text="Ca: {ShiftId}"/>
+                            
+                            <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                            
+                            <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                            
+                            <ObjectNumber id="objNumStd" number="{WorkHours}" />
+
+                            <ObjectNumber id="objNumAct"
+                                number="{TotHours}" 
+                                state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
+
+                            <ObjectNumber id="objNumOt"
+                                number="{OtHours}" 
+                                state="Warning"
+                                visible="{= parseFloat(${OtHours}) > 0 }"/>
+                            
+                            <ObjectStatus id="objStatStatus"
+                                text="{Status}" 
+                                inverted="true"
+                                state="{= ${Status} === 'APPROVED' ? 'Success' : 
+                                         (${Status} === 'PENDING' ? 'Warning' : 
+                                         (${Status} === 'LATE_IN' || ${Status} === 'EARLY_OUT' ? 'Error' : 
+                                         (${Status} === 'ON_TIME' ? 'Indication05' : 'None'))) }" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+            
+        </VBox>
     </Page>
 </mvc:View>

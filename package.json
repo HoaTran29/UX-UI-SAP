@@ -8,13 +8,13 @@
     "sapui5"
   ],
   "main": "webapp/index.html",
-  "dependencies": {},
   "devDependencies": {
-    "@ui5/cli": "^4.0.33",
-    "@sap/ux-ui5-tooling": "1",
     "@sap-ux/eslint-plugin-fiori-tools": "^10.0.0",
-    "eslint": "^10",
-    "@sap-ux/ui5-middleware-fe-mockserver": "2"
+    "@sap-ux/ui5-middleware-fe-mockserver": "2",
+    "@sap/ux-ui5-tooling": "1",
+    "@ui5/cli": "^4.0.33",
+    "@zowe/secrets-for-zowe-sdk": "^8.32.0",
+    "eslint": "^10"
   },
   "scripts": {
     "start": "fiori run --open \"test/flp.html#app-preview\"",

@@ -3,7 +3,9 @@
     xmlns="sap.m"
     xmlns:tnt="sap.tnt">
     
-    <App id="app" appWidthLimited="false">
+   <Shell id="shellId" appWidthLimited="false"> 
+        <App id="appId">
+           
         <tnt:ToolPage id="toolPage">
             
             <tnt:header>
@@ -45,5 +47,6 @@
             </tnt:mainContents>
 
         </tnt:ToolPage>
-    </App>
+     </App>
+    </Shell>
 </mvc:View>

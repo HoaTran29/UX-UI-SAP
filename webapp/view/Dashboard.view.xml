@@ -48,7 +48,7 @@
                     <fb:FilterGroupItem groupName="G1" name="Dept" label="Phòng ban" visibleInFilterBar="true">
                         <fb:control>
                             <ComboBox id="fltDept" placeholder="Chọn phòng ban">
-                                <core:Item key="IT" text="Phòng IT" />
+                                <core:Item key="IT_01" text="Phòng IT" />
                                 <core:Item key="HR" text="Phòng Nhân Sự" />
                                 <core:Item key="PROD" text="Khối Sản Xuất" />
                             </ComboBox>

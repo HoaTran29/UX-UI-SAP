@@ -27,12 +27,12 @@
                         </fb:FilterGroupItem>
                         
                         <fb:FilterGroupItem id="filterGroupDept" name="DeptId" label="Phòng ban" groupName="Group1" visibleInFilterBar="true">
-                            <fb:control>
-                                <ComboBox id="filterDept" placeholder="Chọn phòng ban" items="{/Department}">
-                                    <core:Item id="deptItemTemplate" key="{DeptId}" text="{DeptName} ({DeptId})" />
-                                </ComboBox>
-                            </fb:control>
-                        </fb:FilterGroupItem>
+    <fb:control>
+        <ComboBox id="filterDept" placeholder="Chọn phòng ban" items="{/Department}">
+            <core:Item id="deptItemTemplate" key="{DeptId}" text="{DeptName}" />
+        </ComboBox>
+    </fb:control>
+</fb:FilterGroupItem>
                     </fb:filterGroupItems>
                 </fb:FilterBar>
             </f:DynamicPageHeader>
@@ -55,29 +55,41 @@
                     </OverflowToolbar>
                 </headerToolbar>
                 <columns>
-                    <Column id="colPernr"><Text id="txtColPernr" text="Mã NV (PERNR)" /></Column>
-                    <Column id="colEname"><Text id="txtColEname" text="Họ và Tên (ENAME)" /></Column>
-                    <Column id="colCardId"><Text id="txtColCardId" text="Mã thẻ (CARD_ID)" /></Column>
-                    <Column id="colDept"><Text id="txtColDept" text="Mã Phòng ban" /></Column>
-                    <Column id="colRole"><Text id="txtColRole" text="Mã Vai trò" /></Column>
-                    <Column id="colAction" width="8rem"><Text id="txtColAction" text="Thao tác" /></Column>
-                </columns>
-                <items>
-                    <ColumnListItem id="rowTemplateId" vAlign="Middle">
-                        <cells>
-                            <Text id="cellPernr" text="{Pernr}" />
-                            <Text id="cellEname" text="{Ename}" />
-                            <Text id="cellCardId" text="{CardId}" />
-                            <ObjectAttribute id="cellDept" text="{DeptId}" />
-                            <ObjectAttribute id="cellRole" text="{RoleId}" />
-                            <Button id="btnEditRowId"
-                                    icon="sap-icon://edit" 
-                                    text="Sửa"
-                                    type="Transparent" 
-                                    press=".onOpenEditDialog" />
-                        </cells>
-                    </ColumnListItem>
-                </items>
+    <Column id="colPernr"><Text id="txtColPernr" text="Mã NV " /></Column>
+    <Column id="colEname"><Text id="txtColEname" text="Họ và Tên " /></Column>
+    <Column id="colCardId"><Text id="txtColCardId" text="Mã thẻ " /></Column>
+    <Column id="colDept"><Text id="txtColDept" text="Phòng ban" /></Column>
+    <Column id="colRole"><Text id="txtColRole" text="Vai trò" /></Column>
+    
+    <Column id="colAction" width="12rem" hAlign="Center">
+        <Text id="txtColAction" text="Thao tác" />
+    </Column>
+</columns>
+<items>
+    <ColumnListItem id="rowTemplateId" vAlign="Middle">
+        <cells>
+            <Text id="cellPernr" text="{Pernr}" />
+            <Text id="cellEname" text="{Ename}" />
+            <Text id="cellCardId" text="{CardId}" />
+            <ObjectAttribute id="cellDept" text="{DeptName}" />
+            <ObjectAttribute id="cellRole" text="{RoleDesc}" />
+            
+            <HBox id="actionBoxId" alignItems="Center" justifyContent="Center">
+                <Button id="btnEditRowId"
+                        icon="sap-icon://edit" 
+                        text="Sửa"
+                        type="Transparent" 
+                        press=".onOpenEditDialog" />
+                        
+                <Button id="btnDeleteRowId"
+                        icon="sap-icon://delete" 
+                        text="Xóa"
+                        type="Reject" 
+                        press=".onDeleteEmployee" />
+            </HBox>
+        </cells>
+    </ColumnListItem>
+</items>
             </Table>
         </f:content>
     </f:DynamicPage>

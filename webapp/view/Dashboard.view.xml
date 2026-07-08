@@ -49,7 +49,7 @@
                         <fb:control>
                             <ComboBox id="fltDept" placeholder="Chọn phòng ban">
                                 <core:Item key="IT_01" text="Phòng IT" />
-                                <core:Item key="HR" text="Phòng Nhân Sự" />
+                                <core:Item key="HR_02" text="Phòng Nhân Sự" />
                                 <core:Item key="PROD" text="Khối Sản Xuất" />
                             </ComboBox>
                         </fb:control>
@@ -73,6 +73,14 @@
                    growing="true"
                    growingThreshold="10"
                    class="sapUiElevationCore3">
+                
+                <headerToolbar>
+                    <OverflowToolbar>
+                        <Title text="Chi tiết giờ làm" level="H4"/>
+                        <ToolbarSpacer/>
+                        <Button id="btnExport" icon="sap-icon://excel-attachment" text="Xuất Excel" type="Success" press=".onExportExcel" tooltip="Xuất dữ liệu ra Excel"/>
+                    </OverflowToolbar>
+                </headerToolbar>
                 
                 <columns>
                     <Column id="colEmp"><Text id="txtColEmp" text="Nhân viên / Ca" /></Column>

@@ -87,19 +87,6 @@ sap.ui.define([
             });
         },
 
-        // Sự kiện Kéo thả (Drag & Drop)
-        onAppointmentDrop: function (oEvent) {
-            var oAppointment = oEvent.getParameter("appointment");
-            var oStartDate = oEvent.getParameter("startDate");
-            var oEndDate = oEvent.getParameter("endDate");
-
-            // Tạm thời update giao diện, sau này ông có thể thêm code OData Update vào đây
-            oAppointment.setStartDate(oStartDate);
-            oAppointment.setEndDate(oEndDate);
-
-            MessageToast.show("Đã dời lịch làm việc! Cần code API để lưu xuống DB.");
-        },
-
         onNavBack: function () {
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.navTo("dashboard");

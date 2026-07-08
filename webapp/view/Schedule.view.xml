@@ -10,9 +10,7 @@
                 id="pcSchedule"
                 startDate="{calendar>/startDate}"
                 viewKey="Day"
-                rows="{calendar>/rows}"
-                enableAppointmentsDragAndDrop="true"
-                appointmentDrop=".onAppointmentDrop">
+                rows="{calendar>/rows}">
                 
                 <toolbarContent>
                     <Title text="Bảng lịch làm việc" titleStyle="H4"/>

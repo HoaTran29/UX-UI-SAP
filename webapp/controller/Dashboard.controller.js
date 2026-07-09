@@ -91,14 +91,24 @@ sap.ui.define([
             if (sDept) {
                 aFilters.push(new sap.ui.model.Filter("DeptId", sap.ui.model.FilterOperator.EQ, sDept));
             }
+            
+            // XỬ LÝ NGÀY THÁNG CHUẨN UTC ĐỂ KHÔNG BỊ LỆCH MÚI GIỜ
             if (oDate) {
-                var dStart = new Date(oDate.setHours(0, 0, 0, 0));
-                var dEnd = new Date(oDate.setHours(23, 59, 59, 999));
+                var y = oDate.getFullYear();
+                var m = oDate.getMonth();
+                var d = oDate.getDate();
+
+                // Tạo Date Object chuẩn UTC (Backend ABAP sẽ nhận đúng ngày, không bị lùi 7 tiếng)
+                var dStart = new Date(Date.UTC(y, m, d, 0, 0, 0));
+                var dEnd = new Date(Date.UTC(y, m, d, 23, 59, 59));
+                
                 aFilters.push(new sap.ui.model.Filter("WorkDate", sap.ui.model.FilterOperator.BT, dStart, dEnd));
             }
 
             var oTable = this.byId("timesheetTable");
             var oBinding = oTable.getBinding("items");
+            
+            // Áp dụng bộ lọc vào bảng
             oBinding.filter(aFilters);
         },
 

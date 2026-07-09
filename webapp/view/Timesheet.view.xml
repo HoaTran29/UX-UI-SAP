@@ -20,11 +20,12 @@
         </fb:FilterBar>
 
         <Table id="dailyTimesheetTable"
-               items="{ path: '/Timesheet', sorter: { path: 'DeptId' } }"
+               items="{ path: '/GlobalWorkingTime', sorter: { path: 'DeptId' } }"
                growing="true" growingThreshold="20" class="sapUiElevationCore3">
             <columns>
                 <Column><Text text="Mã NV / Ca" /></Column>
                 <Column><Text text="Ngày làm việc" /></Column>
+                <Column hAlign="Center"><Text text="Trạng thái" /></Column> 
                 <Column hAlign="Center"><Text text="Giờ In" /></Column>
                 <Column hAlign="Center"><Text text="Giờ Out" /></Column>
                 <Column hAlign="Center"><Text text="Giờ tiêu chuẩn" /></Column>
@@ -37,6 +38,11 @@
                     <cells>
                         <ObjectIdentifier title="{Pernr}" text="Ca: {ShiftId}"/>
                         <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                        
+                        <ObjectStatus text="{status}" 
+                                      state="{= ${status} === 'ABSENT' ? 'Error' : 'Success' }" 
+                                      icon="{= ${status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
+
                         <Text text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' }" />
                         <Text text="{ path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
                         

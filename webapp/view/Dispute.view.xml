@@ -2,10 +2,35 @@
     controllerName="com.app.zu26g13.app.controller.Dispute"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:core="sap.ui.core">
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout">
 
-<Page id="pageDispute" showHeader="false" class="sapUiContentPadding">
+    <Page id="pageDispute" showHeader="false" class="sapUiContentPadding">
         
+        <!-- KHUNG POP-UP CHỈNH SỬA GIỜ (Ẩn lúc ban đầu) -->
+        <dependents>
+            <Dialog id="approveDialog" title="Xử lý Đơn (Có thể chỉnh sửa giờ)" contentWidth="400px">
+                <content>
+                    <layout:VerticalLayout class="sapUiContentPadding" width="100%">
+                        <Label text="Giờ In (Quản lý chốt):" design="Bold"/>
+                        <TimePicker id="tpNewIn" value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
+                        
+                        <Label text="Giờ Out (Quản lý chốt):" design="Bold" class="sapUiSmallMarginTop" />
+                        <TimePicker id="tpNewOut" value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
+                        
+                        <Label text="Lý do của nhân viên:" class="sapUiSmallMarginTop" design="Bold"/>
+                        <Text text="{Reason}" class="sapUiTinyMarginTop"/>
+                    </layout:VerticalLayout>
+                </content>
+                <beginButton>
+                    <Button type="Accept" text="Lưu &amp; Duyệt" press=".onConfirmApprove" />
+                </beginButton>
+                <endButton>
+                    <Button text="Đóng" press=".onCancelDialog" />
+                </endButton>
+            </Dialog>
+        </dependents>
+
         <Title id="titleDispute" text="Phê duyệt đơn Report" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
 
         <Table id="disputeTable"
@@ -15,7 +40,6 @@
                }"
                growing="true"
                class="sapUiElevationCore3">
-            
             <columns>
                 <Column id="colEmpId"><Text id="txtEmpId" text="Mã NV" /></Column>
                 <Column id="colReqType"><Text id="txtReqType" text="Loại yêu cầu" /></Column>
@@ -24,7 +48,6 @@
                 <Column id="colReason" width="20%"><Text id="txtReason" text="Lý do" /></Column>
                 <Column id="colAction" hAlign="Center"><Text id="txtAction" text="Thao tác" /></Column>
             </columns>
-
             <items>
                 <ColumnListItem id="cliDisputeItem">
                     <cells>
@@ -35,13 +58,13 @@
                         <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
                         
                         <HBox id="hboxActions" justifyContent="Center">
-                            <Button id="btnApprove" icon="sap-icon://accept" type="Accept" text="Duyệt" class="sapUiTinyMarginEnd" press=".onApprove"/>
+                            <!-- NÚT DUYỆT BÂY GIỜ ĐỔI THÀNH NÚT MỞ POPUP XỬ LÝ -->
+                            <Button id="btnReview" icon="sap-icon://edit" type="Emphasized" text="Xử lý" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
                             <Button id="btnReject" icon="sap-icon://decline" type="Reject" text="Từ chối" press=".onReject"/>
                         </HBox>
                     </cells>
                 </ColumnListItem>
             </items>
         </Table>
-
     </Page>
 </mvc:View>

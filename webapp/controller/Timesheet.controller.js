@@ -114,12 +114,11 @@ sap.ui.define([
             var oView = this.getView();
             var oModel = oView.getModel();
             var oContext = oView.byId("editTimesheetDialog").getBindingContext();
-
-            // 1. Lấy dữ liệu thô từ Context
+            
+            // 1. Lấy dữ liệu thô từ dòng đang chọn (của WorkingTime)
             var oData = oContext.getObject();
 
-            // 2. ÉP KIỂU DỮ LIỆU CỰC KỲ KHẮT KHE CHO ODATA V2
-            // OData V2 yêu cầu trường Decimal (Edm.Decimal) phải được bọc trong DẤU NGOẶC KÉP (String)
+            // 2. Ép kiểu String cho 2 cột Decimal (Bài học đắt giá lúc nãy)
             var sOtHours = "0"; 
             if (oData.OtHours !== null && oData.OtHours !== undefined && oData.OtHours !== "") {
                 sOtHours = parseFloat(oData.OtHours).toString();
@@ -130,33 +129,59 @@ sap.ui.define([
                 sTotHours = parseFloat(oData.TotHours).toString();
             }
 
-            // 3. Tự tay đóng gói Payload chuẩn
+            // 3. Đóng gói Payload gửi sang bảng Timesheet
             var oPayload = {
                 "Pernr": oData.Pernr,
                 "WorkDate": oData.WorkDate,
-                "SeqNo": oData.SeqNo,
-                // Giữ nguyên định dạng Time gốc (thường là obj {ms: ...}) để Model tự format
-                "ActIn": oData.ActIn,
+                "SeqNo": oData.SeqNo || "1", // Nếu ABSENT thì SeqNo thường rỗng, mặc định gán là 1
+                "ActIn": oData.ActIn, 
                 "ActOut": oData.ActOut,
-                "TotHours": sTotHours, // <--- ĐIỂM SỐNG CÒN LÀ ĐÂY (Nó phải là Chuỗi!)
-                "OtHours": sOtHours // <--- ĐIỂM SỐNG CÒN LÀ ĐÂY (Nó phải là Chuỗi!)
+                "OtHours": sOtHours,
+                "TotHours": sTotHours
+                // Tùy Backend của ông có bắt buộc truyền Status hay không, nếu có thì thêm: "Status": "PRESENT"
             };
 
-            // Bắn lệnh
             oView.setBusy(true);
-            oModel.update(oContext.getPath(), oPayload, {
-                success: function () {
-                    oView.setBusy(false);
-                    MessageToast.show("Lưu thành công!");
-                    oView.byId("editTimesheetDialog").close();
-                    oModel.refresh();
-                },
-                error: function (oError) {
-                    oView.setBusy(false);
-                    console.error("Backend báo lỗi:", oError);
-                    MessageToast.show("Lỗi backend: Kiểm tra Console F12");
-                }
-            });
+
+            // 4. KIỂM TRA: NẾU VẮNG MẶT THÌ TẠO MỚI (CREATE), CÓ MẶT RỒI THÌ CẬP NHẬT (UPDATE)
+            if (oData.status === "ABSENT") {
+                // Chưa có dòng dưới DB -> Gọi lệnh POST để tạo mới
+                oModel.create("/Timesheet", oPayload, {
+                    success: function () {
+                        oView.setBusy(false);
+                        sap.m.MessageToast.show("Đã tạo mới giờ làm (Xóa ABSENT)!");
+                        oView.byId("editTimesheetDialog").close();
+                        oModel.refresh(); // Tải lại bảng WorkingTime
+                    },
+                    error: function (oError) {
+                        oView.setBusy(false);
+                        console.error("Lỗi Create:", oError);
+                        sap.m.MessageToast.show("Lỗi khi thêm giờ mới!");
+                    }
+                });
+            } else {
+                // Đã có giờ rồi -> Gọi lệnh MERGE/PUT để sửa
+                // Tạo lại đúng đường dẫn Key của bảng Timesheet
+                var sPath = oModel.createKey("/Timesheet", {
+                    SeqNo: oData.SeqNo,
+                    Pernr: oData.Pernr,
+                    WorkDate: oData.WorkDate
+                });
+
+                oModel.update(sPath, oPayload, {
+                    success: function () {
+                        oView.setBusy(false);
+                        sap.m.MessageToast.show("Cập nhật giờ làm thành công!");
+                        oView.byId("editTimesheetDialog").close();
+                        oModel.refresh(); 
+                    },
+                    error: function (oError) {
+                        oView.setBusy(false);
+                        console.error("Lỗi Update:", oError);
+                        sap.m.MessageToast.show("Lỗi khi cập nhật!");
+                    }
+                });
+            }
         },
 
         // 3. Hàm Hủy (Đóng Pop-up và reset data đã bấm nhầm)

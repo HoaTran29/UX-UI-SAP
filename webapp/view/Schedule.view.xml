@@ -1,40 +1,56 @@
-<mvc:View
+<mvc:View 
     controllerName="com.app.zu26g13.app.controller.Schedule"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
-    xmlns:unified="sap.ui.unified">
+    xmlns:unified="sap.ui.unified"
+    displayBlock="true">
 
-    <Page title="Quản Lý Phân Ca (Planning Calendar)" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
+    <Page id="page" title="Xếp Lịch &amp; OT Nhân Viên">
+
+        <headerContent>
+            <SearchField 
+                placeholder="Tìm theo Tên hoặc Mã NV..."
+                search="onSearchEmployee"
+                width="300px"
+                class="sapUiSmallMarginEnd"/>
+
+            <Button 
+                icon="sap-icon://add"
+                text="Thêm lịch OT"
+                type="Emphasized"
+                press="onOpenCreateDialog"/>
+        </headerContent>
+
         <content>
-            <PlanningCalendar
-                id="pcSchedule"
-                startDate="{calendar>/startDate}"
-                viewKey="Day"
-                rows="{calendar>/rows}">
-                
-                <toolbarContent>
-                    <Title text="Bảng lịch làm việc" titleStyle="H4"/>
-                    <ToolbarSpacer/>
-                    <Button icon="sap-icon://add" text="Thêm Ca Mới" type="Emphasized"/>
-                </toolbarContent>
+            <PlanningCalendar 
+                id="idPlanningCalendar"
+                viewKey="Week"
+                rows="{calendarModel>/employees}"
+                appointmentSelect="onAppointmentSelect">
 
                 <rows>
-                    <PlanningCalendarRow
-                        title="{calendar>EmployeeName}"
-                        text="Phòng ban: {calendar>DeptId}"
-                        icon="sap-icon://employee"
-                        appointments="{path: 'calendar>appointments', templateShareable: false}">
-                        
+                    <PlanningCalendarRow 
+                        id="idRow"
+                        title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
+                        text="Nhà máy: {calendarModel>Plant}"
+                        appointments="{calendarModel>appointments}">
+
                         <appointments>
-                            <unified:CalendarAppointment
-                                startDate="{calendar>TimeIn}"
-                                endDate="{calendar>TimeOut}"
-                                icon="sap-icon://time-entry-request"
-                                title="Ca: {calendar>ShiftId}"
-                                text="{calendar>Plant}"
-                                type="{= ${calendar>IsOt} === true ? 'Type01' : 'Type08' }" />
+                            <unified:CalendarAppointment 
+                                id="idAppt"
+                                startDate="{calendarModel>StartDate}"
+                                endDate="{calendarModel>EndDate}"
+                                title="Ca: {calendarModel>ShiftId}"
+                                text="OT: {calendarModel>OtHours}h"
+                                type="{
+                                    parts: [
+                                        {path: 'calendarModel>ShiftId'},
+                                        {path: 'calendarModel>OtHours'}
+                                    ],
+                                    formatter: '.formatAppointmentType'
+                                }"/>
                         </appointments>
-                        
+
                     </PlanningCalendarRow>
                 </rows>
             </PlanningCalendar>

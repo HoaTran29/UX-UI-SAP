@@ -1,0 +1,49 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        title="{= ${holidayModel>/isEdit} ? 'Sửa Ngày Lễ' : 'Thêm Ngày Lễ' }"
+        contentWidth="460px"
+        class="holidayDialog">
+
+        <content>
+            <VBox class="sapUiMediumMargin">
+
+                <Label text="Nhà máy" required="true"/>
+                <Input
+                    value="{holidayModel>/Plant}"
+                    placeholder="Ví dụ: 1000"
+                    maxLength="4"
+                    editable="{= !${holidayModel>/isEdit} }"/>
+
+                <Label text="Ngày lễ" required="true" class="sapUiTopMarginSmall"/>
+                <DatePicker
+                    dateValue="{holidayModel>/HolDate}"
+                    displayFormat="dd/MM/yyyy"
+                    width="100%"
+                    editable="{= !${holidayModel>/isEdit} }"/>
+
+                <Label text="Mô tả" required="true" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{holidayModel>/HolDesc}"
+                    placeholder="Ví dụ: Tết Dương lịch"/>
+
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button
+                text="Lưu"
+                type="Emphasized"
+                press="onSaveHoliday"/>
+        </beginButton>
+
+        <endButton>
+            <Button
+                text="Hủy"
+                press="onCloseDialog"/>
+        </endButton>
+    </Dialog>
+
+</core:FragmentDefinition>

@@ -106,7 +106,8 @@
         { "name": "dispute", "pattern": "dispute", "target": [ "TargetDispute" ] },
         { "name": "schedule", "pattern": "schedule", "target": [ "TargetSchedule" ] },
         { "name": "employeeConfig", "pattern": "employee-config", "target": [ "TargetEmployeeConfig" ] },
-        { "name": "timesheet", "pattern": "timesheet", "target": [ "TargetTimesheet" ] }
+        { "name": "timesheet", "pattern": "timesheet", "target": [ "TargetTimesheet" ] },
+        { "name": "shiftConfig", "pattern": "shift-config", "target": [ "TargetShiftConfig" ] }
       ],
       "targets": {
         "TargetDashboard": { "viewType": "XML", "viewId": "Dashboard", "viewName": "Dashboard" },
@@ -114,7 +115,8 @@
         "TargetDispute": { "viewType": "XML", "viewId": "Dispute", "viewName": "Dispute" },
         "TargetSchedule": { "viewType": "XML", "viewId": "Schedule", "viewName": "Schedule" },
         "TargetEmployeeConfig": { "viewType": "XML", "viewId": "EmployeeConfig", "viewName": "EmployeeConfig" },
-        "TargetTimesheet": { "viewType": "XML", "viewId": "Timesheet", "viewName": "Timesheet" }
+        "TargetTimesheet": { "viewType": "XML", "viewId": "Timesheet", "viewName": "Timesheet" },
+        "TargetShiftConfig": {"viewType": "XML", "viewId": "ShiftConfig", "viewName": "ShiftConfig"}
       }
     },
     "rootView": {

@@ -1,0 +1,78 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog
+        title="{= ${shiftModel>/isEdit} ? 'Sửa Ca Làm Việc' : 'Tạo Mới Ca Làm Việc' }"
+        contentWidth="520px"
+        class="shiftConfigDialog">
+
+        <content>
+            <VBox class="sapUiMediumMargin">
+
+                <Label text="Nhà máy" required="true"/>
+                <Input
+                    value="{shiftModel>/Plant}"
+                    placeholder="Ví dụ: 1000"
+                    maxLength="4"
+                    editable="{= !${shiftModel>/isEdit} }"/>
+
+                <Label text="Mã ca" required="true" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{shiftModel>/ShiftId}"
+                    placeholder="Ví dụ: CA_01"
+                    maxLength="20"
+                    editable="{= !${shiftModel>/isEdit} }"/>
+
+                <Label text="Giờ chuẩn" required="true" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{shiftModel>/StdHours}"
+                    type="Number"
+                    placeholder="Ví dụ: 8"/>
+
+                <Label text="Giờ bắt đầu" required="true" class="sapUiTopMarginSmall"/>
+                <TimePicker
+                    value="{shiftModel>/TimeIn}"
+                    valueFormat="HHmmss"
+                    displayFormat="HH:mm"
+                    width="100%"
+                    placeholder="Chọn giờ bắt đầu"/>
+
+                <Label text="Giờ kết thúc" required="true" class="sapUiTopMarginSmall"/>
+                <TimePicker
+                    value="{shiftModel>/TimeOut}"
+                    valueFormat="HHmmss"
+                    displayFormat="HH:mm"
+                    width="100%"
+                    placeholder="Chọn giờ kết thúc"/>
+
+                <Label text="Ca qua ngày" class="sapUiTopMarginSmall"/>
+                <Switch
+                    state="{shiftModel>/NextDayBool}"
+                    customTextOn="Có"
+                    customTextOff="Không"/>
+
+                <Label text="Số phút cho phép đi trễ" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{shiftModel>/GraceMins}"
+                    type="Number"
+                    placeholder="Ví dụ: 0"/>
+
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button
+                text="Lưu"
+                type="Emphasized"
+                press="onSaveShift"/>
+        </beginButton>
+
+        <endButton>
+            <Button
+                text="Hủy"
+                press="onCloseDialog"/>
+        </endButton>
+    </Dialog>
+
+</core:FragmentDefinition>

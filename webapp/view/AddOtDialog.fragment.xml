@@ -1,0 +1,85 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Dialog title="Xếp lịch làm việc &amp; OT" contentWidth="450px">
+        <content>
+            <VBox class="sapUiSmallMargin">
+
+                <Label text="Mã nhân viên" required="true"/>
+
+                <Input
+                  id="PernrInput"
+                  value="{dialogModel>/Pernr}"
+                  placeholder="Nhập hoặc chọn mã NV..."
+                  editable="{= !${dialogModel>/isEdit} }"
+                  showValueHelp="true"
+                  valueHelpRequest=".onPernrInputValueHelpRequest"
+                  liveChange=".onPernrInputLiveChange"/>
+
+                <Label 
+                    text="Khoảng thời gian xếp lịch"
+                    required="true"
+                    class="sapUiTopMarginSmall"
+                    visible="{= !${dialogModel>/isEdit} }"/>
+
+                <DateRangeSelection 
+                    dateValue="{dialogModel>/StartDate}"
+                    secondDateValue="{dialogModel>/EndDate}"
+                    displayFormat="dd/MM/yyyy"
+                    visible="{= !${dialogModel>/isEdit} }"/>
+
+                <Label 
+                    text="Ngày làm việc"
+                    required="true"
+                    class="sapUiTopMarginSmall"
+                    visible="{dialogModel>/isEdit}"/>
+
+                <DatePicker 
+                    dateValue="{dialogModel>/PlanDate}"
+                    displayFormat="dd/MM/yyyy"
+                    editable="false"
+                    visible="{dialogModel>/isEdit}"/>
+
+                <Label text="Nhà máy" required="true" class="sapUiTopMarginSmall"/>
+                <Input 
+                    value="{dialogModel>/Plant}"
+                    placeholder="Nhập nhà máy..."
+                    change="onPlantChange"/>
+
+                <Label text="Ca làm việc" required="true" class="sapUiTopMarginSmall"/>
+                <Select 
+                    id="shiftSelect"
+                    selectedKey="{dialogModel>/ShiftId}"
+                    items="{shiftLookupModel>/shifts}"
+                    width="100%">
+
+                    <core:Item 
+                        key="{shiftLookupModel>ShiftId}"
+                        text="{shiftLookupModel>ShiftText}" />
+                </Select>
+
+                <Label text="Số giờ OT" class="sapUiTopMarginSmall"/>
+                <Input 
+                    value="{dialogModel>/OtHours}"
+                    type="Number"
+                    placeholder="Nhập số giờ OT..." />
+
+            </VBox>
+        </content>
+
+        <beginButton>
+            <Button 
+                text="Lưu dữ liệu"
+                type="Emphasized"
+                press="onSaveOtPlan" />
+        </beginButton>
+
+        <endButton>
+            <Button 
+                text="Đóng"
+                press="onCloseAddDialog" />
+        </endButton>
+    </Dialog>
+
+</core:FragmentDefinition>

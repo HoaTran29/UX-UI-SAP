@@ -1,0 +1,114 @@
+<mvc:View
+    controllerName="com.app.zu26g13.app.controller.ShiftConfig"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    displayBlock="true">
+
+    <Page id="pageShiftConfig" showHeader="false" class="shiftConfigPage">
+        <content>
+            <VBox class="shiftConfigWrapper">
+
+                <HBox class="shiftConfigHeader" alignItems="Center" justifyContent="SpaceBetween">
+                    <VBox>
+                        <Title text="Cấu hình Ca Làm Việc" titleStyle="H2" class="shiftConfigTitle"/>
+                        <Text text="Thiết lập giờ vào, giờ ra, ca qua ngày và số phút cho phép đi trễ"/>
+                    </VBox>
+
+                    <Button
+                        icon="sap-icon://add"
+                        text="Thêm Ca Mới"
+                        type="Emphasized"
+                        press="onOpenAddDialog"/>
+                </HBox>
+
+                <Table
+                    id="shiftTable"
+                    items="{/Schedule}"
+                    growing="true"
+                    growingScrollToLoad="true"
+                    class="shiftConfigTable sapUiResponsiveMargin"
+                    width="auto">
+
+                    <columns>
+                        <Column width="110px">
+                            <Text text="Nhà máy"/>
+                        </Column>
+
+                        <Column width="130px">
+                            <Text text="Mã ca"/>
+                        </Column>
+
+                        <Column width="120px" hAlign="End">
+                            <Text text="Giờ chuẩn"/>
+                        </Column>
+
+                        <Column width="150px">
+                            <Text text="Giờ bắt đầu"/>
+                        </Column>
+
+                        <Column width="150px">
+                            <Text text="Giờ kết thúc"/>
+                        </Column>
+
+                        <Column width="130px" hAlign="Center">
+                            <Text text="Qua ngày"/>
+                        </Column>
+
+                        <Column width="130px" hAlign="End">
+                            <Text text="Grace mins"/>
+                        </Column>
+
+                        <Column width="140px" hAlign="Center">
+                            <Text text="Thao tác"/>
+                        </Column>
+                    </columns>
+
+                    <items>
+                        <ColumnListItem vAlign="Middle">
+                            <cells>
+                                <ObjectIdentifier title="{Plant}"/>
+
+                                <ObjectIdentifier
+                                    title="{ShiftId}"
+                                    text="Ca làm việc"/>
+
+                                <ObjectNumber
+                                    number="{StdHours}"
+                                    unit="h"/>
+
+                                <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}"/>
+
+                                <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}"/>
+
+                                <ObjectStatus
+                                    text="{path: 'NextDay', formatter: '.formatNextDayText'}"
+                                    state="{path: 'NextDay', formatter: '.formatNextDayState'}"/>
+
+                                <ObjectNumber
+                                    number="{GraceMins}"
+                                    unit="phút"/>
+
+                                <HBox justifyContent="Center">
+                                    <Button
+                                        icon="sap-icon://edit"
+                                        type="Transparent"
+                                        tooltip="Sửa ca"
+                                        press="onEditShift"
+                                        class="sapUiTinyMarginEnd"/>
+
+                                    <Button
+                                        icon="sap-icon://delete"
+                                        type="Reject"
+                                        tooltip="Xóa ca"
+                                        press="onDeleteShift"/>
+                                </HBox>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+            </VBox>
+        </content>
+    </Page>
+</mvc:View>

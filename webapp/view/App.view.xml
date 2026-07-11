@@ -35,6 +35,7 @@
                                 <tnt:NavigationListItem id="menuEmployeeConfigId" text="Employees" key="employeeConfig" />
                                 <tnt:NavigationListItem text="Schedules" key="schedule" />
                                 <tnt:NavigationListItem text="Holidays" key="holiday" />
+                                <tnt:NavigationListItem id="navShiftConfig" text="Shift Setup" icon="sap-icon://fob-watch" key="shiftConfig"/>
                             </tnt:NavigationListItem>
                         </tnt:NavigationList>
                     </tnt:fixedItem>

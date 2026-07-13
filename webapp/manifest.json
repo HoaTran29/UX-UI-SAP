@@ -54,12 +54,14 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "flexEnabled": false,
     "dependencies": {
       "minUI5Version": "1.108.33",
       "libs": {
         "sap.m": {},
-        "sap.ui.core": {}
+        "sap.ui.core": {},
+        "sap.tnt": {},
+        "sap.ui.unified": {}
       }
     },
     "contentDensities": {
@@ -71,15 +73,20 @@
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
           "bundleName": "com.app.zu26g13.app.i18n.i18n",
-          "supportedLocales": ["en"],
-          "fallbackLocale": "en"
+          "supportedLocales": [
+            ""
+          ],
+          "fallbackLocale": ""
         }
       },
       "": {
         "dataSource": "mainService",
         "preload": true,
         "settings": {
-          "defaultBindingMode": "TwoWay"
+          "defaultBindingMode": "TwoWay",
+          "defaultCountMode": "Inline",
+          "useBatch": false,
+          "refreshAfterChange": true
         }
       }
     },
@@ -90,7 +97,7 @@
         }
       ]
     },
-"routing": {
+    "routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",
         "viewType": "XML",
@@ -101,22 +108,92 @@
         "clearControlAggregation": false
       },
       "routes": [
-        { "name": "dashboard", "pattern": "", "target": [ "TargetDashboard" ] },
-        { "name": "holiday", "pattern": "holiday", "target": [ "TargetHoliday" ] },
-        { "name": "dispute", "pattern": "dispute", "target": [ "TargetDispute" ] },
-        { "name": "schedule", "pattern": "schedule", "target": [ "TargetSchedule" ] },
-        { "name": "employeeConfig", "pattern": "employee-config", "target": [ "TargetEmployeeConfig" ] },
-        { "name": "timesheet", "pattern": "timesheet", "target": [ "TargetTimesheet" ] },
-        { "name": "shiftConfig", "pattern": "shift-config", "target": [ "TargetShiftConfig" ] }
+        {
+          "name": "dashboard",
+          "pattern": "",
+          "target": [
+            "TargetDashboard"
+          ]
+        },
+        {
+          "name": "holiday",
+          "pattern": "holiday",
+          "target": [
+            "TargetHoliday"
+          ]
+        },
+        {
+          "name": "dispute",
+          "pattern": "dispute",
+          "target": [
+            "TargetDispute"
+          ]
+        },
+        {
+          "name": "schedule",
+          "pattern": "schedule",
+          "target": [
+            "TargetSchedule"
+          ]
+        },
+        {
+          "name": "employeeConfig",
+          "pattern": "employee-config",
+          "target": [
+            "TargetEmployeeConfig"
+          ]
+        },
+        {
+          "name": "timesheet",
+          "pattern": "timesheet",
+          "target": [
+            "TargetTimesheet"
+          ]
+        },
+        {
+          "name": "shiftConfig",
+          "pattern": "shift-config",
+          "target": [
+            "TargetShiftConfig"
+          ]
+        }
       ],
       "targets": {
-        "TargetDashboard": { "viewType": "XML", "viewId": "Dashboard", "viewName": "Dashboard" },
-        "TargetHoliday": { "viewType": "XML", "viewId": "Holiday", "viewName": "Holiday" },
-        "TargetDispute": { "viewType": "XML", "viewId": "Dispute", "viewName": "Dispute" },
-        "TargetSchedule": { "viewType": "XML", "viewId": "Schedule", "viewName": "Schedule" },
-        "TargetEmployeeConfig": { "viewType": "XML", "viewId": "EmployeeConfig", "viewName": "EmployeeConfig" },
-        "TargetTimesheet": { "viewType": "XML", "viewId": "Timesheet", "viewName": "Timesheet" },
-        "TargetShiftConfig": {"viewType": "XML", "viewId": "ShiftConfig", "viewName": "ShiftConfig"}
+        "TargetDashboard": {
+          "viewType": "XML",
+          "viewId": "Dashboard",
+          "viewName": "Dashboard"
+        },
+        "TargetHoliday": {
+          "viewType": "XML",
+          "viewId": "Holiday",
+          "viewName": "Holiday"
+        },
+        "TargetDispute": {
+          "viewType": "XML",
+          "viewId": "Dispute",
+          "viewName": "Dispute"
+        },
+        "TargetSchedule": {
+          "viewType": "XML",
+          "viewId": "Schedule",
+          "viewName": "Schedule"
+        },
+        "TargetEmployeeConfig": {
+          "viewType": "XML",
+          "viewId": "EmployeeConfig",
+          "viewName": "EmployeeConfig"
+        },
+        "TargetTimesheet": {
+          "viewType": "XML",
+          "viewId": "Timesheet",
+          "viewName": "Timesheet"
+        },
+        "TargetShiftConfig": {
+          "viewType": "XML",
+          "viewId": "ShiftConfig",
+          "viewName": "ShiftConfig"
+        }
       }
     },
     "rootView": {

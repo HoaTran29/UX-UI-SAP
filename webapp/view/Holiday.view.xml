@@ -1,6 +1,87 @@
-<mvc:View xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m">
-    <Page showHeader="false">
-        <Title text="Khu vực Cấu hình Ngày Lễ của Hoàng" titleStyle="H2" class="sapUiMediumMargin"/>
-        <Text text="Hoàng sẽ gọi API OData ZI_HR_HOLIDAY lên đây..." class="sapUiMediumMargin"/>
+<mvc:View
+    controllerName="com.app.zu26g13.app.controller.Holiday"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    displayBlock="true">
+
+    <Page id="pageHoliday" showHeader="false" class="holidayPage">
+        <content>
+            <VBox class="holidayWrapper">
+
+                <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
+                    <VBox>
+                        <Title text="Cấu hình Ngày Lễ" titleStyle="H2" class="holidayTitle"/>
+                        <Text text="Thiết lập ngày lễ theo nhà máy để hệ thống không cho xếp ca vào ngày nghỉ"/>
+                    </VBox>
+
+                    <Button
+                        icon="sap-icon://add"
+                        text="Thêm Ngày Lễ"
+                        type="Emphasized"
+                        press="onOpenAddDialog"/>
+                </HBox>
+
+                <MessageStrip
+                    text="Chủ nhật được hệ thống tự nhận diện, không cần khai báo vào bảng ngày lễ."
+                    type="Information"
+                    showIcon="true"
+                    class="sapUiSmallMarginBottom"/>
+
+                <Table
+                    id="holidayTable"
+                    items="{/Holiday}"
+                    growing="true"
+                    growingScrollToLoad="true"
+                    class="holidayTable sapUiResponsiveMargin"
+                    width="auto">
+
+                    <columns>
+                        <Column width="120px">
+                            <Text text="Nhà máy"/>
+                        </Column>
+
+                        <Column width="180px">
+                            <Text text="Ngày lễ"/>
+                        </Column>
+
+                        <Column>
+                            <Text text="Mô tả"/>
+                        </Column>
+
+                        <Column width="140px" hAlign="Center">
+                            <Text text="Thao tác"/>
+                        </Column>
+                    </columns>
+
+                    <items>
+                        <ColumnListItem vAlign="Middle">
+                            <cells>
+                                <ObjectIdentifier title="{Plant}"/>
+
+                                <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
+
+                                <Text text="{HolDesc}"/>
+
+                                <HBox justifyContent="Center">
+                                    <Button
+                                        icon="sap-icon://edit"
+                                        type="Transparent"
+                                        tooltip="Sửa ngày lễ"
+                                        press="onEditHoliday"
+                                        class="sapUiTinyMarginEnd"/>
+
+                                    <Button
+                                        icon="sap-icon://delete"
+                                        type="Reject"
+                                        tooltip="Xóa ngày lễ"
+                                        press="onDeleteHoliday"/>
+                                </HBox>
+                            </cells>
+                        </ColumnListItem>
+                    </items>
+                </Table>
+
+            </VBox>
+        </content>
     </Page>
 </mvc:View>

@@ -129,7 +129,7 @@ sap.ui.define([
                 StdHours: String(oShiftData.StdHours),
                 TimeIn: this._hhmmssToEdmTime(oShiftData.TimeIn),
                 TimeOut: this._hhmmssToEdmTime(oShiftData.TimeOut),
-                NextDay: oShiftData.NextDayBool ? "X" : "",
+                NextDay: oShiftData.NextDayBool,
                 GraceMins: iGraceMins
             };
 

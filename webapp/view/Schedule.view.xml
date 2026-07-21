@@ -9,8 +9,11 @@
 
         <headerContent>
             <SearchField 
+                id="HeaderEmployeeSearchField"
+                value="{headerSearchModel>/query}"
                 placeholder="Tìm theo Tên hoặc Mã NV..."
-                search="onSearchEmployee"
+                search=".onHeaderEmployeeSearch"
+                liveChange=".onHeaderEmployeeLiveChange"
                 width="300px"
                 class="sapUiSmallMarginEnd"/>
 

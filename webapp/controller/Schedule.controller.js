@@ -4,8 +4,9 @@ sap.ui.define([
     "sap/ui/core/Fragment",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
-], function (Controller, MessageBox, Fragment, JSONModel, Filter, FilterOperator) {
+    "sap/ui/model/FilterOperator",
+    "sap/ui/thirdparty/jquery"
+], function (Controller, MessageBox, Fragment, JSONModel, Filter, FilterOperator, jQuery) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.Schedule", {
@@ -13,10 +14,6 @@ sap.ui.define([
         onInit: function () {
             var oODataModel = this.getOwnerComponent().getModel();
 
-            /*
-             * Tắt batch để tránh lỗi:
-             * Another request in the same change set failed
-             */
             if (oODataModel && oODataModel.setUseBatch) {
                 oODataModel.setUseBatch(false);
             }
@@ -34,7 +31,13 @@ sap.ui.define([
                 allEmployees: []
             }), "employeeLookupModel");
 
+            this.getView().setModel(new JSONModel({
+                query: ""
+            }), "headerSearchModel");
+
             this.getView().setModel(new JSONModel(this._getDefaultDialogData()), "dialogModel");
+
+            this._sEmployeeValueHelpMode = "dialog";
 
             this.getView().attachEventOnce("modelContextChange", function () {
                 this._loadShiftLookup();
@@ -42,9 +45,57 @@ sap.ui.define([
             }, this);
         },
 
+        onAfterRendering: function () {
+            this._installHideMonthsOption();
+        },
+
+        onExit: function () {
+            jQuery(document).off(".hidePlanningCalendarMonths");
+        },
+
+        _installHideMonthsOption: function () {
+            if (this._bHideMonthsOptionInstalled) {
+                return;
+            }
+
+            this._bHideMonthsOptionInstalled = true;
+
+            var fnHideMonths = function () {
+                this._hideMonthsOption();
+            }.bind(this);
+
+            jQuery(document).on("click.hidePlanningCalendarMonths", function () {
+                setTimeout(fnHideMonths, 50);
+                setTimeout(fnHideMonths, 150);
+                setTimeout(fnHideMonths, 300);
+            });
+
+            jQuery(document).on("keydown.hidePlanningCalendarMonths", function () {
+                setTimeout(fnHideMonths, 50);
+                setTimeout(fnHideMonths, 150);
+                setTimeout(fnHideMonths, 300);
+            });
+
+            fnHideMonths();
+        },
+
+        _hideMonthsOption: function () {
+            jQuery(".sapMSelectListItemBase, .sapMSelectListItem").each(function () {
+                var oItem = jQuery(this);
+                var sText = oItem.text().trim();
+
+                if (sText === "Months") {
+                    oItem.hide();
+                    oItem.attr("aria-hidden", "true");
+                }
+            });
+        },
+
         _getDefaultDialogData: function () {
             return {
                 Pernr: "",
+                EmployeeName: "",
+                DeptId: "",
                 StartDate: new Date(),
                 EndDate: new Date(),
                 PlanDate: new Date(),
@@ -88,8 +139,13 @@ sap.ui.define([
                 }.bind(this),
                 error: function (oError) {
                     console.error("Lỗi đọc /ShiftLookup:", oError);
-                    MessageBox.error("Không thể lấy danh sách ca làm việc từ bảng ZTA_SCHEDULE.");
-                }
+                    MessageBox.error(this._getODataErrorMessage(
+                        oError,
+                        "Không thể lấy danh sách ca làm việc từ bảng ZTA_SCHEDULE."
+                    ), {
+                        title: "Không thể tải ca làm việc"
+                    });
+                }.bind(this)
             });
         },
 
@@ -180,17 +236,23 @@ sap.ui.define([
                     }.bind(this));
 
                     oCalendarModel.setProperty("/employees", Object.values(oGrouped));
+
+                    setTimeout(function () {
+                        this._hideMonthsOption();
+                    }.bind(this), 100);
                 }.bind(this));
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 console.error("Lỗi đọc /EmpShift:", oError);
-                MessageBox.error("Không thể lấy dữ liệu ca làm việc từ SAP Backend.");
-            });
+                MessageBox.error(this._getODataErrorMessage(
+                    oError,
+                    "Không thể lấy dữ liệu ca làm việc từ SAP Backend."
+                ), {
+                    title: "Không thể tải lịch làm việc"
+                });
+            }.bind(this));
         },
 
-        /*
-         * Search help nhân viên
-         */
         _loadEmployeeLookup: function () {
             var oODataModel = this.getView().getModel();
             var oEmployeeModel = this.getView().getModel("employeeLookupModel");
@@ -205,9 +267,25 @@ sap.ui.define([
                         var aEmployees = (oData.results || []).map(function (item) {
                             return {
                                 Pernr: item.Pernr || item.pernr || "",
-                                EmployeeName: item.EmployeeName || item.Ename || item.ename || item.Name || "Nhân viên chưa có tên",
-                                DeptId: item.DeptId || item.dept_id || ""
+                                EmployeeName: item.EmployeeName ||
+                                    item.Ename ||
+                                    item.ename ||
+                                    item.Name ||
+                                    item.name ||
+                                    "Nhân viên chưa có tên",
+                                DeptId: item.DeptId ||
+                                    item.dept_id ||
+                                    item.Department ||
+                                    item.department ||
+                                    ""
                             };
+                        });
+
+                        aEmployees.sort(function (a, b) {
+                            return String(a.EmployeeName || "").localeCompare(
+                                String(b.EmployeeName || ""),
+                                "vi"
+                            );
                         });
 
                         oEmployeeModel.setProperty("/employees", aEmployees);
@@ -224,9 +302,45 @@ sap.ui.define([
         },
 
         onPernrInputValueHelpRequest: function () {
+            this._openEmployeeValueHelp("dialog");
+        },
+
+        onHeaderEmployeeSearch: function (oEvent) {
+            var sQuery = oEvent.getParameter("query") || "";
+
+            this.getView()
+                .getModel("headerSearchModel")
+                .setProperty("/query", sQuery);
+
+            if (!sQuery.trim()) {
+                this._openEmployeeValueHelp("header");
+                return;
+            }
+
+            this._filterCalendarByEmployeeText(sQuery);
+        },
+
+        onHeaderEmployeeLiveChange: function (oEvent) {
+            var sValue = oEvent.getParameter("newValue") || "";
+
+            this.getView()
+                .getModel("headerSearchModel")
+                .setProperty("/query", sValue);
+
+            this._filterCalendarByEmployeeText(sValue);
+        },
+
+        _openEmployeeValueHelp: function (sMode) {
             var oView = this.getView();
+            var oEmployeeModel = oView.getModel("employeeLookupModel");
+            var aEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+
+            this._sEmployeeValueHelpMode = sMode || "dialog";
 
             var fnOpenDialog = function () {
+                var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+                oEmployeeModel.setProperty("/employees", aAllEmployees);
+
                 if (!this.pEmployeeDialog) {
                     this.pEmployeeDialog = Fragment.load({
                         id: oView.getId(),
@@ -243,8 +357,6 @@ sap.ui.define([
                 });
             }.bind(this);
 
-            var aEmployees = oView.getModel("employeeLookupModel").getProperty("/allEmployees") || [];
-
             if (aEmployees.length > 0) {
                 fnOpenDialog();
                 return;
@@ -255,22 +367,60 @@ sap.ui.define([
             this._loadEmployeeLookup().then(function () {
                 sap.ui.core.BusyIndicator.hide();
                 fnOpenDialog();
-            }).catch(function () {
+            }).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("Không thể lấy danh sách nhân viên.");
+                console.error("Không lấy được danh sách nhân viên:", oError);
+                MessageBox.error("Không thể lấy danh sách nhân viên.", {
+                    title: "Lỗi dữ liệu nhân viên"
+                });
             });
         },
 
+        _filterCalendarByEmployeeText: function (sValue) {
+            var oCalendar = this.byId("idPlanningCalendar");
+            var oBinding = oCalendar && oCalendar.getBinding("rows");
+
+            if (!oBinding) {
+                return;
+            }
+
+            var sQuery = String(sValue || "").trim();
+
+            if (!sQuery) {
+                oBinding.filter([]);
+                return;
+            }
+
+            oBinding.filter([
+                new Filter({
+                    filters: [
+                        new Filter("EmployeeName", FilterOperator.Contains, sQuery),
+                        new Filter("Pernr", FilterOperator.Contains, sQuery)
+                    ],
+                    and: false
+                })
+            ]);
+        },
+
         onPernrInputLiveChange: function (oEvent) {
-            var sValue = oEvent.getParameter("value");
-            this.getView().getModel("dialogModel").setProperty("/Pernr", sValue);
+            var sValue = oEvent.getParameter("value") || "";
+            var oDialogModel = this.getView().getModel("dialogModel");
+
+            oDialogModel.setProperty("/Pernr", sValue);
+            oDialogModel.setProperty("/EmployeeName", "");
+            oDialogModel.setProperty("/DeptId", "");
         },
 
         onEmployeeValueHelpSearch: function (oEvent) {
             var sValue = oEvent.getParameter("value") || "";
             var oEmployeeModel = this.getView().getModel("employeeLookupModel");
             var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-            var sSearch = sValue.toLowerCase();
+            var sSearch = sValue.toLowerCase().trim();
+
+            if (!sSearch) {
+                oEmployeeModel.setProperty("/employees", aAllEmployees);
+                return;
+            }
 
             var aFiltered = aAllEmployees.filter(function (item) {
                 var sPernr = String(item.Pernr || "").toLowerCase();
@@ -289,29 +439,110 @@ sap.ui.define([
             var oSelectedItem = oEvent.getParameter("selectedItem");
 
             if (!oSelectedItem) {
+                this._resetEmployeeValueHelpList();
                 return;
             }
 
             var oContext = oSelectedItem.getBindingContext("employeeLookupModel");
 
             if (!oContext) {
+                this._resetEmployeeValueHelpList();
                 return;
             }
 
             var oEmployee = oContext.getObject();
+
+            if (this._sEmployeeValueHelpMode === "header") {
+                var sDisplayText = (oEmployee.EmployeeName || "Nhân viên") + " (" + oEmployee.Pernr + ")";
+
+                this.getView()
+                    .getModel("headerSearchModel")
+                    .setProperty("/query", sDisplayText);
+
+                this._filterCalendarByEmployeeText(oEmployee.Pernr);
+
+                this._sEmployeeValueHelpMode = "dialog";
+                this._resetEmployeeValueHelpList();
+                return;
+            }
+
             var oDialogModel = this.getView().getModel("dialogModel");
 
             oDialogModel.setProperty("/Pernr", oEmployee.Pernr);
+            oDialogModel.setProperty("/EmployeeName", oEmployee.EmployeeName || "");
+            oDialogModel.setProperty("/DeptId", oEmployee.DeptId || "");
 
-            this._loadShiftLookup();
+            this._sEmployeeValueHelpMode = "dialog";
+            this._resetEmployeeValueHelpList();
         },
 
         onEmployeeValueHelpCancel: function () {
-            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
-            var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+            this._sEmployeeValueHelpMode = "dialog";
+            this._resetEmployeeValueHelpList();
+        },
 
+        _resetEmployeeValueHelpList: function () {
+            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+
+            if (!oEmployeeModel) {
+                return;
+            }
+
+            var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
             oEmployeeModel.setProperty("/employees", aAllEmployees);
         },
+        _ensureEmployeeExists: function (sPernr) {
+    var oEmployee = this._findEmployeeByPernr(sPernr);
+
+    if (oEmployee) {
+        return Promise.resolve(oEmployee);
+    }
+
+    return this._loadEmployeeLookup().then(function () {
+        var oFound = this._findEmployeeByPernr(sPernr);
+
+        if (oFound) {
+            return oFound;
+        }
+
+        return Promise.reject({
+            message: "Mã nhân viên " + sPernr + " không tồn tại trong danh sách nhân viên. Vui lòng chọn bằng search help."
+        });
+    }.bind(this));
+},
+
+_findEmployeeByPernr: function (sPernr) {
+    var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+
+    if (!oEmployeeModel) {
+        return null;
+    }
+
+    var aEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+    var sInput = this._normalizePernrForCompare(sPernr);
+
+    for (var i = 0; i < aEmployees.length; i++) {
+        var sCurrent = this._normalizePernrForCompare(aEmployees[i].Pernr);
+
+        if (sCurrent === sInput) {
+            return aEmployees[i];
+        }
+    }
+
+    return null;
+},
+
+_normalizePernrForCompare: function (vPernr) {
+    var sPernr = String(vPernr || "").trim();
+
+    if (!sPernr) {
+        return "";
+    }
+
+    sPernr = sPernr.replace(/^0+/, "");
+
+    return sPernr || "0";
+},
 
         formatAppointmentType: function (sShiftId, sOtHours) {
             var fOt = parseFloat(sOtHours || "0");
@@ -380,13 +611,14 @@ sap.ui.define([
 
             oModel.setData({
                 Pernr: oData.Pernr,
+                EmployeeName: oData.EmployeeName || "",
+                DeptId: "",
                 PlanDate: oData.PlanDate,
                 StartDate: oData.PlanDate,
                 EndDate: oData.PlanDate,
                 ShiftId: oData.ShiftId,
                 OldShiftId: oData.OldShiftId || oData.ShiftId,
                 OtHours: oData.OtHours || "0.00",
-                Plant: oData.Plant || "1000",
                 IsOt: parseFloat(oData.OtHours || "0") > 0,
                 isEdit: true,
                 sEmpShiftPath: oData.sEmpShiftPath,
@@ -398,25 +630,8 @@ sap.ui.define([
         },
 
         onSearchEmployee: function (oEvent) {
-            var sQuery = oEvent.getParameter("query");
-            var aFilters = [];
-
-            if (sQuery && sQuery.length > 0) {
-                aFilters.push(new Filter({
-                    filters: [
-                        new Filter("EmployeeName", FilterOperator.Contains, sQuery),
-                        new Filter("Pernr", FilterOperator.Contains, sQuery)
-                    ],
-                    and: false
-                }));
-            }
-
-            var oCalendar = this.byId("idPlanningCalendar");
-            var oBinding = oCalendar.getBinding("rows");
-
-            if (oBinding) {
-                oBinding.filter(aFilters);
-            }
+            var sQuery = oEvent.getParameter("query") || "";
+            this._filterCalendarByEmployeeText(sQuery);
         },
 
         _openDialog: function () {
@@ -446,32 +661,56 @@ sap.ui.define([
             }
         },
 
-        onSaveOtPlan: function () {
-            var oView = this.getView();
-            var oODataModel = oView.getModel();
-            var oDialogData = oView.getModel("dialogModel").getData();
+       onSaveOtPlan: function () {
+    var oView = this.getView();
+    var oODataModel = oView.getModel();
+    var oDialogModel = oView.getModel("dialogModel");
+    var oDialogData = oDialogModel.getData();
 
-            if (!oDialogData.Pernr || !oDialogData.ShiftId) {
-                MessageBox.error("Vui lòng nhập Mã nhân viên và Ca làm việc.");
-                return;
+    if (!oDialogData.Pernr || !oDialogData.ShiftId) {
+        MessageBox.error("Vui lòng chọn Mã nhân viên và Ca làm việc.", {
+            title: "Thiếu dữ liệu"
+        });
+        return;
+    }
+
+    var fOtHours = parseFloat(oDialogData.OtHours || "0");
+
+    if (isNaN(fOtHours) || fOtHours < 0) {
+        MessageBox.error("Số giờ OT không hợp lệ.", {
+            title: "Dữ liệu OT không hợp lệ"
+        });
+        return;
+    }
+
+    sap.ui.core.BusyIndicator.show(0);
+
+    this._ensureEmployeeExists(oDialogData.Pernr).then(function (oEmployee) {
+        oDialogData.Pernr = oEmployee.Pernr;
+
+        oDialogModel.setProperty("/Pernr", oEmployee.Pernr);
+        oDialogModel.setProperty("/EmployeeName", oEmployee.EmployeeName || "");
+        oDialogModel.setProperty("/DeptId", oEmployee.DeptId || "");
+
+        if (oDialogData.isEdit) {
+            this._saveEditSchedule(oODataModel, oDialogData, fOtHours);
+            return;
+        }
+
+        this._saveCreateSchedule(oODataModel, oDialogData, fOtHours);
+    }.bind(this)).catch(function (oError) {
+        sap.ui.core.BusyIndicator.hide();
+
+        MessageBox.error(
+            oError && oError.message
+                ? oError.message
+                : "Mã nhân viên không tồn tại. Vui lòng chọn nhân viên từ search help.",
+            {
+                title: "Nhân viên không hợp lệ"
             }
-
-            var fOtHours = parseFloat(oDialogData.OtHours || "0");
-
-            if (isNaN(fOtHours)) {
-                MessageBox.error("Số giờ OT không hợp lệ.");
-                return;
-            }
-
-            sap.ui.core.BusyIndicator.show(0);
-
-            if (oDialogData.isEdit) {
-                this._saveEditSchedule(oODataModel, oDialogData, fOtHours);
-                return;
-            }
-
-            this._saveCreateSchedule(oODataModel, oDialogData, fOtHours);
-        },
+        );
+    });
+},
 
         _saveCreateSchedule: function (oODataModel, oDialogData, fOtHours) {
             var dStart = this._normalizeDate(oDialogData.StartDate);
@@ -479,7 +718,9 @@ sap.ui.define([
 
             if (dStart > dEnd) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("Khoảng thời gian chọn không hợp lệ!");
+                MessageBox.error("Khoảng thời gian chọn không hợp lệ!", {
+                    title: "Sai khoảng ngày"
+                });
                 return;
             }
 
@@ -495,7 +736,7 @@ sap.ui.define([
 
             aDates.forEach(function (dWorkDate) {
                 pChain = pChain.then(function () {
-                    return this._replaceEmpShiftForDate(
+                    return this._createEmpShiftIfNotExists(
                         oODataModel,
                         oDialogData.Pernr,
                         dWorkDate,
@@ -512,24 +753,25 @@ sap.ui.define([
                         });
                     }
 
-                    return this._removeOtPlanByKey(
-                        oODataModel,
-                        oDialogData.Pernr,
-                        dWorkDate
-                    );
+                    return Promise.resolve();
                 }.bind(this));
             }.bind(this));
 
             pChain.then(function () {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.success("Đã lưu ca vào ZTA_EMP_SHIFT thành công!");
+                MessageBox.success("Đã thêm ca làm việc thành công!");
                 this.onCloseAddDialog();
                 this._loadCalendarData();
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 console.error("Lỗi lưu dữ liệu:", oError);
-                MessageBox.error("Có lỗi khi lưu ca làm việc hoặc OT.");
-            });
+                MessageBox.error(
+                    this._getODataErrorMessage(oError, "Có lỗi khi lưu ca làm việc hoặc OT."),
+                    {
+                        title: "Không thể lưu lịch OT"
+                    }
+                );
+            }.bind(this));
         },
 
         _saveEditSchedule: function (oODataModel, oDialogData, fOtHours) {
@@ -546,20 +788,28 @@ sap.ui.define([
                     oDialogData.OldShiftId
                 );
 
-                pSaveShift = this._deletePath(oODataModel, sOldPath, true).then(function () {
-                    return this._createEmpShift(oODataModel, {
-                        Pernr: oDialogData.Pernr,
-                        WorkDate: dODataWorkDate,
-                        ShiftId: oDialogData.ShiftId
-                    });
-                }.bind(this));
-            } else {
-                pSaveShift = this._replaceEmpShiftForDate(
+                pSaveShift = this._empShiftExists(
                     oODataModel,
                     oDialogData.Pernr,
                     dWorkDate,
                     oDialogData.ShiftId
-                );
+                ).then(function (bExists) {
+                    if (bExists) {
+                        return Promise.reject({
+                            message: "Ca " + oDialogData.ShiftId + " đã tồn tại trong ngày này. Không thể sửa trùng ca."
+                        });
+                    }
+
+                    return this._deletePath(oODataModel, sOldPath, true).then(function () {
+                        return this._createEmpShift(oODataModel, {
+                            Pernr: oDialogData.Pernr,
+                            WorkDate: dODataWorkDate,
+                            ShiftId: oDialogData.ShiftId
+                        });
+                    }.bind(this));
+                }.bind(this));
+            } else {
+                pSaveShift = Promise.resolve();
             }
 
             var pSaveOt;
@@ -590,15 +840,21 @@ sap.ui.define([
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 console.error("Lỗi cập nhật:", oError);
-                MessageBox.error("Có lỗi khi cập nhật ca làm việc.");
-            });
+                MessageBox.error(
+                    this._getODataErrorMessage(oError, "Có lỗi khi cập nhật ca làm việc."),
+                    {
+                        title: "Không thể cập nhật lịch OT"
+                    }
+                );
+            }.bind(this));
         },
 
         _deleteSchedule: function (oData) {
             var oODataModel = this.getView().getModel();
-            var aPromises = [];
 
             sap.ui.core.BusyIndicator.show(0);
+
+            var pDeleteShift = Promise.resolve();
 
             if (oData.Pernr && oData.WorkDate && oData.ShiftId) {
                 var sEmpShiftPath = this._buildEmpShiftPath(
@@ -608,50 +864,80 @@ sap.ui.define([
                     oData.ShiftId
                 );
 
-                aPromises.push(this._deletePath(oODataModel, sEmpShiftPath, false));
+                pDeleteShift = this._deletePath(oODataModel, sEmpShiftPath, false);
             }
 
-            if (oData.sOtPath) {
-                aPromises.push(this._deletePath(oODataModel, oData.sOtPath, true));
-            }
+            pDeleteShift.then(function () {
+                return this._readEmpShiftByDate(
+                    oODataModel,
+                    oData.Pernr,
+                    oData.WorkDate
+                );
+            }.bind(this)).then(function (aRemaining) {
+                if (aRemaining.length === 0 && oData.sOtPath) {
+                    return this._deletePath(oODataModel, oData.sOtPath, true);
+                }
 
-            Promise.all(aPromises).then(function () {
+                return Promise.resolve();
+            }.bind(this)).then(function () {
                 sap.ui.core.BusyIndicator.hide();
                 MessageBox.success("Đã xóa ca làm việc thành công!");
                 this._loadCalendarData();
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 console.error("Lỗi xóa:", oError);
-                MessageBox.error("Có lỗi xảy ra khi xóa ca làm việc.");
+                MessageBox.error(
+                    this._getODataErrorMessage(oError, "Có lỗi xảy ra khi xóa ca làm việc."),
+                    {
+                        title: "Không thể xóa lịch làm việc"
+                    }
+                );
+            }.bind(this));
+        },
+
+        _empShiftExists: function (oODataModel, sPernr, dWorkDate, sShiftId) {
+            var sPath = this._buildEmpShiftPath(
+                oODataModel,
+                sPernr,
+                dWorkDate,
+                sShiftId
+            );
+
+            return new Promise(function (resolve) {
+                oODataModel.read(sPath, {
+                    success: function () {
+                        resolve(true);
+                    },
+                    error: function (oError) {
+                        var iStatusCode = Number(oError && oError.statusCode);
+
+                        if (iStatusCode === 404) {
+                            resolve(false);
+                            return;
+                        }
+
+                        resolve(false);
+                    }
+                });
             });
         },
 
-        _replaceEmpShiftForDate: function (oODataModel, sPernr, dWorkDate, sShiftId) {
-            var dODataWorkDate = this._toODataDate(dWorkDate);
+        _createEmpShiftIfNotExists: function (oODataModel, sPernr, dWorkDate, sShiftId) {
+            return this._empShiftExists(
+                oODataModel,
+                sPernr,
+                dWorkDate,
+                sShiftId
+            ).then(function (bExists) {
+                if (bExists) {
+                    return Promise.resolve();
+                }
 
-            return this._readEmpShiftByDate(oODataModel, sPernr, dWorkDate).then(function (aExisting) {
-                var pDeleteChain = Promise.resolve();
-
-                aExisting.forEach(function (item) {
-                    pDeleteChain = pDeleteChain.then(function () {
-                        var sPath = this._buildEmpShiftPath(
-                            oODataModel,
-                            item.Pernr,
-                            this._toDate(item.WorkDate),
-                            item.ShiftId
-                        );
-
-                        return this._deletePath(oODataModel, sPath, true);
-                    }.bind(this));
-                }.bind(this));
-
-                return pDeleteChain.then(function () {
-                    return this._createEmpShift(oODataModel, {
-                        Pernr: sPernr,
-                        WorkDate: dODataWorkDate,
-                        ShiftId: sShiftId
-                    });
-                }.bind(this));
+                return this._createEmpShift(oODataModel, {
+                    Pernr: sPernr,
+                    WorkDate: this._toODataDate(dWorkDate),
+                    ShiftId: sShiftId
+                });
             }.bind(this));
         },
 
@@ -748,12 +1034,10 @@ sap.ui.define([
                         var iStatusCode = Number(oError && oError.statusCode);
 
                         if (bIgnoreNotFound && iStatusCode === 404) {
-                            console.warn("Record không tồn tại, bỏ qua:", sPath);
                             resolve();
                             return;
                         }
 
-                        console.error("Xóa lỗi:", sPath, oError);
                         reject(oError);
                     }
                 });
@@ -880,6 +1164,71 @@ sap.ui.define([
 
             return String(oTime.hours).padStart(2, "0") + ":" +
                 String(oTime.minutes).padStart(2, "0");
+        },
+
+        _getODataErrorMessage: function (oError, sDefaultMessage) {
+            var aMessages = [];
+
+            var fnAddMessage = function (sMessage) {
+                if (!sMessage) {
+                    return;
+                }
+
+                sMessage = String(sMessage).trim();
+
+                if (!sMessage) {
+                    return;
+                }
+
+                if (sMessage === "HTTP request failed") {
+                    return;
+                }
+
+                if (aMessages.indexOf(sMessage) === -1) {
+                    aMessages.push(sMessage);
+                }
+            };
+
+            try {
+                if (oError && oError.responseText) {
+                    var oBody = JSON.parse(oError.responseText);
+
+                    if (
+                        oBody &&
+                        oBody.error &&
+                        oBody.error.innererror &&
+                        oBody.error.innererror.errordetails &&
+                        oBody.error.innererror.errordetails.length
+                    ) {
+                        oBody.error.innererror.errordetails.forEach(function (item) {
+                            fnAddMessage(item.message);
+                        });
+                    }
+
+                    if (
+                        oBody &&
+                        oBody.error &&
+                        oBody.error.message &&
+                        oBody.error.message.value
+                    ) {
+                        fnAddMessage(oBody.error.message.value);
+                    }
+                }
+            } catch (e) {
+                if (oError && oError.responseText) {
+                    fnAddMessage(oError.responseText);
+                }
+            }
+
+            if (oError && oError.message) {
+                fnAddMessage(oError.message);
+            }
+
+            if (aMessages.length > 0) {
+                return aMessages.join("\n");
+            }
+
+            return sDefaultMessage || "Có lỗi xảy ra khi xử lý dữ liệu.";
         }
 
     });

@@ -188,6 +188,67 @@ sap.ui.define([
         onCancelTimesheet: function () {
             this.getView().getModel().resetChanges(); // Trả lại số cũ nếu người dùng đổi ý không lưu
             this.byId("editTimesheetDialog").close();
+        },
+        // 1. Xử lý Trạng thái: Không đánh vắng cho ngày tương lai
+        formatStatusText: function (sStatus, dWorkDate) {
+            if (!dWorkDate) {
+                return sStatus;
+            }
+
+            var oToday = new Date();
+            oToday.setHours(0, 0, 0, 0); // Đưa về mốc 0h để so sánh ngày
+            var oWork = new Date(dWorkDate);
+            oWork.setHours(0, 0, 0, 0);
+
+            // Nếu ngày làm việc lớn hơn hôm nay -> Chưa tới ngày làm
+            if (oWork > oToday) {
+                return "NOT YET";
+            }
+
+            // Nếu là quá khứ hoặc hôm nay thì giữ nguyên Data gốc
+            return sStatus; 
+        },
+
+        // 2. Xử lý Màu sắc Trạng thái
+        formatStatusState: function (sStatus, dWorkDate) {
+            if (!dWorkDate) {
+                return "None";
+            }
+
+            var oToday = new Date();
+            oToday.setHours(0, 0, 0, 0);
+            var oWork = new Date(dWorkDate);
+            oWork.setHours(0, 0, 0, 0);
+
+            // Ngày tương lai cho màu xám trung tính (None) hoặc xanh dương (Information)
+            if (oWork > oToday) {
+                return "None"; 
+            }
+
+            // Tô màu theo logic cũ
+            if (sStatus === "ABSENT") return "Error";          // Đỏ
+            if (sStatus === "COMPLETED") return "Success";     // Xanh lá
+            if (sStatus === "COMPENSATE") return "Warning";    // Vàng
+            return "None";
+        },
+
+        // 3. Xử lý hiển thị Giờ 00:00 thay vì 12:00:00 AM
+        formatTimeDisplay: function (oTime, dWorkDate) {
+            var oToday = new Date();
+            oToday.setHours(0, 0, 0, 0);
+            var oWork = new Date(dWorkDate);
+            oWork.setHours(0, 0, 0, 0);
+
+            // Nếu là ngày tương lai, hoặc time rỗng/bằng 0 -> Trả về 00:00
+            if (oWork > oToday || !oTime || oTime.ms === 0 || oTime === "PT00H00M00S") {
+                return "00:00";
+            }
+
+            // Nếu có giờ làm thực tế, format ra chuẩn 24h (HH:mm:ss)
+            var timeFormat = sap.ui.core.format.DateFormat.getTimeInstance({ pattern: "HH:mm:ss", UTC: true });
+            return timeFormat.format(new Date(oTime.ms));
         }
     });
+
+    
 });

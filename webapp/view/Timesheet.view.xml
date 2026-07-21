@@ -38,18 +38,14 @@
                     <cells>
                         <ObjectIdentifier title="{Pernr}" text="Ca: {ShiftId}"/>
                         <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                        
-                        <ObjectStatus text="{status}" 
-                                      state="{= ${status} === 'ABSENT' ? 'Error' : 'Success' }" 
-                                      icon="{= ${status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
-
-                        <Text text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' }" />
-                        <Text text="{ path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
-                        
+                        <ObjectStatus text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
+                                      state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" 
+                                      icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
+                        <Text text="{ parts: ['ActIn', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
+                        <Text text="{ parts: ['ActOut', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
                         <ObjectNumber number="{WorkHours}" />
                         <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
                         <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
-                        
                         <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="Chỉnh sửa giờ &amp; Xác nhận OT"/>
                     </cells>
                 </ColumnListItem>

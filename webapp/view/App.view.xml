@@ -22,10 +22,10 @@
                 <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
                     <tnt:item>
                         <tnt:NavigationList>
-                            <tnt:NavigationListItem text="Dashboard" icon="sap-icon://barchart" key="dashboard" />
-                            <tnt:NavigationListItem text="Timesheet (In/Out)" icon="sap-icon://history" key="timesheet" />
-                            <tnt:NavigationListItem text="Monthly Report" icon="sap-icon://assessment" key="monthlyReport" />
-                            <tnt:NavigationListItem text="Dispute Reports" icon="sap-icon://user-edit" key="dispute" />
+                            <tnt:NavigationListItem text="Dashboard" key="dashboard" />
+                            <tnt:NavigationListItem text="Timesheet (In/Out)" key="timesheet" />
+                            <tnt:NavigationListItem text="Monthly Report" key="monthlyReport" />
+                            <tnt:NavigationListItem text="Dispute Reports" key="dispute" />
                             
                         </tnt:NavigationList>
                     </tnt:item>

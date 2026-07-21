@@ -11,13 +11,15 @@
         <VBox class="sapUiSmallMargin">
             
             <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
-                <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" frameType="OneByOne">
+                <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" 
+                frameType="OneByOne" press=".onNavToEmployee">
                     <TileContent id="tcEmp">
                         <NumericContent id="ncEmp" value="{kpi>/totalEmp}" icon="sap-icon://employee" valueColor="Good"/>
                     </TileContent>
                 </GenericTile>
 
-                <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Giờ OT tuần này" subheader="Toàn nhà máy (Giờ)" frameType="OneByOne">
+                <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng OT trong tháng" subheader="Toàn công ty (Giờ)" 
+                frameType="OneByOne" press=".onNavToMonthlyReport">
                     <TileContent id="tcOT">
                         <NumericContent id="ncOT" value="{kpi>/totalOT}" icon="sap-icon://history" valueColor="Critical"/>
                     </TileContent>
@@ -48,9 +50,9 @@
                     <fb:FilterGroupItem groupName="G1" name="Dept" label="Phòng ban" visibleInFilterBar="true">
                         <fb:control>
                             <ComboBox id="fltDept" placeholder="Chọn phòng ban">
-                                <core:Item key="IT_01" text="Phòng IT" />
-                                <core:Item key="HR_02" text="Phòng Nhân Sự" />
-                                <core:Item key="PROD" text="Khối Sản Xuất" />
+                                <core:Item key="IT_01" text="Công nghệ thông tin" />
+                                <core:Item key="HR_02" text="Nhân sự" />
+                                <core:Item key="SALES_03" text="Kinh doanh" />
                             </ComboBox>
                         </fb:control>
                     </fb:FilterGroupItem>
@@ -84,6 +86,7 @@
                 
                 <columns>
                     <Column id="colEmp"><Text id="txtColEmp" text="Nhân viên / Ca" /></Column>
+                    <Column id="colDept"><Text id="txtColDept" text="Phòng ban" /></Column>
                     <Column id="colDate"><Text id="txtColDate" text="Ngày làm việc" /></Column>
                     <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="Giờ In / Out" /></Column>
                     <Column id="colStdHours" hAlign="Center"><Text id="txtColStdHours" text="Giờ tiêu chuẩn" /></Column>
@@ -95,10 +98,9 @@
                 <items>
                     <ColumnListItem id="cliTimesheet" type="Active">
                         <cells>
-                            <ObjectIdentifier id="objIdEmp" 
-                                title="{Pernr}" 
-                                text="Ca: {ShiftId}"/>
-                            
+                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Ca: {ShiftId}"/>
+
+                            <Text id="txtCellDept" text="{ path: 'DeptId', formatter: '.formatDeptName' }" />
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
                             
                             <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />

@@ -216,7 +216,9 @@
 
         { "name": "timesheet", "pattern": "timesheet", "target": [ "TargetTimesheet" ] },
 
-        { "name": "shiftConfig", "pattern": "shift-config", "target": [ "TargetShiftConfig" ] }
+        { "name": "shiftConfig", "pattern": "shift-config", "target": [ "TargetShiftConfig" ] },
+
+        { "name": "monthlyReport", "pattern": "monthly-report", "target": [ "TargetMonthlyReport" ] }
 
       ],
 
@@ -234,7 +236,9 @@
 
         "TargetTimesheet": { "viewType": "XML", "viewId": "Timesheet", "viewName": "Timesheet" },
 
-        "TargetShiftConfig": {"viewType": "XML", "viewId": "ShiftConfig", "viewName": "ShiftConfig"}
+        "TargetShiftConfig": {"viewType": "XML", "viewId": "ShiftConfig", "viewName": "ShiftConfig"},
+
+        "TargetMonthlyReport": { "viewType": "XML", "viewId": "MonthlyReport", "viewName": "MonthlyReport" }
 
       }
 

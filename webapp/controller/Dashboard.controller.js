@@ -21,8 +21,13 @@ sap.ui.define([
         },
 
         _loadRealKpiData: function () {
-            var oModel = this.getOwnerComponent().getModel(); 
+            var oModel = this.getOwnerComponent().getModel();
             var oKpiModel = this.getView().getModel("kpi");
+            var oDate = new Date();
+            var y = oDate.getFullYear();
+            var m = oDate.getMonth();
+            var dStart = new Date(Date.UTC(y, m, 1, 0, 0, 0));
+            var dEnd = new Date(Date.UTC(y, m + 1, 0, 23, 59, 59));
 
             oModel.read("/Employee", {
                 success: function (oData) {
@@ -38,6 +43,8 @@ sap.ui.define([
             });
 
             oModel.read("/Timesheet", {
+                // Lọc đúng dữ liệu của tháng này
+                filters: [new sap.ui.model.Filter("WorkDate", sap.ui.model.FilterOperator.BT, dStart, dEnd)],
                 success: function (oData) {
                     var totalOT = 0;
                     oData.results.forEach(function (item) {
@@ -45,19 +52,19 @@ sap.ui.define([
                             totalOT += parseFloat(item.OtHours);
                         }
                     });
-                    oKpiModel.setProperty("/totalOT", totalOT.toFixed(1)); 
+                    oKpiModel.setProperty("/totalOT", totalOT.toFixed(1));
                 }
             });
         },
 
         onGoToDispute: function () {
             var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo("dispute"); 
+            oRouter.navTo("dispute");
         },
 
         onNavToSchedule: function () {
             var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.navTo("schedule"); 
+            oRouter.navTo("schedule");
         },
 
         onFilterStatus: function (oEvent) {
@@ -68,7 +75,7 @@ sap.ui.define([
                 if (sKey === "ERROR") {
                     var oFilterLate = new Filter("Status", FilterOperator.EQ, "LATE_IN");
                     var oFilterEarly = new Filter("Status", FilterOperator.EQ, "EARLY_OUT");
-                    aFilters.push(new Filter({filters: [oFilterLate, oFilterEarly], and: false}));
+                    aFilters.push(new Filter({ filters: [oFilterLate, oFilterEarly], and: false }));
                 } else {
                     aFilters.push(new Filter("Status", FilterOperator.EQ, sKey));
                 }
@@ -91,7 +98,7 @@ sap.ui.define([
             if (sDept) {
                 aFilters.push(new sap.ui.model.Filter("DeptId", sap.ui.model.FilterOperator.EQ, sDept));
             }
-            
+
             // XỬ LÝ NGÀY THÁNG CHUẨN UTC ĐỂ KHÔNG BỊ LỆCH MÚI GIỜ
             if (oDate) {
                 var y = oDate.getFullYear();
@@ -101,13 +108,13 @@ sap.ui.define([
                 // Tạo Date Object chuẩn UTC (Backend ABAP sẽ nhận đúng ngày, không bị lùi 7 tiếng)
                 var dStart = new Date(Date.UTC(y, m, d, 0, 0, 0));
                 var dEnd = new Date(Date.UTC(y, m, d, 23, 59, 59));
-                
+
                 aFilters.push(new sap.ui.model.Filter("WorkDate", sap.ui.model.FilterOperator.BT, dStart, dEnd));
             }
 
             var oTable = this.byId("timesheetTable");
             var oBinding = oTable.getBinding("items");
-            
+
             // Áp dụng bộ lọc vào bảng
             oBinding.filter(aFilters);
         },
@@ -116,12 +123,19 @@ sap.ui.define([
             this.byId("fltEmp").setValue("");
             this.byId("fltDept").setSelectedKey("");
             this.byId("fltDate").setValue("");
-            
             this.byId("timesheetTable").getBinding("items").filter([]);
         },
+        onNavToEmployee: function () {
+            // Nhảy sang trang Employees (dựa theo tên route trong manifest)
+            this.getOwnerComponent().getRouter().navTo("employeeConfig");
+        },
 
+        onNavToMonthlyReport: function () {
+            // Nhảy sang trang Báo cáo tháng
+            this.getOwnerComponent().getRouter().navTo("monthlyReport");
+        },
         // MỚI: Cấu hình các cột để xuất file Excel (Dùng chuỗi String trực tiếp)
-        _createColumnConfig: function() {
+        _createColumnConfig: function () {
             return [
                 { label: 'Mã Nhân Viên', property: 'Pernr', type: 'String' },
                 { label: 'Phòng ban', property: 'DeptId', type: 'String' },
@@ -137,25 +151,55 @@ sap.ui.define([
         },
 
         // MỚI: Xử lý chức năng xuất Excel
+        // MỚI: Xử lý chức năng xuất Excel
         onExportExcel: function () {
             var oTable = this.byId("timesheetTable");
             var oRowBinding = oTable.getBinding("items");
             var aCols = this._createColumnConfig();
 
+            // 1. Phải khởi tạo Date và cắt ngày tháng năm ra trước
+            var oDate = new Date();
+            var sDay = String(oDate.getDate()).padStart(2, '0');
+            var sMonth = String(oDate.getMonth() + 1).padStart(2, '0');
+            var sYear = oDate.getFullYear();
+
+            // Ráp lại thành tên file (VD: DashboardReport_21072026.xlsx)
+            var sFileName = "DashboardReport_" + sDay + sMonth + sYear + ".xlsx";
+
+            // 2. Cấu hình xuất Excel
             var oSettings = {
                 workbook: {
                     columns: aCols,
-                    hierarchyLevel: 'Level'
+                    context: {
+                        sheetName: 'Data' // <--- Đặt tên sheet ngắn gọn vào đây
+                    }
                 },
                 dataSource: oRowBinding,
-                fileName: 'BaoCaoGioLam_Thang.xlsx',
+                fileName: sFileName, // <--- Gọi cái biến sFileName vừa tạo ở trên
                 worker: false
             };
 
+            // 3. Thực thi tải file
             var oSheet = new Spreadsheet(oSettings);
-            oSheet.build().finally(function() {
+            oSheet.build().finally(function () {
                 oSheet.destroy();
             });
+        },
+        // --- HÀM FORMATTER DỊCH MÃ PHÒNG BAN SANG TÊN ---
+        formatDeptName: function (sDeptCode) {
+            if (!sDeptCode) {
+                return "";
+            }
+            switch (sDeptCode) {
+                case "IT_01": 
+                    return "Công nghệ thông tin";
+                case "HR_02": 
+                    return "Nhân sự";
+                case "SALES_03": 
+                    return "Kinh doanh";
+                default: 
+                    return sDeptCode; 
+            }
         }
     });
 });

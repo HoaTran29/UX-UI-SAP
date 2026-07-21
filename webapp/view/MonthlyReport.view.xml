@@ -1,0 +1,64 @@
+<mvc:View controllerName="com.app.zu26g13.app.controller.MonthlyReport"
+    xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:fb="sap.ui.comp.filterbar">
+    
+    <Page title="Báo Cáo Tổng Hợp Theo Tháng" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
+        
+        <!-- Thanh bộ lọc -->
+        <fb:FilterBar id="monthlyFilter" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
+            <fb:filterGroupItems>
+                <fb:FilterGroupItem groupName="G1" name="Month" label="Chọn Tháng/Năm" visibleInFilterBar="true">
+                    <fb:control>
+                        <!-- Dùng DatePicker nhưng chỉ cho chọn Tháng và Năm -->
+                        <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="MM/yyyy" />
+                    </fb:control>
+                </fb:FilterGroupItem>
+                
+                <fb:FilterGroupItem groupName="G1" name="Pernr" label="Mã Nhân Viên" visibleInFilterBar="true">
+                    <fb:control>
+                        <Input id="fltEmp" placeholder="Nhập mã NV..." />
+                    </fb:control>
+                </fb:FilterGroupItem>
+            </fb:filterGroupItems>
+        </fb:FilterBar>
+
+        <!-- Bảng hiển thị (Tích hợp sẵn PHÂN TRANG growing=true) -->
+        <!-- Lưu ý: Cần có một EntitySet tên là /MonthlyTimesheet dưới Backend -->
+        <Table id="monthlyTable"
+               items="{ path: '/MonthlyTimesheet', sorter: { path: 'Pernr' } }"
+               growing="true" 
+               growingThreshold="20" 
+               class="sapUiElevationCore3">
+            
+            <headerToolbar>
+                <OverflowToolbar>
+                    <Title text="Chi tiết tổng công" level="H4"/>
+                    <ToolbarSpacer/>
+                    <Button icon="sap-icon://excel-attachment" text="Xuất Excel" type="Success" press=".onExportExcel"/>
+                </OverflowToolbar>
+            </headerToolbar>
+
+            <columns>
+                <Column><Text text="Mã NV" /></Column>
+                <Column><Text text="Tháng/Năm" /></Column>
+                <Column hAlign="Center"><Text text="Tổng Giờ Chuẩn" /></Column>
+                <Column hAlign="Center"><Text text="Tổng Giờ Thực Tế" /></Column>
+                <Column hAlign="Center"><Text text="Tổng Giờ OT" /></Column>
+            </columns>
+            
+            <items>
+                <ColumnListItem type="Active">
+                    <cells>
+                        <ObjectIdentifier title="{Pernr}" text="{EmployeeName}"/>
+                        <!-- Giả sử Backend trả về chuỗi MonthYear kiểu '07/2026' -->
+                        <Text text="{MonthYear}" />
+                        
+                        <ObjectNumber number="{TotalStdHours}" unit="Giờ" />
+                        <ObjectNumber number="{TotalActHours}" unit="Giờ" 
+                                      state="{= parseFloat(${TotalActHours}) >= parseFloat(${TotalStdHours}) ? 'Success' : 'Error' }"/>
+                        <ObjectNumber number="{TotalOtHours}" unit="Giờ" state="Warning"/>
+                    </cells>
+                </ColumnListItem>
+            </items>
+        </Table>
+    </Page>
+</mvc:View>

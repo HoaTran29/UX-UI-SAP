@@ -10,7 +10,16 @@ sap.ui.define([
     return Controller.extend("com.app.zu26g13.app.controller.ShiftConfig", {
 
         onInit: function () {
-            this.getView().setModel(new JSONModel(this._getDefaultShiftData()), "shiftModel");
+            var oODataModel = this.getOwnerComponent().getModel();
+
+            if (oODataModel && oODataModel.setUseBatch) {
+                oODataModel.setUseBatch(false);
+            }
+
+            this.getView().setModel(
+                new JSONModel(this._getDefaultShiftData()),
+                "shiftModel"
+            );
         },
 
         _getDefaultShiftData: function () {
@@ -29,7 +38,9 @@ sap.ui.define([
 
         onOpenAddDialog: function () {
             var oShiftModel = this.getView().getModel("shiftModel");
+
             oShiftModel.setData(this._getDefaultShiftData());
+
             this._openDialog();
         },
 
@@ -42,19 +53,19 @@ sap.ui.define([
             }
 
             var oData = oContext.getObject();
-            var sPath = oContext.getPath();
+            var oODataModel = this.getView().getModel();
             var oShiftModel = this.getView().getModel("shiftModel");
 
             oShiftModel.setData({
-                ShiftId: oData.ShiftId,
-                StdHours: oData.StdHours ? String(oData.StdHours) : "8",
+                ShiftId: oData.ShiftId || "",
+                StdHours: oData.StdHours !== undefined && oData.StdHours !== null ? String(oData.StdHours) : "8",
                 TimeIn: this._edmTimeToHHmmss(oData.TimeIn),
                 TimeOut: this._edmTimeToHHmmss(oData.TimeOut),
-                NextDay: oData.NextDay || "",
-                NextDayBool: oData.NextDay === "X",
+                NextDay: oData.NextDay,
+                NextDayBool: this._isNextDayTrue(oData.NextDay),
                 GraceMins: oData.GraceMins !== undefined && oData.GraceMins !== null ? String(oData.GraceMins) : "0",
                 isEdit: true,
-                sPath: sPath
+                sPath: this._buildSchedulePath(oODataModel, oData.ShiftId)
             });
 
             this._openDialog();
@@ -89,64 +100,130 @@ sap.ui.define([
 
         onSaveShift: function () {
             var oODataModel = this.getView().getModel();
-            var oShiftData = this.getView().getModel("shiftModel").getData();
+            var oShiftModel = this.getView().getModel("shiftModel");
+            var oShiftData = oShiftModel.getData();
 
-            if (!oShiftData.ShiftId) {
-                MessageBox.error("Vui lòng nhập và Mã ca.");
+            var sShiftId = String(oShiftData.ShiftId || "").trim().toUpperCase();
+            var sStdHours = String(oShiftData.StdHours || "").trim();
+            var sGraceMins = String(oShiftData.GraceMins || "0").trim();
+
+            if (!sShiftId) {
+                MessageBox.error("Mã ca không được để trống hoặc chỉ nhập dấu cách.", {
+                    title: "Thiếu mã ca"
+                });
                 return;
             }
 
-            if (!oShiftData.StdHours) {
-                MessageBox.error("Vui lòng nhập Giờ chuẩn.");
+            if (!/^[A-Z0-9_]+$/.test(sShiftId)) {
+                MessageBox.error("Mã ca chỉ được dùng chữ, số và dấu gạch dưới. Ví dụ: CA_01, CA_02, TEST.", {
+                    title: "Mã ca không hợp lệ"
+                });
                 return;
             }
 
-            if (!oShiftData.TimeIn || !oShiftData.TimeOut) {
-                MessageBox.error("Vui lòng chọn Giờ bắt đầu và Giờ kết thúc.");
+            if (sShiftId.length > 20) {
+                MessageBox.error("Mã ca không được vượt quá 20 ký tự.", {
+                    title: "Mã ca quá dài"
+                });
                 return;
             }
 
-            var iGraceMins = parseInt(oShiftData.GraceMins || "0", 10);
-
-            if (isNaN(iGraceMins) || iGraceMins < 0) {
-                MessageBox.error("Grace mins không hợp lệ.");
+            if (!sStdHours) {
+                MessageBox.error("Giờ chuẩn không được để trống.", {
+                    title: "Thiếu giờ chuẩn"
+                });
                 return;
             }
+
+            var iStdHours = parseInt(sStdHours, 10);
+
+            if (isNaN(iStdHours) || iStdHours <= 0 || iStdHours > 24) {
+                MessageBox.error("Giờ chuẩn phải là số nguyên từ 1 đến 24.", {
+                    title: "Giờ chuẩn không hợp lệ"
+                });
+                return;
+            }
+
+            var sTimeIn = this._normalizeHHmmss(oShiftData.TimeIn);
+            var sTimeOut = this._normalizeHHmmss(oShiftData.TimeOut);
+
+            if (!sTimeIn || !sTimeOut) {
+                MessageBox.error("Vui lòng chọn Giờ bắt đầu và Giờ kết thúc hợp lệ.", {
+                    title: "Thiếu giờ làm việc"
+                });
+                return;
+            }
+
+            if (!this._isValidHHmmss(sTimeIn) || !this._isValidHHmmss(sTimeOut)) {
+                MessageBox.error("Giờ bắt đầu hoặc giờ kết thúc không hợp lệ.", {
+                    title: "Giờ làm việc không hợp lệ"
+                });
+                return;
+            }
+
+            if (!oShiftData.NextDayBool && this._timeToSeconds(sTimeOut) <= this._timeToSeconds(sTimeIn)) {
+                MessageBox.error("Giờ kết thúc phải lớn hơn giờ bắt đầu. Nếu ca qua ngày, hãy bật Ca qua ngày.", {
+                    title: "Sai khung giờ"
+                });
+                return;
+            }
+
+            var iGraceMins = parseInt(sGraceMins || "0", 10);
+
+            if (isNaN(iGraceMins) || iGraceMins < 0 || iGraceMins > 1440) {
+                MessageBox.error("Grace mins phải là số nguyên từ 0 đến 1440.", {
+                    title: "Grace mins không hợp lệ"
+                });
+                return;
+            }
+
+            oShiftModel.setProperty("/ShiftId", sShiftId);
+            oShiftModel.setProperty("/StdHours", String(iStdHours));
+            oShiftModel.setProperty("/TimeIn", sTimeIn);
+            oShiftModel.setProperty("/TimeOut", sTimeOut);
+            oShiftModel.setProperty("/GraceMins", String(iGraceMins));
+
+            var vNextDayPayload = this._toNextDayPayload(oShiftData.NextDayBool);
 
             var oPayloadCreate = {
-                ShiftId: oShiftData.ShiftId,
-                StdHours: String(oShiftData.StdHours),
-                TimeIn: this._hhmmssToEdmTime(oShiftData.TimeIn),
-                TimeOut: this._hhmmssToEdmTime(oShiftData.TimeOut),
-                NextDay: oShiftData.NextDayBool ? "X" : "",
+                ShiftId: sShiftId,
+                StdHours: String(iStdHours),
+                TimeIn: this._hhmmssToEdmTime(sTimeIn),
+                TimeOut: this._hhmmssToEdmTime(sTimeOut),
+                NextDay: vNextDayPayload,
                 GraceMins: iGraceMins
             };
 
             var oPayloadUpdate = {
-                StdHours: String(oShiftData.StdHours),
-                TimeIn: this._hhmmssToEdmTime(oShiftData.TimeIn),
-                TimeOut: this._hhmmssToEdmTime(oShiftData.TimeOut),
-                NextDay: oShiftData.NextDayBool,
+                StdHours: String(iStdHours),
+                TimeIn: this._hhmmssToEdmTime(sTimeIn),
+                TimeOut: this._hhmmssToEdmTime(sTimeOut),
+                NextDay: vNextDayPayload,
                 GraceMins: iGraceMins
             };
 
             sap.ui.core.BusyIndicator.show(0);
 
             if (oShiftData.isEdit) {
-                oODataModel.update(oShiftData.sPath, oPayloadUpdate, {
-                    success: function () {
-                        sap.ui.core.BusyIndicator.hide();
-                        MessageToast.show("Cập nhật ca làm việc thành công.");
-                        this.onCloseDialog();
-                        oODataModel.refresh(true);
-                    }.bind(this),
-                    error: function (oError) {
-                        sap.ui.core.BusyIndicator.hide();
-                        console.error("Lỗi cập nhật /Schedule:", oError);
-                        MessageBox.error("Lỗi cập nhật ca làm việc.");
-                    }
-                });
-            } else {
+                this._updateShift(oODataModel, oShiftData, oPayloadUpdate);
+                return;
+            }
+
+            this._createShift(oODataModel, oPayloadCreate);
+        },
+
+        _createShift: function (oODataModel, oPayloadCreate) {
+            this._scheduleExists(oODataModel, oPayloadCreate.ShiftId).then(function (bExists) {
+                if (bExists) {
+                    sap.ui.core.BusyIndicator.hide();
+
+                    MessageBox.error("Mã ca " + oPayloadCreate.ShiftId + " đã tồn tại. Vui lòng dùng mã ca khác.", {
+                        title: "Trùng mã ca"
+                    });
+
+                    return;
+                }
+
                 oODataModel.create("/Schedule", oPayloadCreate, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
@@ -157,10 +234,51 @@ sap.ui.define([
                     error: function (oError) {
                         sap.ui.core.BusyIndicator.hide();
                         console.error("Lỗi tạo mới /Schedule:", oError);
-                        MessageBox.error("Lỗi tạo mới ca. Kiểm tra mã ca có bị trùng không.");
-                    }
+                        MessageBox.error(
+                            this._getODataErrorMessage(
+                                oError,
+                                "Lỗi tạo mới ca. Kiểm tra mã ca có bị trùng hoặc dữ liệu không hợp lệ."
+                            ),
+                            {
+                                title: "Không thể tạo ca làm việc"
+                            }
+                        );
+                    }.bind(this)
                 });
-            }
+            }.bind(this)).catch(function (oError) {
+                sap.ui.core.BusyIndicator.hide();
+                console.error("Lỗi kiểm tra ca tồn tại:", oError);
+
+                MessageBox.error(
+                    this._getODataErrorMessage(oError, "Không thể kiểm tra mã ca trước khi tạo."),
+                    {
+                        title: "Không thể kiểm tra mã ca"
+                    }
+                );
+            }.bind(this));
+        },
+
+        _updateShift: function (oODataModel, oShiftData, oPayloadUpdate) {
+            var sPath = oShiftData.sPath || this._buildSchedulePath(oODataModel, oShiftData.ShiftId);
+
+            oODataModel.update(sPath, oPayloadUpdate, {
+                success: function () {
+                    sap.ui.core.BusyIndicator.hide();
+                    MessageToast.show("Cập nhật ca làm việc thành công.");
+                    this.onCloseDialog();
+                    oODataModel.refresh(true);
+                }.bind(this),
+                error: function (oError) {
+                    sap.ui.core.BusyIndicator.hide();
+                    console.error("Lỗi cập nhật /Schedule:", oError);
+                    MessageBox.error(
+                        this._getODataErrorMessage(oError, "Lỗi cập nhật ca làm việc."),
+                        {
+                            title: "Không thể cập nhật ca làm việc"
+                        }
+                    );
+                }.bind(this)
+            });
         },
 
         onDeleteShift: function (oEvent) {
@@ -171,9 +289,9 @@ sap.ui.define([
                 return;
             }
 
-            var sPath = oContext.getPath();
             var oData = oContext.getObject();
             var oODataModel = this.getView().getModel();
+            var sPath = this._buildSchedulePath(oODataModel, oData.ShiftId);
 
             MessageBox.confirm(
                 "Bạn có chắc muốn xóa ca " + oData.ShiftId + " không?",
@@ -197,10 +315,15 @@ sap.ui.define([
                             error: function (oError) {
                                 sap.ui.core.BusyIndicator.hide();
                                 console.error("Lỗi xóa /Schedule:", oError);
-                                MessageBox.error("Lỗi khi xóa ca làm việc.");
-                            }
+                                MessageBox.error(
+                                    this._getODataErrorMessage(oError, "Lỗi khi xóa ca làm việc."),
+                                    {
+                                        title: "Không thể xóa ca làm việc"
+                                    }
+                                );
+                            }.bind(this)
                         });
-                    }
+                    }.bind(this)
                 }
             );
         },
@@ -209,12 +332,142 @@ sap.ui.define([
             return this._formatTimeFromHHmmss(this._edmTimeToHHmmss(vTime));
         },
 
-        formatNextDayText: function (sNextDay) {
-            return sNextDay === "X" ? "Có" : "Không";
+        formatNextDayText: function (vNextDay) {
+            return this._isNextDayTrue(vNextDay) ? "Có" : "Không";
         },
 
-        formatNextDayState: function (sNextDay) {
-            return sNextDay === "X" ? "Warning" : "Success";
+        formatNextDayState: function (vNextDay) {
+            return this._isNextDayTrue(vNextDay) ? "Warning" : "Success";
+        },
+
+        _scheduleExists: function (oODataModel, sShiftId) {
+            var sPath = this._buildSchedulePath(oODataModel, sShiftId);
+
+            return new Promise(function (resolve, reject) {
+                oODataModel.read(sPath, {
+                    success: function () {
+                        resolve(true);
+                    },
+                    error: function (oError) {
+                        var iStatusCode = Number(oError && oError.statusCode);
+
+                        if (iStatusCode === 404) {
+                            resolve(false);
+                            return;
+                        }
+
+                        reject(oError);
+                    }
+                });
+            });
+        },
+
+        _buildSchedulePath: function (oODataModel, sShiftId) {
+            return oODataModel.createKey("/Schedule", {
+                ShiftId: String(sShiftId || "").trim().toUpperCase()
+            });
+        },
+
+        _toNextDayPayload: function (bNextDay) {
+            if (this._isSchedulePropertyBoolean("NextDay")) {
+                return !!bNextDay;
+            }
+
+            return bNextDay ? "X" : "";
+        },
+
+        _isNextDayTrue: function (vNextDay) {
+            if (vNextDay === true) {
+                return true;
+            }
+
+            var sValue = String(vNextDay || "").trim().toUpperCase();
+
+            return sValue === "X" || sValue === "TRUE" || sValue === "1";
+        },
+
+        _isSchedulePropertyBoolean: function (sPropertyName) {
+            var oProperty = this._getScheduleProperty(sPropertyName);
+
+            if (!oProperty) {
+                return false;
+            }
+
+            return oProperty.type === "Edm.Boolean";
+        },
+
+        _getScheduleProperty: function (sPropertyName) {
+            var oEntityType = this._getScheduleEntityType();
+
+            if (!oEntityType || !oEntityType.property) {
+                return null;
+            }
+
+            for (var i = 0; i < oEntityType.property.length; i++) {
+                if (oEntityType.property[i].name === sPropertyName) {
+                    return oEntityType.property[i];
+                }
+            }
+
+            return null;
+        },
+
+        _getScheduleEntityType: function () {
+            var oODataModel = this.getView().getModel();
+
+            if (!oODataModel || !oODataModel.getServiceMetadata) {
+                return null;
+            }
+
+            var oMetadata = oODataModel.getServiceMetadata();
+
+            if (!oMetadata || !oMetadata.dataServices || !oMetadata.dataServices.schema) {
+                return null;
+            }
+
+            var aSchemas = oMetadata.dataServices.schema;
+            var sEntityTypeFullName = "";
+
+            aSchemas.some(function (oSchema) {
+                var oContainer = oSchema.entityContainer && oSchema.entityContainer[0];
+
+                if (!oContainer || !oContainer.entitySet) {
+                    return false;
+                }
+
+                return oContainer.entitySet.some(function (oEntitySet) {
+                    if (oEntitySet.name === "Schedule") {
+                        sEntityTypeFullName = oEntitySet.entityType;
+                        return true;
+                    }
+
+                    return false;
+                });
+            });
+
+            if (!sEntityTypeFullName) {
+                return null;
+            }
+
+            var aParts = sEntityTypeFullName.split(".");
+            var sTypeName = aParts.pop();
+            var sNamespace = aParts.join(".");
+
+            for (var i = 0; i < aSchemas.length; i++) {
+                var oSchema = aSchemas[i];
+
+                if (oSchema.namespace !== sNamespace || !oSchema.entityType) {
+                    continue;
+                }
+
+                for (var j = 0; j < oSchema.entityType.length; j++) {
+                    if (oSchema.entityType[j].name === sTypeName) {
+                        return oSchema.entityType[j];
+                    }
+                }
+            }
+
+            return null;
         },
 
         _edmTimeToHHmmss: function (vTime) {
@@ -233,7 +486,7 @@ sap.ui.define([
                     String(iSeconds).padStart(2, "0");
             }
 
-            var sTime = String(vTime);
+            var sTime = String(vTime).trim();
 
             var aMatch = sTime.match(/^PT(\d+)H(\d+)M(\d+)S$/);
             if (aMatch) {
@@ -249,23 +502,18 @@ sap.ui.define([
                     "00";
             }
 
-            if (/^\d{6}$/.test(sTime)) {
-                return sTime;
-            }
+            var sNormalized = this._normalizeHHmmss(sTime);
 
-            if (/^\d{2}:\d{2}:\d{2}$/.test(sTime)) {
-                return sTime.substring(0, 2) + sTime.substring(3, 5) + sTime.substring(6, 8);
-            }
-
-            if (/^\d{2}:\d{2}$/.test(sTime)) {
-                return sTime.substring(0, 2) + sTime.substring(3, 5) + "00";
-            }
-
-            return "000000";
+            return sNormalized || "000000";
         },
 
         _hhmmssToEdmTime: function (sHHMMSS) {
             var sTime = this._normalizeHHmmss(sHHMMSS);
+
+            if (!sTime) {
+                sTime = "000000";
+            }
+
             var iHours = parseInt(sTime.substring(0, 2), 10);
             var iMinutes = parseInt(sTime.substring(2, 4), 10);
             var iSeconds = parseInt(sTime.substring(4, 6), 10);
@@ -278,10 +526,10 @@ sap.ui.define([
 
         _normalizeHHmmss: function (sTime) {
             if (!sTime) {
-                return "000000";
+                return "";
             }
 
-            sTime = String(sTime);
+            sTime = String(sTime).trim();
 
             if (/^\d{6}$/.test(sTime)) {
                 return sTime;
@@ -295,13 +543,103 @@ sap.ui.define([
                 return sTime.substring(0, 2) + sTime.substring(3, 5) + "00";
             }
 
-            return "000000";
+            return "";
+        },
+
+        _isValidHHmmss: function (sHHMMSS) {
+            if (!/^\d{6}$/.test(sHHMMSS)) {
+                return false;
+            }
+
+            var iHours = parseInt(sHHMMSS.substring(0, 2), 10);
+            var iMinutes = parseInt(sHHMMSS.substring(2, 4), 10);
+            var iSeconds = parseInt(sHHMMSS.substring(4, 6), 10);
+
+            return iHours >= 0 && iHours <= 23 &&
+                iMinutes >= 0 && iMinutes <= 59 &&
+                iSeconds >= 0 && iSeconds <= 59;
+        },
+
+        _timeToSeconds: function (sHHMMSS) {
+            return parseInt(sHHMMSS.substring(0, 2), 10) * 3600 +
+                parseInt(sHHMMSS.substring(2, 4), 10) * 60 +
+                parseInt(sHHMMSS.substring(4, 6), 10);
         },
 
         _formatTimeFromHHmmss: function (sHHMMSS) {
             var sTime = this._normalizeHHmmss(sHHMMSS);
 
+            if (!sTime) {
+                return "";
+            }
+
             return sTime.substring(0, 2) + ":" + sTime.substring(2, 4);
+        },
+
+        _getODataErrorMessage: function (oError, sDefaultMessage) {
+            var aMessages = [];
+
+            var fnAddMessage = function (sMessage) {
+                if (!sMessage) {
+                    return;
+                }
+
+                sMessage = String(sMessage).trim();
+
+                if (!sMessage) {
+                    return;
+                }
+
+                if (sMessage === "HTTP request failed") {
+                    return;
+                }
+
+                if (aMessages.indexOf(sMessage) === -1) {
+                    aMessages.push(sMessage);
+                }
+            };
+
+            try {
+                if (oError && oError.responseText) {
+                    var oBody = JSON.parse(oError.responseText);
+
+                    if (
+                        oBody &&
+                        oBody.error &&
+                        oBody.error.innererror &&
+                        oBody.error.innererror.errordetails &&
+                        oBody.error.innererror.errordetails.length
+                    ) {
+                        oBody.error.innererror.errordetails.forEach(function (item) {
+                            fnAddMessage(item.message);
+                        });
+                    }
+
+                    if (
+                        oBody &&
+                        oBody.error &&
+                        oBody.error.message &&
+                        oBody.error.message.value
+                    ) {
+                        fnAddMessage(oBody.error.message.value);
+                    }
+                }
+            } catch (e) {
+                if (oError && oError.responseText) {
+                    fnAddMessage(oError.responseText);
+                }
+            }
+
+            if (oError && oError.message) {
+                fnAddMessage(oError.message);
+            }
+
+            if (aMessages.length > 0) {
+                return aMessages.join("\n");
+            }
+
+            return sDefaultMessage || "Có lỗi xảy ra.";
         }
+
     });
 });

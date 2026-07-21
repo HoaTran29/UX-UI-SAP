@@ -2,20 +2,29 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
-    <Dialog title="Xếp lịch làm việc &amp; OT" contentWidth="450px">
+    <Dialog 
+        id="addOtDialog"
+        title="Xếp lịch làm việc &amp; OT"
+        contentWidth="450px">
+
         <content>
             <VBox class="sapUiSmallMargin">
 
                 <Label text="Mã nhân viên" required="true"/>
 
                 <Input
-                  id="PernrInput"
-                  value="{dialogModel>/Pernr}"
-                  placeholder="Nhập hoặc chọn mã NV..."
-                  editable="{= !${dialogModel>/isEdit} }"
-                  showValueHelp="true"
-                  valueHelpRequest=".onPernrInputValueHelpRequest"
-                  liveChange=".onPernrInputLiveChange"/>
+    id="PernrInput"
+    value="{dialogModel>/Pernr}"
+    placeholder="Chọn nhân viên từ search help..."
+    editable="{= !${dialogModel>/isEdit} }"
+    showValueHelp="true"
+    valueHelpRequest=".onPernrInputValueHelpRequest"
+    liveChange=".onPernrInputLiveChange"/>
+
+                <Text
+                    text="{= ${dialogModel>/EmployeeName} ? ${dialogModel>/EmployeeName} + ' - ' + ${dialogModel>/DeptId} : '' }"
+                    visible="{= !!${dialogModel>/EmployeeName} }"
+                    class="sapUiTinyMarginTop"/>
 
                 <Label 
                     text="Khoảng thời gian xếp lịch"
@@ -42,6 +51,7 @@
                     visible="{dialogModel>/isEdit}"/>
 
                 <Label text="Ca làm việc" required="true" class="sapUiTopMarginSmall"/>
+
                 <Select 
                     id="shiftSelect"
                     selectedKey="{dialogModel>/ShiftId}"
@@ -54,6 +64,7 @@
                 </Select>
 
                 <Label text="Số giờ OT" class="sapUiTopMarginSmall"/>
+
                 <Input 
                     value="{dialogModel>/OtHours}"
                     type="Number"
@@ -74,6 +85,7 @@
                 text="Đóng"
                 press="onCloseAddDialog" />
         </endButton>
+
     </Dialog>
 
 </core:FragmentDefinition>

@@ -10,16 +10,6 @@ sap.ui.define([
     return Controller.extend("com.app.zu26g13.app.controller.Holiday", {
 
         onInit: function () {
-            var oODataModel = this.getOwnerComponent().getModel();
-
-            /*
-             * Tắt batch để thao tác create/update/delete ngày lễ chạy rõ ràng,
-             * tránh lỗi gom request khi backend trả lỗi.
-             */
-            if (oODataModel && oODataModel.setUseBatch) {
-                oODataModel.setUseBatch(false);
-            }
-
             this.getView().setModel(new JSONModel(this._getDefaultHolidayData()), "holidayModel");
         },
 
@@ -35,7 +25,6 @@ sap.ui.define([
 
         onOpenAddDialog: function () {
             var oHolidayModel = this.getView().getModel("holidayModel");
-
             oHolidayModel.setData(this._getDefaultHolidayData());
 
             this._openDialog();
@@ -50,17 +39,14 @@ sap.ui.define([
             }
 
             var oData = oContext.getObject();
+            var sPath = oContext.getPath();
 
             this.getView().getModel("holidayModel").setData({
                 Plant: oData.Plant,
                 HolDate: this._toDate(oData.HolDate),
                 HolDesc: oData.HolDesc || "",
                 isEdit: true,
-                sPath: this._buildHolidayPath(
-                    this.getView().getModel(),
-                    oData.Plant,
-                    oData.HolDate
-                )
+                sPath: sPath
             });
 
             this._openDialog();
@@ -102,16 +88,9 @@ sap.ui.define([
                 return;
             }
 
-            /*
-             * Quan trọng:
-             * Không dùng new Date().setHours(0,0,0,0) để gửi OData.
-             * Dùng Date.UTC để tránh bị lùi 1 ngày do timezone Việt Nam GMT+7.
-             */
-            var dHolDateOData = this._toODataDate(oHolidayData.HolDate);
-
             var oPayloadCreate = {
                 Plant: oHolidayData.Plant,
-                HolDate: dHolDateOData,
+                HolDate: this._normalizeDate(oHolidayData.HolDate),
                 HolDesc: oHolidayData.HolDesc
             };
 
@@ -122,13 +101,7 @@ sap.ui.define([
             sap.ui.core.BusyIndicator.show(0);
 
             if (oHolidayData.isEdit) {
-                var sUpdatePath = oHolidayData.sPath || this._buildHolidayPath(
-                    oODataModel,
-                    oHolidayData.Plant,
-                    oHolidayData.HolDate
-                );
-
-                oODataModel.update(sUpdatePath, oPayloadUpdate, {
+                oODataModel.update(oHolidayData.sPath, oPayloadUpdate, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
                         MessageToast.show("Cập nhật ngày lễ thành công.");
@@ -166,14 +139,9 @@ sap.ui.define([
                 return;
             }
 
+            var sPath = oContext.getPath();
             var oData = oContext.getObject();
             var oODataModel = this.getView().getModel();
-
-            var sPath = this._buildHolidayPath(
-                oODataModel,
-                oData.Plant,
-                oData.HolDate
-            );
 
             MessageBox.confirm(
                 "Bạn có chắc muốn xóa ngày lễ " + this.formatDate(oData.HolDate) + " không?",
@@ -212,17 +180,9 @@ sap.ui.define([
                 return "";
             }
 
-            return dDate.toLocaleDateString("vi-VN", {
-                timeZone: "Asia/Ho_Chi_Minh",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-            });
+            return dDate.toLocaleDateString("vi-VN");
         },
 
-        /*
-         * Convert mọi kiểu ngày từ OData / DatePicker về Date object.
-         */
         _toDate: function (vDate) {
             if (!vDate) {
                 return null;
@@ -240,36 +200,10 @@ sap.ui.define([
             return new Date(vDate);
         },
 
-        /*
-         * Convert ngày để gửi lên OData.
-         * Chống lỗi Việt Nam GMT+7 bị lùi về ngày hôm trước.
-         */
-        _toODataDate: function (vDate) {
-            var dDate = this._toDate(vDate);
-
-            if (!dDate) {
-                return null;
-            }
-
-            return new Date(Date.UTC(
-                dDate.getFullYear(),
-                dDate.getMonth(),
-                dDate.getDate(),
-                0,
-                0,
-                0
-            ));
-        },
-
-        /*
-         * Tạo key chuẩn cho entity Holiday.
-         * Dùng UTC date để không bị createKey sai ngày.
-         */
-        _buildHolidayPath: function (oODataModel, sPlant, vHolDate) {
-            return oODataModel.createKey("/Holiday", {
-                Plant: sPlant,
-                HolDate: this._toODataDate(vHolDate)
-            });
+        _normalizeDate: function (vDate) {
+            var dDate = new Date(vDate);
+            dDate.setHours(0, 0, 0, 0);
+            return dDate;
         }
 
     });

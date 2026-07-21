@@ -33,7 +33,7 @@
                         id="idRow"
                         title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
                         text="Nhà máy: {calendarModel>Plant}"
-                        appointments="{calendarModel>appointments}">
+                        appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
 
                         <appointments>
                             <unified:CalendarAppointment 

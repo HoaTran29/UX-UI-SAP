@@ -1,206 +1,257 @@
 {
+
   "_version": "1.48.0",
+
   "sap.app": {
+
     "id": "com.app.zu26g13.app",
+
     "type": "application",
+
     "i18n": "i18n/i18n.properties",
+
     "applicationVersion": {
+
       "version": "0.0.1"
+
     },
+
     "title": "{{appTitle}}",
+
     "description": "{{appDescription}}",
+
     "resources": "resources.json",
+
     "sourceTemplate": {
+
       "id": "@sap/generator-fiori:basic",
+
       "version": "1.27.0",
+
       "toolsId": "4b3dda8b-3259-4813-9619-dd209ab568a4"
+
     },
+
     "dataSources": {
+
       "ZUI_HR_PORTAL_BND_VAN": {
+
         "uri": "/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZUI_HR_PORTAL_BND_VAN',Version='0001')/$value/",
+
         "type": "ODataAnnotation",
+
         "settings": {
+
           "localUri": "localService/mainService/ZUI_HR_PORTAL_BND_VAN.xml"
+
         }
+
       },
+
       "mainService": {
+
         "uri": "/sap/opu/odata/sap/ZUI_HR_PORTAL_BND/",
+
         "type": "OData",
+
         "settings": {
+
           "annotations": [
+
             "ZUI_HR_PORTAL_BND_VAN"
+
           ],
+
           "localUri": "localService/mainService/metadata.xml",
+
           "odataVersion": "2.0"
+
         }
+
       }
+
     }
+
   },
+
   "sap.ui": {
+
     "technology": "UI5",
+
     "fullWidth": true,
+
     "icons": {
+
       "icon": "",
+
       "favIcon": "",
+
       "phone": "",
+
       "phone@2": "",
+
       "tablet": "",
+
       "tablet@2": ""
+
     },
+
     "deviceTypes": {
+
       "desktop": true,
+
       "tablet": true,
+
       "phone": true
+
     }
+
   },
+
   "sap.ui5": {
-    "flexEnabled": false,
+
+    "flexEnabled": true,
+
     "dependencies": {
+
       "minUI5Version": "1.108.33",
+
       "libs": {
+
         "sap.m": {},
-        "sap.ui.core": {},
-        "sap.tnt": {},
-        "sap.ui.unified": {}
+
+        "sap.ui.core": {}
+
       }
+
     },
+
     "contentDensities": {
+
       "compact": true,
+
       "cozy": true
+
     },
+
     "models": {
+
       "i18n": {
+
         "type": "sap.ui.model.resource.ResourceModel",
+
         "settings": {
+
           "bundleName": "com.app.zu26g13.app.i18n.i18n",
-          "supportedLocales": [
-            ""
-          ],
-          "fallbackLocale": ""
+
+          "supportedLocales": ["en"],
+
+          "fallbackLocale": "en"
+
         }
+
       },
+
       "": {
+
         "dataSource": "mainService",
+
         "preload": true,
+
         "settings": {
-          "defaultBindingMode": "TwoWay",
-          "defaultCountMode": "Inline",
-          "useBatch": false,
-          "refreshAfterChange": true
+
+          "defaultBindingMode": "TwoWay"
+
         }
+
       }
+
     },
+
     "resources": {
+
       "css": [
+
         {
+
           "uri": "css/style.css"
+
         }
+
       ]
+
     },
-    "routing": {
+
+"routing": {
+
       "config": {
+
         "routerClass": "sap.m.routing.Router",
+
         "viewType": "XML",
+
         "async": true,
+
         "viewPath": "com.app.zu26g13.app.view",
+
         "controlAggregation": "pages",
+
         "controlId": "pageContainer",
+
         "clearControlAggregation": false
+
       },
+
       "routes": [
-        {
-          "name": "dashboard",
-          "pattern": "",
-          "target": [
-            "TargetDashboard"
-          ]
-        },
-        {
-          "name": "holiday",
-          "pattern": "holiday",
-          "target": [
-            "TargetHoliday"
-          ]
-        },
-        {
-          "name": "dispute",
-          "pattern": "dispute",
-          "target": [
-            "TargetDispute"
-          ]
-        },
-        {
-          "name": "schedule",
-          "pattern": "schedule",
-          "target": [
-            "TargetSchedule"
-          ]
-        },
-        {
-          "name": "employeeConfig",
-          "pattern": "employee-config",
-          "target": [
-            "TargetEmployeeConfig"
-          ]
-        },
-        {
-          "name": "timesheet",
-          "pattern": "timesheet",
-          "target": [
-            "TargetTimesheet"
-          ]
-        },
-        {
-          "name": "shiftConfig",
-          "pattern": "shift-config",
-          "target": [
-            "TargetShiftConfig"
-          ]
-        }
+
+        { "name": "dashboard", "pattern": "", "target": [ "TargetDashboard" ] },
+
+        { "name": "holiday", "pattern": "holiday", "target": [ "TargetHoliday" ] },
+
+        { "name": "dispute", "pattern": "dispute", "target": [ "TargetDispute" ] },
+
+        { "name": "schedule", "pattern": "schedule", "target": [ "TargetSchedule" ] },
+
+        { "name": "employeeConfig", "pattern": "employee-config", "target": [ "TargetEmployeeConfig" ] },
+
+        { "name": "timesheet", "pattern": "timesheet", "target": [ "TargetTimesheet" ] },
+
+        { "name": "shiftConfig", "pattern": "shift-config", "target": [ "TargetShiftConfig" ] }
+
       ],
+
       "targets": {
-        "TargetDashboard": {
-          "viewType": "XML",
-          "viewId": "Dashboard",
-          "viewName": "Dashboard"
-        },
-        "TargetHoliday": {
-          "viewType": "XML",
-          "viewId": "Holiday",
-          "viewName": "Holiday"
-        },
-        "TargetDispute": {
-          "viewType": "XML",
-          "viewId": "Dispute",
-          "viewName": "Dispute"
-        },
-        "TargetSchedule": {
-          "viewType": "XML",
-          "viewId": "Schedule",
-          "viewName": "Schedule"
-        },
-        "TargetEmployeeConfig": {
-          "viewType": "XML",
-          "viewId": "EmployeeConfig",
-          "viewName": "EmployeeConfig"
-        },
-        "TargetTimesheet": {
-          "viewType": "XML",
-          "viewId": "Timesheet",
-          "viewName": "Timesheet"
-        },
-        "TargetShiftConfig": {
-          "viewType": "XML",
-          "viewId": "ShiftConfig",
-          "viewName": "ShiftConfig"
-        }
+
+        "TargetDashboard": { "viewType": "XML", "viewId": "Dashboard", "viewName": "Dashboard" },
+
+        "TargetHoliday": { "viewType": "XML", "viewId": "Holiday", "viewName": "Holiday" },
+
+        "TargetDispute": { "viewType": "XML", "viewId": "Dispute", "viewName": "Dispute" },
+
+        "TargetSchedule": { "viewType": "XML", "viewId": "Schedule", "viewName": "Schedule" },
+
+        "TargetEmployeeConfig": { "viewType": "XML", "viewId": "EmployeeConfig", "viewName": "EmployeeConfig" },
+
+        "TargetTimesheet": { "viewType": "XML", "viewId": "Timesheet", "viewName": "Timesheet" },
+
+        "TargetShiftConfig": {"viewType": "XML", "viewId": "ShiftConfig", "viewName": "ShiftConfig"}
+
       }
+
     },
+
     "rootView": {
+
       "viewName": "com.app.zu26g13.app.view.App",
+
       "type": "XML",
+
       "async": true,
+
       "id": "App"
+
     }
+
   }
+
 }

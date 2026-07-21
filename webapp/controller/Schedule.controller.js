@@ -37,7 +37,7 @@ sap.ui.define([
             this.getView().setModel(new JSONModel(this._getDefaultDialogData()), "dialogModel");
 
             this.getView().attachEventOnce("modelContextChange", function () {
-                this._loadShiftLookup("1000");
+                this._loadShiftLookup();
                 this._loadCalendarData();
             }, this);
         },
@@ -51,7 +51,6 @@ sap.ui.define([
                 ShiftId: "",
                 OldShiftId: "",
                 OtHours: "0.00",
-                Plant: "1000",
                 IsOt: false,
                 isEdit: false,
                 sEmpShiftPath: "",
@@ -59,7 +58,7 @@ sap.ui.define([
             };
         },
 
-        _loadShiftLookup: function (sPlantInput) {
+        _loadShiftLookup: function () {
             var oODataModel = this.getView().getModel();
             var oShiftLookupModel = this.getView().getModel("shiftLookupModel");
             var oDialogModel = this.getView().getModel("dialogModel");
@@ -68,16 +67,10 @@ sap.ui.define([
                 return;
             }
 
-            var sPlant = sPlantInput || oDialogModel.getProperty("/Plant") || "1000";
-
             oODataModel.read("/ShiftLookup", {
-                filters: [
-                    new Filter("Plant", FilterOperator.EQ, sPlant)
-                ],
                 success: function (oData) {
                     var aShifts = (oData.results || []).map(function (item) {
                         return {
-                            Plant: item.Plant,
                             ShiftId: item.ShiftId,
                             TimeIn: item.TimeIn,
                             TimeOut: item.TimeOut,
@@ -142,7 +135,6 @@ sap.ui.define([
                             oGrouped[item.Pernr] = {
                                 Pernr: item.Pernr,
                                 EmployeeName: item.EmployeeName || "Nhân viên chưa có tên",
-                                Plant: oOt && oOt.Plant ? oOt.Plant : "1000",
                                 appointments: []
                             };
                         }
@@ -174,7 +166,6 @@ sap.ui.define([
                             ShiftId: item.ShiftId,
                             OldShiftId: item.ShiftId,
                             OtHours: sOtHours,
-                            Plant: oOt && oOt.Plant ? oOt.Plant : "1000",
                             IsOt: oOt ? oOt.IsOt : false,
 
                             AppointmentTitle: "Ca: " + item.ShiftId,
@@ -197,16 +188,6 @@ sap.ui.define([
             });
         },
 
-        onPlantChange: function (oEvent) {
-            var sPlant = oEvent.getSource().getValue();
-            var oDialogModel = this.getView().getModel("dialogModel");
-
-            oDialogModel.setProperty("/Plant", sPlant);
-            oDialogModel.setProperty("/ShiftId", "");
-
-            this._loadShiftLookup(sPlant);
-        },
-
         /*
          * Search help nhân viên
          */
@@ -225,8 +206,7 @@ sap.ui.define([
                             return {
                                 Pernr: item.Pernr || item.pernr || "",
                                 EmployeeName: item.EmployeeName || item.Ename || item.ename || item.Name || "Nhân viên chưa có tên",
-                                DeptId: item.DeptId || item.dept_id || "",
-                                Plant: item.Plant || item.plant || "1000"
+                                DeptId: item.DeptId || item.dept_id || ""
                             };
                         });
 
@@ -323,10 +303,7 @@ sap.ui.define([
 
             oDialogModel.setProperty("/Pernr", oEmployee.Pernr);
 
-            if (oEmployee.Plant) {
-                oDialogModel.setProperty("/Plant", oEmployee.Plant);
-                this._loadShiftLookup(oEmployee.Plant);
-            }
+            this._loadShiftLookup();
         },
 
         onEmployeeValueHelpCancel: function () {
@@ -372,8 +349,7 @@ sap.ui.define([
                 "Mã nhân viên: " + oData.Pernr + "\n" +
                 "Ngày làm việc: " + sFormattedDate + "\n" +
                 "Ca: " + oData.ShiftId + "\n" +
-                "Số giờ OT: " + oData.OtHours + " tiếng\n" +
-                "Nhà máy: " + oData.Plant;
+                "Số giờ OT: " + oData.OtHours + " tiếng\n";
 
             MessageBox.show(sMessage, {
                 icon: MessageBox.Icon.INFORMATION,
@@ -395,7 +371,7 @@ sap.ui.define([
 
             oModel.setData(oData);
 
-            this._loadShiftLookup(oData.Plant);
+            this._loadShiftLookup();
             this._openDialog();
         },
 
@@ -417,7 +393,7 @@ sap.ui.define([
                 sOtPath: oData.sOtPath
             });
 
-            this._loadShiftLookup(oData.Plant || "1000");
+            this._loadShiftLookup();
             this._openDialog();
         },
 
@@ -532,7 +508,6 @@ sap.ui.define([
                             PlanDate: this._toODataDate(dWorkDate),
                             ShiftId: oDialogData.ShiftId,
                             OtHours: fOtHours.toFixed(2),
-                            Plant: oDialogData.Plant || "1000",
                             IsOt: true
                         });
                     }
@@ -595,7 +570,6 @@ sap.ui.define([
                     PlanDate: this._toODataDate(dWorkDate),
                     ShiftId: oDialogData.ShiftId,
                     OtHours: fOtHours.toFixed(2),
-                    Plant: oDialogData.Plant || "1000",
                     IsOt: true
                 });
             } else {
@@ -721,7 +695,6 @@ sap.ui.define([
             var oUpdatePayload = {
                 ShiftId: oPayload.ShiftId,
                 OtHours: oPayload.OtHours,
-                Plant: oPayload.Plant,
                 IsOt: oPayload.IsOt
             };
 

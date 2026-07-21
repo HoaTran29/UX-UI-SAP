@@ -15,7 +15,6 @@ sap.ui.define([
 
         _getDefaultShiftData: function () {
             return {
-                Plant: "1000",
                 ShiftId: "",
                 StdHours: "8",
                 TimeIn: "070000",
@@ -47,7 +46,6 @@ sap.ui.define([
             var oShiftModel = this.getView().getModel("shiftModel");
 
             oShiftModel.setData({
-                Plant: oData.Plant,
                 ShiftId: oData.ShiftId,
                 StdHours: oData.StdHours ? String(oData.StdHours) : "8",
                 TimeIn: this._edmTimeToHHmmss(oData.TimeIn),
@@ -93,8 +91,8 @@ sap.ui.define([
             var oODataModel = this.getView().getModel();
             var oShiftData = this.getView().getModel("shiftModel").getData();
 
-            if (!oShiftData.Plant || !oShiftData.ShiftId) {
-                MessageBox.error("Vui lòng nhập Nhà máy và Mã ca.");
+            if (!oShiftData.ShiftId) {
+                MessageBox.error("Vui lòng nhập và Mã ca.");
                 return;
             }
 
@@ -116,7 +114,6 @@ sap.ui.define([
             }
 
             var oPayloadCreate = {
-                Plant: oShiftData.Plant,
                 ShiftId: oShiftData.ShiftId,
                 StdHours: String(oShiftData.StdHours),
                 TimeIn: this._hhmmssToEdmTime(oShiftData.TimeIn),
@@ -179,7 +176,7 @@ sap.ui.define([
             var oODataModel = this.getView().getModel();
 
             MessageBox.confirm(
-                "Bạn có chắc muốn xóa ca " + oData.ShiftId + " của nhà máy " + oData.Plant + " không?",
+                "Bạn có chắc muốn xóa ca " + oData.ShiftId + " không?",
                 {
                     title: "Xác nhận xóa",
                     actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],

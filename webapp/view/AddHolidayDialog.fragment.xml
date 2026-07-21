@@ -10,13 +10,6 @@
         <content>
             <VBox class="sapUiMediumMargin">
 
-                <Label text="Nhà máy" required="true"/>
-                <Input
-                    value="{holidayModel>/Plant}"
-                    placeholder="Ví dụ: 1000"
-                    maxLength="4"
-                    editable="{= !${holidayModel>/isEdit} }"/>
-
                 <Label text="Ngày lễ" required="true" class="sapUiTopMarginSmall"/>
                 <DatePicker
                     dateValue="{holidayModel>/HolDate}"

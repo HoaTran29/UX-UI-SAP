@@ -32,7 +32,6 @@
                     <PlanningCalendarRow 
                         id="idRow"
                         title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
-                        text="Nhà máy: {calendarModel>Plant}"
                         appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
 
                         <appointments>

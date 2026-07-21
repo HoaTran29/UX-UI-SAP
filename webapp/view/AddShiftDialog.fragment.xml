@@ -9,14 +9,6 @@
 
         <content>
             <VBox class="sapUiMediumMargin">
-
-                <Label text="Nhà máy" required="true"/>
-                <Input
-                    value="{shiftModel>/Plant}"
-                    placeholder="Ví dụ: 1000"
-                    maxLength="4"
-                    editable="{= !${shiftModel>/isEdit} }"/>
-
                 <Label text="Mã ca" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/ShiftId}"

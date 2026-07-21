@@ -41,12 +41,6 @@
                     editable="false"
                     visible="{dialogModel>/isEdit}"/>
 
-                <Label text="Nhà máy" required="true" class="sapUiTopMarginSmall"/>
-                <Input 
-                    value="{dialogModel>/Plant}"
-                    placeholder="Nhập nhà máy..."
-                    change="onPlantChange"/>
-
                 <Label text="Ca làm việc" required="true" class="sapUiTopMarginSmall"/>
                 <Select 
                     id="shiftSelect"

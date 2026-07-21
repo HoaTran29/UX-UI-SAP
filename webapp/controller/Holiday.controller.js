@@ -15,7 +15,6 @@ sap.ui.define([
 
         _getDefaultHolidayData: function () {
             return {
-                Plant: "1000",
                 HolDate: new Date(),
                 HolDesc: "",
                 isEdit: false,
@@ -42,7 +41,6 @@ sap.ui.define([
             var sPath = oContext.getPath();
 
             this.getView().getModel("holidayModel").setData({
-                Plant: oData.Plant,
                 HolDate: this._toDate(oData.HolDate),
                 HolDesc: oData.HolDesc || "",
                 isEdit: true,
@@ -83,13 +81,12 @@ sap.ui.define([
             var oODataModel = this.getView().getModel();
             var oHolidayData = this.getView().getModel("holidayModel").getData();
 
-            if (!oHolidayData.Plant || !oHolidayData.HolDate || !oHolidayData.HolDesc) {
-                MessageBox.error("Vui lòng nhập đầy đủ Nhà máy, Ngày lễ và Mô tả.");
+            if (!oHolidayData.HolDate || !oHolidayData.HolDesc) {
+                MessageBox.error("Vui lòng nhập đầy đủ Ngày lễ và Mô tả.");
                 return;
             }
 
             var oPayloadCreate = {
-                Plant: oHolidayData.Plant,
                 HolDate: this._normalizeDate(oHolidayData.HolDate),
                 HolDesc: oHolidayData.HolDesc
             };

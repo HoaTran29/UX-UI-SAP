@@ -31,10 +31,6 @@
                     width="auto">
 
                     <columns>
-                        <Column width="110px">
-                            <Text text="Nhà máy"/>
-                        </Column>
-
                         <Column width="130px">
                             <Text text="Mã ca"/>
                         </Column>
@@ -67,8 +63,6 @@
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
-                                <ObjectIdentifier title="{Plant}"/>
-
                                 <ObjectIdentifier
                                     title="{ShiftId}"
                                     text="Ca làm việc"/>

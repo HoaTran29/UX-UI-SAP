@@ -11,7 +11,7 @@
                 <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
                         <Title text="Cấu hình Ngày Lễ" titleStyle="H2" class="holidayTitle"/>
-                        <Text text="Thiết lập ngày lễ theo nhà máy để hệ thống không cho xếp ca vào ngày nghỉ"/>
+                        <Text text="Thiết lập ngày lễ để hệ thống không cho xếp ca vào ngày nghỉ"/>
                     </VBox>
 
                     <Button
@@ -36,10 +36,6 @@
                     width="auto">
 
                     <columns>
-                        <Column width="120px">
-                            <Text text="Nhà máy"/>
-                        </Column>
-
                         <Column width="180px">
                             <Text text="Ngày lễ"/>
                         </Column>
@@ -56,7 +52,6 @@
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
-                                <ObjectIdentifier title="{Plant}"/>
 
                                 <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
 

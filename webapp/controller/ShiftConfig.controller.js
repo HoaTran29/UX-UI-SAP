@@ -37,9 +37,9 @@ sap.ui.define([
         },
 
         onOpenAddDialog: function () {
-            var oShiftModel = this.getView().getModel("shiftModel");
-
-            oShiftModel.setData(this._getDefaultShiftData());
+            this.getView()
+                .getModel("shiftModel")
+                .setData(this._getDefaultShiftData());
 
             this._openDialog();
         },
@@ -54,9 +54,8 @@ sap.ui.define([
 
             var oData = oContext.getObject();
             var oODataModel = this.getView().getModel();
-            var oShiftModel = this.getView().getModel("shiftModel");
 
-            oShiftModel.setData({
+            this.getView().getModel("shiftModel").setData({
                 ShiftId: oData.ShiftId || "",
                 StdHours: oData.StdHours !== undefined && oData.StdHours !== null ? String(oData.StdHours) : "8",
                 TimeIn: this._edmTimeToHHmmss(oData.TimeIn),
@@ -161,10 +160,35 @@ sap.ui.define([
                 return;
             }
 
-            if (!oShiftData.NextDayBool && this._timeToSeconds(sTimeOut) <= this._timeToSeconds(sTimeIn)) {
+            var bNextDay = !!oShiftData.NextDayBool;
+            var fActualHours = this._calculateShiftHours(sTimeIn, sTimeOut, bNextDay);
+
+            if (fActualHours <= 0) {
                 MessageBox.error("Giờ kết thúc phải lớn hơn giờ bắt đầu. Nếu ca qua ngày, hãy bật Ca qua ngày.", {
                     title: "Sai khung giờ"
                 });
+                return;
+            }
+
+            if (fActualHours > 24) {
+                MessageBox.error("Tổng thời gian ca không được vượt quá 24 giờ.", {
+                    title: "Sai khung giờ"
+                });
+                return;
+            }
+
+            if (Math.abs(fActualHours - iStdHours) > 0.001) {
+                MessageBox.error(
+                    "Giờ chuẩn không khớp với giờ bắt đầu và giờ kết thúc.\n\n" +
+                    "Giờ bắt đầu: " + this._formatTimeFromHHmmss(sTimeIn) + "\n" +
+                    "Giờ kết thúc: " + this._formatTimeFromHHmmss(sTimeOut) + "\n" +
+                    "Ca qua ngày: " + (bNextDay ? "Có" : "Không") + "\n" +
+                    "Số giờ thực tế: " + this._formatHourNumber(fActualHours) + "h\n" +
+                    "Giờ chuẩn bạn nhập: " + iStdHours + "h",
+                    {
+                        title: "Giờ chuẩn không khớp"
+                    }
+                );
                 return;
             }
 
@@ -183,7 +207,7 @@ sap.ui.define([
             oShiftModel.setProperty("/TimeOut", sTimeOut);
             oShiftModel.setProperty("/GraceMins", String(iGraceMins));
 
-            var vNextDayPayload = this._toNextDayPayload(oShiftData.NextDayBool);
+            var vNextDayPayload = this._toNextDayPayload(bNextDay);
 
             var oPayloadCreate = {
                 ShiftId: sShiftId,
@@ -366,6 +390,31 @@ sap.ui.define([
             return oODataModel.createKey("/Schedule", {
                 ShiftId: String(sShiftId || "").trim().toUpperCase()
             });
+        },
+
+        _calculateShiftHours: function (sTimeIn, sTimeOut, bNextDay) {
+            var iStartSeconds = this._timeToSeconds(sTimeIn);
+            var iEndSeconds = this._timeToSeconds(sTimeOut);
+
+            if (bNextDay) {
+                iEndSeconds += 24 * 3600;
+            }
+
+            var iDurationSeconds = iEndSeconds - iStartSeconds;
+
+            if (iDurationSeconds <= 0) {
+                return 0;
+            }
+
+            return iDurationSeconds / 3600;
+        },
+
+        _formatHourNumber: function (fHours) {
+            if (Math.abs(fHours - Math.round(fHours)) < 0.001) {
+                return String(Math.round(fHours));
+            }
+
+            return String(Math.round(fHours * 100) / 100);
         },
 
         _toNextDayPayload: function (bNextDay) {

@@ -5,25 +5,68 @@
     <Dialog 
         id="addOtDialog"
         title="Xếp lịch làm việc &amp; OT"
-        contentWidth="450px">
+        contentWidth="520px">
 
         <content>
             <VBox class="sapUiSmallMargin">
 
-                <Label text="Mã nhân viên" required="true"/>
+                <Label
+                    text="Xếp lịch theo"
+                    class="sapUiTopMarginSmall"
+                    visible="{= !${dialogModel>/isEdit} }"/>
+
+                <SegmentedButton
+                    selectedKey="{dialogModel>/AssignMode}"
+                    selectionChange=".onAssignModeChange"
+                    visible="{= !${dialogModel>/isEdit} }"
+                    width="100%">
+
+                    <items>
+                        <SegmentedButtonItem key="EMP" text="Nhân viên"/>
+                        <SegmentedButtonItem key="DEPT" text="Phòng ban"/>
+                    </items>
+                </SegmentedButton>
+
+                <Label
+                    text="Mã nhân viên"
+                    required="true"
+                    visible="{= ${dialogModel>/AssignMode} === 'EMP' }"
+                    class="sapUiTopMarginSmall"/>
 
                 <Input
-    id="PernrInput"
-    value="{dialogModel>/Pernr}"
-    placeholder="Chọn nhân viên từ search help..."
-    editable="{= !${dialogModel>/isEdit} }"
-    showValueHelp="true"
-    valueHelpRequest=".onPernrInputValueHelpRequest"
-    liveChange=".onPernrInputLiveChange"/>
+                    id="PernrInput"
+                    value="{dialogModel>/Pernr}"
+                    placeholder="Chọn nhân viên từ search help..."
+                    editable="{= !${dialogModel>/isEdit} }"
+                    showValueHelp="true"
+                    valueHelpRequest=".onPernrInputValueHelpRequest"
+                    liveChange=".onPernrInputLiveChange"
+                    visible="{= ${dialogModel>/AssignMode} === 'EMP' }"/>
 
                 <Text
                     text="{= ${dialogModel>/EmployeeName} ? ${dialogModel>/EmployeeName} + ' - ' + ${dialogModel>/DeptId} : '' }"
-                    visible="{= !!${dialogModel>/EmployeeName} }"
+                    visible="{= ${dialogModel>/AssignMode} === 'EMP' &amp;&amp; !!${dialogModel>/EmployeeName} }"
+                    class="sapUiTinyMarginTop"/>
+
+                <Label
+                    text="Phòng ban"
+                    required="true"
+                    visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"
+                    class="sapUiTopMarginSmall"/>
+
+                <Input
+                    id="DeptInput"
+                    value="{dialogModel>/DeptId}"
+                    placeholder="Chọn phòng ban từ search help..."
+                    editable="{= !${dialogModel>/isEdit} }"
+                    showValueHelp="true"
+                    valueHelpRequest=".onDeptInputValueHelpRequest"
+                    liveChange=".onDeptInputLiveChange"
+                    visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"/>
+
+                <Text
+                    text="{dialogModel>/DeptName}"
+                    visible="{= ${dialogModel>/AssignMode} === 'DEPT' &amp;&amp; !!${dialogModel>/DeptName} }"
                     class="sapUiTinyMarginTop"/>
 
                 <Label 
@@ -77,13 +120,13 @@
             <Button 
                 text="Lưu dữ liệu"
                 type="Emphasized"
-                press="onSaveOtPlan" />
+                press=".onSaveOtPlan" />
         </beginButton>
 
         <endButton>
             <Button 
                 text="Đóng"
-                press="onCloseAddDialog" />
+                press=".onCloseAddDialog" />
         </endButton>
 
     </Dialog>

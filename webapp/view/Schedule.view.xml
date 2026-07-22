@@ -8,13 +8,33 @@
     <Page id="page" title="Xếp Lịch &amp; OT Nhân Viên">
 
         <headerContent>
-            <SearchField 
-                id="HeaderEmployeeSearchField"
-                value="{headerSearchModel>/query}"
-                placeholder="Tìm theo Tên hoặc Mã NV..."
-                search=".onHeaderEmployeeSearch"
+            <Input
+                id="HeaderEmployeeSearchInput"
+                value="{headerSearchModel>/employeeQuery}"
+                placeholder="Tìm/chọn nhân viên..."
+                width="260px"
+                showValueHelp="true"
+                valueHelpRequest=".onHeaderEmployeeValueHelpRequest"
                 liveChange=".onHeaderEmployeeLiveChange"
-                width="300px"
+                submit=".onHeaderEmployeeSubmit"
+                class="sapUiSmallMarginEnd"/>
+
+            <Input
+                id="HeaderDepartmentSearchInput"
+                value="{headerSearchModel>/deptQuery}"
+                placeholder="Tìm/chọn phòng ban..."
+                width="260px"
+                showValueHelp="true"
+                valueHelpRequest=".onHeaderDepartmentValueHelpRequest"
+                liveChange=".onHeaderDepartmentLiveChange"
+                submit=".onHeaderDepartmentSubmit"
+                class="sapUiSmallMarginEnd"/>
+
+            <Button
+                icon="sap-icon://clear-filter"
+                type="Transparent"
+                tooltip="Xóa bộ lọc"
+                press=".onClearHeaderFilters"
                 class="sapUiSmallMarginEnd"/>
 
             <Button 
@@ -29,21 +49,21 @@
                 id="idPlanningCalendar"
                 viewKey="Week"
                 rows="{calendarModel>/employees}"
-                appointmentSelect="onAppointmentSelect">
+                appointmentSelect=".onAppointmentSelect">
 
                 <rows>
                     <PlanningCalendarRow 
-                        id="idRow"
                         title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
+                        text="{= ${calendarModel>DeptName} ? ${calendarModel>DeptName} + ' - ' + ${calendarModel>DeptId} : ${calendarModel>DeptId} }"
                         appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
 
                         <appointments>
                             <unified:CalendarAppointment 
-                                id="idAppt"
                                 startDate="{calendarModel>StartDate}"
                                 endDate="{calendarModel>EndDate}"
-                                title="Ca: {calendarModel>ShiftId}"
-                                text="OT: {calendarModel>OtHours}h"
+                                title="{calendarModel>AppointmentTitle}"
+                                text="{calendarModel>AppointmentText}"
+                                tooltip="{calendarModel>AppointmentTooltip}"
                                 type="{
                                     parts: [
                                         {path: 'calendarModel>ShiftId'},

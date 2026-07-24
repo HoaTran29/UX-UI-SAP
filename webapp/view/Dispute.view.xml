@@ -36,7 +36,7 @@
                     <layout:VerticalLayout class="sapUiContentPadding" width="100%">
                         <Label text="Nhập lý do từ chối cho nhân viên:" design="Bold"/>
                         <!-- Chú ý: Value bind đúng tên cột ApproverComment từ CDS View -->
-                        <TextArea value="{ApproverComment}" width="100%" rows="4" placeholder="Ví dụ: Lý do vắng mặt không hợp lệ..."/>
+                        <TextArea id="rejectNote" value="{ApproverComment}" width="100%" rows="4" placeholder="Ví dụ: Lý do vắng mặt không hợp lệ..."/>
                     </layout:VerticalLayout>
                 </content>
                 <beginButton>

@@ -20,7 +20,7 @@
         </fb:FilterBar>
 
         <Table id="dailyTimesheetTable"
-               items="{ path: '/GlobalWorkingTime', sorter: { path: 'DeptId' } }"
+               items="{ path: '/Timesheet', sorter: { path: 'DeptId' } }"
                growing="true" growingThreshold="20" class="sapUiElevationCore3">
             <columns>
                 <Column><Text text="Mã NV / Ca" /></Column>

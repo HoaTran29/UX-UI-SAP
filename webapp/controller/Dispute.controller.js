@@ -28,8 +28,7 @@ sap.ui.define([
             this.byId("approveDialog").close();
         },
 
-        // 3. XÁC NHẬN "LƯU & DUYỆT" TỪ POPUP
-        onConfirmApprove: function () {
+onConfirmApprove: function () {
             var oDialog = this.byId("approveDialog");
             var oContext = oDialog.getBindingContext();
             var oModel = this.getView().getModel();
@@ -37,40 +36,92 @@ sap.ui.define([
 
             BusyIndicator.show(0);
 
-            // Kiểm tra: Nếu Manager có chỉnh sửa giờ trong Pop-up
             if (oModel.hasPendingChanges()) {
-                // Phải lưu cái giờ mới xuống Database Dispute trước
                 oModel.submitChanges({
                     success: function() {
-                        // Lưu giờ thành công, kích hoạt tiếp Action Duyệt
                         this._callApproveAction(sDisputeId, oModel, oDialog);
                     }.bind(this),
                     error: function() {
                         BusyIndicator.hide();
-                        MessageToast.show("Lỗi mạng khi lưu giờ chốt!");
+                        sap.m.MessageToast.show("Lỗi mạng khi lưu giờ mới!");
                     }
                 });
             } else {
-                // Nếu Manager không sửa gì, chỉ nhìn rồi duyệt thì bắn Action luôn
                 this._callApproveAction(sDisputeId, oModel, oDialog);
             }
         },
 
         // Nút Từ Chối ngoài bảng vẫn giữ nguyên logic
-        onReject: function (oEvent) {
+        // 1. NÚT TỪ CHỐI Ở BẢNG -> MỞ POPUP TỪ CHỐI
+        onOpenRejectDialog: function (oEvent) {
             var oButton = oEvent.getSource();
             var oContext = oButton.getBindingContext();
-            var sDisputeId = oContext.getProperty("DisputeId");
+            var oDialog = this.byId("rejectDialog");
+            
+            // Ép data của dòng hiện tại vào popup
+            oDialog.setBindingContext(oContext);
+            oDialog.open();
+        },
+
+        // 2. NÚT HỦY BÊN TRONG POPUP TỪ CHỐI
+        onCancelReject: function () {
+            // Xóa rác nếu người dùng có gõ chữ nhưng không lưu
+            this.getView().getModel().resetChanges();
+            this.byId("rejectDialog").close();
+        },
+
+        // 3. NÚT "XÁC NHẬN TỪ CHỐI" BÊN TRONG POPUP
+        onConfirmReject: function () {
+            var oDialog = this.byId("rejectDialog");
+            var oContext = oDialog.getBindingContext();
             var oModel = this.getView().getModel();
+            var sDisputeId = oContext.getProperty("DisputeId");
 
             BusyIndicator.show(0);
-            this._callRejectAction(sDisputeId, oModel);
+
+            // Kiểm tra xem Quản lý có gõ lý do vào ô TextArea không
+            if (oModel.hasPendingChanges()) {
+                // Có gõ -> Lưu lý do xuống Database trước
+                oModel.submitChanges({
+                    success: function() {
+                        // Lưu text thành công thì bắn Action đổi trạng thái
+                        this._callRejectAction(sDisputeId, oModel, oDialog);
+                    }.bind(this),
+                    error: function() {
+                        BusyIndicator.hide();
+                        MessageToast.show("Lỗi mạng khi lưu lý do!");
+                    }
+                });
+            } else {
+                // Không gõ lý do -> Vẫn cho từ chối
+                this._callRejectAction(sDisputeId, oModel, oDialog);
+            }
+        },
+
+        // 4. HÀM CHUYÊN GỌI ACTION TỪ CHỐI (Sửa lại để nhận thêm oDialog)
+        _callRejectAction: function(sDisputeId, oModel, oDialog) {
+            oModel.callFunction("/RejectDispute", { 
+                method: "POST",
+                urlParameters: { DisputeId: sDisputeId },
+                success: function () {
+                    BusyIndicator.hide();
+                    MessageToast.show("Đã TỪ CHỐI đơn report!");
+                    if(oDialog) {
+                        oDialog.close(); // Đóng popup
+                    }
+                    oModel.refresh(); // Load lại bảng
+                },
+                error: function (oError) {
+                    BusyIndicator.hide();
+                    MessageToast.show("Lỗi từ hệ thống khi từ chối!");
+                }
+            });
         },
 
         // 4. HÀM CHUYÊN GỌI ACTION DUYỆT XUỐNG BACKEND
         _callApproveAction: function(sDisputeId, oModel, oDialog) {
             // Lưu ý: Tùy SAP cấu hình, Action đôi khi tên là 'Approve' hoặc 'DisputeApprove'
-            oModel.callFunction("/Approve", { 
+            oModel.callFunction("/ApproveDispute", { 
                 method: "POST",
                 urlParameters: { DisputeId: sDisputeId },
                 success: function () {

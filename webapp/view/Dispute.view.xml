@@ -29,6 +29,23 @@
                     <Button text="Đóng" press=".onCancelDialog" />
                 </endButton>
             </Dialog>
+
+            <!-- KHUNG POP-UP TỪ CHỐI -->
+            <Dialog id="rejectDialog" title="Lý do từ chối" contentWidth="400px">
+                <content>
+                    <layout:VerticalLayout class="sapUiContentPadding" width="100%">
+                        <Label text="Nhập lý do từ chối cho nhân viên:" design="Bold"/>
+                        <!-- Chú ý: Value bind đúng tên cột ApproverComment từ CDS View -->
+                        <TextArea value="{ApproverComment}" width="100%" rows="4" placeholder="Ví dụ: Lý do vắng mặt không hợp lệ..."/>
+                    </layout:VerticalLayout>
+                </content>
+                <beginButton>
+                    <Button type="Reject" text="Xác nhận Từ chối" press=".onConfirmReject" />
+                </beginButton>
+                <endButton>
+                    <Button text="Hủy" press=".onCancelReject" />
+                </endButton>
+            </Dialog>
         </dependents>
 
         <Title id="titleDispute" text="Phê duyệt đơn Report" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
@@ -60,7 +77,7 @@
                         <HBox id="hboxActions" justifyContent="Center">
                             <!-- NÚT DUYỆT BÂY GIỜ ĐỔI THÀNH NÚT MỞ POPUP XỬ LÝ -->
                             <Button id="btnReview" icon="sap-icon://edit" type="Emphasized" text="Xử lý" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
-                            <Button id="btnReject" icon="sap-icon://decline" type="Reject" text="Từ chối" press=".onReject"/>
+                            <Button id="btnReject" icon="sap-icon://decline" type="Reject" text="Từ chối" press=".onOpenRejectDialog"/>
                         </HBox>
                     </cells>
                 </ColumnListItem>

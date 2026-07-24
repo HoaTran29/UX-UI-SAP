@@ -114,101 +114,87 @@ sap.ui.define([
             var oView = this.getView();
             var oModel = oView.getModel();
             var oContext = oView.byId("editTimesheetDialog").getBindingContext();
+            var oData = oContext.getObject(); 
+
+            // 1. Chuyển đổi giờ ra chuẩn Edm.Time của SAP
+            var formatToODataTime = function(timeVal) {
+                if (!timeVal) return null;
+                if (typeof timeVal === "object" && timeVal.__edmType === "Edm.Time") return timeVal;
+                if (typeof timeVal === "string") {
+                    var aParts = timeVal.split(":");
+                    if (aParts.length >= 2) {
+                        var ms = (parseInt(aParts[0],10)*3600000) + (parseInt(aParts[1],10)*60000) + (parseInt(aParts[2],10)*1000);
+                        return { ms: ms, __edmType: "Edm.Time" };
+                    }
+                }
+                return timeVal;
+            };
+
+            // 2. Ép kiểu số an toàn cho các trường Decimal
+            var sOtHours = oData.OtHours ? parseFloat(oData.OtHours).toString() : "0.00";
+            var sTotHours = oData.TotHours ? parseFloat(oData.TotHours).toString() : "0.00"; 
+            var sWorkHours = oData.WorkHours ? parseFloat(oData.WorkHours).toString() : "0.00"; 
             
-            // 1. Lấy dữ liệu thô từ dòng đang chọn (của WorkingTime)
-            var oData = oContext.getObject();
+            // Xử lý NUMC2 cho SeqNo (SAP đòi 2 ký tự: "01")
+            var sSeqNo = oData.SeqNo ? oData.SeqNo.toString() : "01";
+            if (sSeqNo.length === 1) sSeqNo = "0" + sSeqNo;
 
-            // 2. Ép kiểu String cho 2 cột Decimal (Bài học đắt giá lúc nãy)
-            var sOtHours = "0"; 
-            if (oData.OtHours !== null && oData.OtHours !== undefined && oData.OtHours !== "") {
-                sOtHours = parseFloat(oData.OtHours).toString();
-            }
-
-            var sTotHours = "0";
-            if (oData.TotHours !== null && oData.TotHours !== undefined && oData.TotHours !== "") {
-                sTotHours = parseFloat(oData.TotHours).toString();
-            }
-
-            // 3. Đóng gói Payload gửi sang bảng Timesheet
+            // 3. ĐÓNG GÓI PAYLOAD (Giống 100% cấu trúc của ZI_HR_TIMESHEET)
             var oPayload = {
                 "Pernr": oData.Pernr,
                 "WorkDate": oData.WorkDate,
-                "SeqNo": oData.SeqNo || "1", // Nếu ABSENT thì SeqNo thường rỗng, mặc định gán là 1
-                "ActIn": oData.ActIn, 
-                "ActOut": oData.ActOut,
+                "SeqNo": sSeqNo,
+                "ShiftId": oData.ShiftId || "",
+                "DeptId": oData.DeptId || "",
+                "ActIn": formatToODataTime(oData.ActIn),
+                "ActOut": formatToODataTime(oData.ActOut),
+                "TotHours": sTotHours,
+                "WorkHours": sWorkHours,
                 "OtHours": sOtHours,
-                "TotHours": sTotHours
-                // Tùy Backend của ông có bắt buộc truyền Status hay không, nếu có thì thêm: "Status": "PRESENT"
+                "Status": oData.Status || "COMPLETED"
             };
 
             oView.setBusy(true);
 
-            // 4. KIỂM TRA: NẾU VẮNG MẶT THÌ TẠO MỚI (CREATE), CÓ MẶT RỒI THÌ CẬP NHẬT (UPDATE)
-            if (oData.status === "ABSENT") {
-                // Chưa có dòng dưới DB -> Gọi lệnh POST để tạo mới
-                oModel.create("/Timesheet", oPayload, {
-                    success: function () {
+            // 4. CHỈ ĐỊNH ĐÍCH ĐẾN
+            var sPath = oModel.createKey("/Timesheet", {
+                SeqNo: sSeqNo,
+                Pernr: oData.Pernr,
+                WorkDate: oData.WorkDate
+            });
+
+            // 5. GỬI LỆNH UPDATE (Tự bẻ lái qua Create nếu rỗng)
+            oModel.update(sPath, oPayload, {
+                success: function () {
+                    oView.setBusy(false);
+                    sap.m.MessageToast.show("Đã CẬP NHẬT thành công vào Database!");
+                    oView.byId("editTimesheetDialog").close();
+                    oModel.refresh(); 
+                },
+                error: function (oError) {
+                    if (oError.statusCode === "404" || oError.statusCode === 404) {
+                        console.log("DB trống, bẻ lái sang Create...");
+                        oModel.create("/Timesheet", oPayload, {
+                            success: function () {
+                                oView.setBusy(false);
+                                sap.m.MessageToast.show("Đã TẠO MỚI thành công vào Database!");
+                                oView.byId("editTimesheetDialog").close();
+                                oModel.refresh();
+                            },
+                            error: function (errCreate) {
+                                oView.setBusy(false);
+                                console.error("Lỗi Backend chặn Create:", errCreate);
+                                sap.m.MessageToast.show("Lỗi hệ thống khi tạo mới!");
+                            }
+                        });
+                    } else {
                         oView.setBusy(false);
-                        sap.m.MessageToast.show("Đã tạo mới giờ làm (Xóa ABSENT)!");
-                        oView.byId("editTimesheetDialog").close();
-                        oModel.refresh(); // Tải lại bảng WorkingTime
-                    },
-                    error: function (oError) {
-                        oView.setBusy(false);
-                        console.error("Lỗi Create:", oError);
-                        sap.m.MessageToast.show("Lỗi khi thêm giờ mới!");
+                        console.error("Lỗi Update OData:", oError);
+                        sap.m.MessageToast.show("Lỗi: Dữ liệu không khớp chuẩn SAP!");
                     }
-                });
-            } else {
-                // Đã có giờ rồi -> Gọi lệnh MERGE/PUT để sửa
-                // Tạo lại đúng đường dẫn Key của bảng Timesheet
-                var sPath = oModel.createKey("/Timesheet", {
-                    SeqNo: oData.SeqNo,
-                    Pernr: oData.Pernr,
-                    WorkDate: oData.WorkDate
-                });
-
-                oModel.update(sPath, oPayload, {
-                    success: function () {
-                        oView.setBusy(false);
-                        sap.m.MessageToast.show("Cập nhật giờ làm thành công!");
-                        oView.byId("editTimesheetDialog").close();
-                        oModel.refresh(); 
-                    },
-                    error: function (oError) {
-                        oView.setBusy(false);
-                        console.error("Lỗi Update:", oError);
-                        sap.m.MessageToast.show("Lỗi khi cập nhật!");
-                    }
-                });
-            }
+                }
+            });
         },
-
-        // 3. Hàm Hủy (Đóng Pop-up và reset data đã bấm nhầm)
-        onCancelTimesheet: function () {
-            this.getView().getModel().resetChanges(); // Trả lại số cũ nếu người dùng đổi ý không lưu
-            this.byId("editTimesheetDialog").close();
-        },
-        // 1. Xử lý Trạng thái: Không đánh vắng cho ngày tương lai
-        formatStatusText: function (sStatus, dWorkDate) {
-            if (!dWorkDate) {
-                return sStatus;
-            }
-
-            var oToday = new Date();
-            oToday.setHours(0, 0, 0, 0); // Đưa về mốc 0h để so sánh ngày
-            var oWork = new Date(dWorkDate);
-            oWork.setHours(0, 0, 0, 0);
-
-            // Nếu ngày làm việc lớn hơn hôm nay -> Chưa tới ngày làm
-            if (oWork > oToday) {
-                return "NOT YET";
-            }
-
-            // Nếu là quá khứ hoặc hôm nay thì giữ nguyên Data gốc
-            return sStatus; 
-        },
-
         // 2. Xử lý Màu sắc Trạng thái
         formatStatusState: function (sStatus, dWorkDate) {
             if (!dWorkDate) {
@@ -222,7 +208,7 @@ sap.ui.define([
 
             // Ngày tương lai cho màu xám trung tính (None) hoặc xanh dương (Information)
             if (oWork > oToday) {
-                return "None"; 
+                return "None";
             }
 
             // Tô màu theo logic cũ
@@ -250,5 +236,5 @@ sap.ui.define([
         }
     });
 
-    
+
 });

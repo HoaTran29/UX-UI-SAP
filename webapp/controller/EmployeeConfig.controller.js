@@ -6,6 +6,8 @@ sap.ui.define(
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
     "sap/m/MessageBox",
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/core/BusyIndicator"
   ],
   function (
     Controller,
@@ -14,26 +16,37 @@ sap.ui.define(
     FilterOperator,
     MessageToast,
     MessageBox,
+    JSONModel,
+    BusyIndicator
   ) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.EmployeeConfig", {
       onInit: function () {
-        // Lấy control ComboBox phòng ban từ giao diện
-        var oComboBox = this.byId("filterDept");
+        this.getView().setModel(
+        new JSONModel({
+            employees: [],
+            allEmployees: []
+        }),
+        "employeeLookupModel"
+    );
 
-        //  Đợi binding khởi tạo thành công và lắng nghe sự kiện thay đổi dữ liệu
-        oComboBox.attachModelContextChange(
-          function () {
-            var oBinding = oComboBox.getBinding("items");
-            if (oBinding) {
-              // Ngắt các event cũ nếu có để tránh lặp hàm
-              oBinding.detachDataReceived(this._onDeptDataReceived, this);
-              // Lắng nghe khi dữ liệu từ OData thực sự đổ về ComboBox
-              oBinding.attachDataReceived(this._onDeptDataReceived, this);
-            }
-          }.bind(this),
-        );
+    // Model cho Department Value Help
+    this.getView().setModel(
+        new JSONModel({
+            departments: [],
+            allDepartments: []
+        }),
+        "departmentLookupModel"
+    );
+
+    // Lưu DeptId đã chọn để filter
+    this._sFilterDeptId = "";
+
+
+       
+          
+        
       },
 
       // Hàm bổ trợ: Tự động chèn dòng "Tất cả" vào vị trí đầu tiên sau khi Backend load xong dữ liệu
@@ -54,31 +67,337 @@ sap.ui.define(
           oComboBox.insertItem(oAllItem, 0); // Đẩy lên vị trí trên cùng danh sách
         }
       },
+_loadEmployeeLookup: function () {
+            var oODataModel = this.getView().getModel();
+            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+
+            if (!oODataModel) {
+                return Promise.resolve([]);
+            }
+
+            return new Promise(function (resolve, reject) {
+                oODataModel.read("/Employee", {
+                    success: function (oData) {
+                        var aEmployees = (oData.results || []).map(function (item) {
+                            return {
+                                Pernr: item.Pernr || item.pernr || "",
+                                EmployeeName: item.EmployeeName ||
+                                    item.Ename ||
+                                    item.ename ||
+                                    item.Name ||
+                                    item.name ||
+                                    "Nhân viên chưa có tên",
+                                DeptId: item.DeptId ||
+                                    item.dept_id ||
+                                    item.Department ||
+                                    item.department ||
+                                    "",
+                                DeptName: item.DeptName ||
+                                    item.dept_name ||
+                                    ""
+                            };
+                        });
+
+                        aEmployees.sort(function (a, b) {
+                            return String(a.EmployeeName || "").localeCompare(
+                                String(b.EmployeeName || ""),
+                                "vi"
+                            );
+                        });
+
+                        oEmployeeModel.setProperty("/employees", aEmployees);
+                        oEmployeeModel.setProperty("/allEmployees", aEmployees);
+
+                        resolve(aEmployees);
+                    },
+                    error: function (oError) {
+                        console.error("Lỗi đọc /Employee:", oError);
+                        reject(oError);
+                    }
+                });
+            });
+        },
+         _loadDepartmentLookup: function () {
+            var oODataModel = this.getView().getModel();
+            var oDepartmentModel = this.getView().getModel("departmentLookupModel");
+
+            if (!oODataModel) {
+                return Promise.resolve([]);
+            }
+
+            return new Promise(function (resolve, reject) {
+                oODataModel.read("/Department", {
+                    success: function (oData) {
+                        var aDepartments = (oData.results || []).map(function (item) {
+                            return {
+                                DeptId: item.DeptId || item.dept_id || "",
+                                DeptName: item.DeptName || item.dept_name || ""
+                            };
+                        });
+
+                        aDepartments.sort(function (a, b) {
+                            return String(a.DeptName || "").localeCompare(
+                                String(b.DeptName || ""),
+                                "vi"
+                            );
+                        });
+
+                        oDepartmentModel.setProperty("/departments", aDepartments);
+                        oDepartmentModel.setProperty("/allDepartments", aDepartments);
+
+                        resolve(aDepartments);
+                    },
+                    error: function (oError) {
+                        console.error("Lỗi đọc /Department:", oError);
+                        reject(oError);
+                    }
+                });
+            });
+        },
 
       // 1. Xử lý tìm kiếm và lọc dữ liệu (FilterBar)
       onSearch: function () {
-        var sPernr = this.byId("filterPernr").getValue();
-        var sDept = this.byId("filterDept").getSelectedKey();
-        var sDeptText = this.byId("filterDept").getValue();
-        var aFilters = [];
+    var sPernr = this.byId("filterPernr").getValue();
+    var sDept = this._sFilterDeptId;
+    var aFilters = [];
 
-        if (sPernr) {
-          aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
-        }
+    if (sPernr) {
+        aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
+    }
 
-        // ĐIỀU KIỆN QUYẾT ĐỊNH ĐỂ QUAY VỀ FULL DATA:
-        // Nếu sDept rỗng (do người dùng tự xóa chữ) HOẶC sDept bằng "ALL" (chọn dòng Tất cả)
-        // Hệ thống sẽ bỏ qua bộ lọc phòng ban này -> Trả lại đầy đủ danh sách ban đầu
-        if (sDept && sDept !== "ALL" && sDeptText !== "") {
-          aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));
-        }
+    if (sDept) {
+        aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));
+    }
 
-        var oTable = this.byId("employeeTable");
-        var oBinding = oTable.getBinding("items");
-        if (oBinding) {
-          oBinding.filter(aFilters);
-        }
-      },
+    var oTable = this.byId("employeeTable");
+    var oBinding = oTable.getBinding("items");
+
+    if (oBinding) {
+        oBinding.filter(aFilters);
+    }
+},
+onClearFilters: function () {
+
+    this.byId("filterPernr").setValue("");
+    this.byId("filterDept").setValue("");
+
+    this._sFilterDeptId = "";
+
+    var oBinding = this.byId("employeeTable").getBinding("items");
+    if (oBinding) {
+        oBinding.filter([]);
+    }
+},
+      onPernrInputValueHelpRequest: function () {
+    this._openEmployeeValueHelp();
+},
+onDeptInputValueHelpRequest: function () {
+    this._openDepartmentValueHelp();
+},
+      _openEmployeeValueHelp: function (sMode) {
+            var oView = this.getView();
+            var oEmployeeModel = oView.getModel("employeeLookupModel");
+            var aEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+
+            this._sEmployeeValueHelpMode = sMode || "dialog";
+
+            var fnOpenDialog = function () {
+                var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+                oEmployeeModel.setProperty("/employees", aAllEmployees);
+
+                if (!this.pEmployeeDialog) {
+                    this.pEmployeeDialog = Fragment.load({
+                        id: oView.getId(),
+                        name: "com.app.zu26g13.app.view.EmployeeValueHelp",
+                        controller: this
+                    }).then(function (oDialog) {
+                        oView.addDependent(oDialog);
+                        return oDialog;
+                    });
+                }
+
+                this.pEmployeeDialog.then(function (oDialog) {
+                    oDialog.open();
+                });
+            }.bind(this);
+
+            if (aEmployees.length > 0) {
+                fnOpenDialog();
+                return;
+            }
+
+            BusyIndicator.show(0);
+
+            this._loadEmployeeLookup().then(function () {
+                BusyIndicator.hide();
+                fnOpenDialog();
+            }).catch(function () {
+                BusyIndicator.hide();
+                MessageBox.error("Không thể lấy danh sách nhân viên.", {
+                    title: "Lỗi dữ liệu nhân viên"
+                });
+            });
+        },
+
+        onEmployeeValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value") || "";
+            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+            var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+            var sSearch = sValue.toLowerCase().trim();
+
+            if (!sSearch) {
+                oEmployeeModel.setProperty("/employees", aAllEmployees);
+                return;
+            }
+
+            var aFiltered = aAllEmployees.filter(function (item) {
+                return String(item.Pernr || "").toLowerCase().indexOf(sSearch) !== -1 ||
+                    String(item.EmployeeName || "").toLowerCase().indexOf(sSearch) !== -1 ||
+                    String(item.DeptId || "").toLowerCase().indexOf(sSearch) !== -1 ||
+                    String(item.DeptName || "").toLowerCase().indexOf(sSearch) !== -1;
+            });
+
+            oEmployeeModel.setProperty("/employees", aFiltered);
+        },
+
+        onEmployeeValueHelpConfirm: function (oEvent) {
+
+    var oSelectedItem = oEvent.getParameter("selectedItem");
+
+    if (!oSelectedItem) {
+        this._resetEmployeeValueHelpList();
+        return;
+    }
+
+    var oEmployee = oSelectedItem
+        .getBindingContext("employeeLookupModel")
+        .getObject();
+
+    this.byId("filterPernr").setValue(oEmployee.Pernr);
+
+    this._resetEmployeeValueHelpList();
+
+    // nếu muốn tự tìm kiếm luôn
+    this.onSearch();
+},
+
+        onEmployeeValueHelpCancel: function () {
+            this._sEmployeeValueHelpMode = "dialog";
+            this._resetEmployeeValueHelpList();
+        },
+
+        _resetEmployeeValueHelpList: function () {
+            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+
+            if (!oEmployeeModel) {
+                return;
+            }
+
+            var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+            oEmployeeModel.setProperty("/employees", aAllEmployees);
+        },
+
+         _openDepartmentValueHelp: function (sMode) {
+            var oView = this.getView();
+            var oDepartmentModel = oView.getModel("departmentLookupModel");
+            var aDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
+
+            this._sDepartmentValueHelpMode = sMode || "dialog";
+
+            var fnOpenDialog = function () {
+                var aAllDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
+                oDepartmentModel.setProperty("/departments", aAllDepartments);
+
+                if (!this.pDepartmentDialog) {
+                    this.pDepartmentDialog = Fragment.load({
+                        id: oView.getId(),
+                        name: "com.app.zu26g13.app.view.DepartmentValueHelp",
+                        controller: this
+                    }).then(function (oDialog) {
+                        oView.addDependent(oDialog);
+                        return oDialog;
+                    });
+                }
+
+                this.pDepartmentDialog.then(function (oDialog) {
+                    oDialog.open();
+                });
+            }.bind(this);
+
+            if (aDepartments.length > 0) {
+                fnOpenDialog();
+                return;
+            }
+
+            BusyIndicator.show(0);
+
+            this._loadDepartmentLookup().then(function () {
+                BusyIndicator.hide();
+                fnOpenDialog();
+            }).catch(function () {
+                BusyIndicator.hide();
+                MessageBox.error("Không thể lấy danh sách phòng ban.", {
+                    title: "Lỗi dữ liệu phòng ban"
+                });
+            });
+        },
+
+        onDepartmentValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value") || "";
+            var oDepartmentModel = this.getView().getModel("departmentLookupModel");
+            var aAllDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
+            var sSearch = sValue.toLowerCase().trim();
+
+            if (!sSearch) {
+                oDepartmentModel.setProperty("/departments", aAllDepartments);
+                return;
+            }
+
+            var aFiltered = aAllDepartments.filter(function (item) {
+                return String(item.DeptId || "").toLowerCase().indexOf(sSearch) !== -1 ||
+                    String(item.DeptName || "").toLowerCase().indexOf(sSearch) !== -1;
+            });
+
+            oDepartmentModel.setProperty("/departments", aFiltered);
+        },
+
+      onDepartmentValueHelpConfirm: function (oEvent) {
+
+    var oSelectedItem = oEvent.getParameter("selectedItem");
+
+    if (!oSelectedItem) {
+        this._resetDepartmentValueHelpList();
+        return;
+    }
+
+    var oDepartment = oSelectedItem
+        .getBindingContext("departmentLookupModel")
+        .getObject();
+
+    this.byId("filterDept").setValue(oDepartment.DeptName);
+
+    this._sFilterDeptId = oDepartment.DeptId;
+    this._resetDepartmentValueHelpList();
+
+    this.onSearch();
+},
+
+        onDepartmentValueHelpCancel: function () {
+            this._sDepartmentValueHelpMode = "dialog";
+            this._resetDepartmentValueHelpList();
+        },
+
+        _resetDepartmentValueHelpList: function () {
+            var oDepartmentModel = this.getView().getModel("departmentLookupModel");
+
+            if (!oDepartmentModel) {
+                return;
+            }
+
+            var aAllDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
+            oDepartmentModel.setProperty("/departments", aAllDepartments);
+        },
+
       // 2. Mở Popup Dialog để TẠO MỚI nhân viên
       onOpenCreateDialog: function () {
         var oView = this.getView();

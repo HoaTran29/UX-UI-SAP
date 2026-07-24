@@ -18,24 +18,41 @@
 
         <f:header>
             <f:DynamicPageHeader id="dynamicPageHeaderId">
-                <fb:FilterBar id="filterBarId" search=".onSearch">
-                    <fb:filterGroupItems>
-                        <fb:FilterGroupItem id="filterGroupPernr" name="Pernr" label="Mã nhân viên" groupName="Group1" visibleInFilterBar="true">
-                            <fb:control>
-                                <Input id="filterPernr" placeholder="Nhập mã nhân viên..." />
-                            </fb:control>
-                        </fb:FilterGroupItem>
-                        
-                        <fb:FilterGroupItem id="filterGroupDept" name="DeptId" label="Phòng ban" groupName="Group1" visibleInFilterBar="true">
-    <fb:control>
-        <ComboBox id="filterDept" placeholder="Chọn phòng ban" items="{/Department}">
-            <core:Item id="deptItemTemplate" key="{DeptId}" text="{DeptName}" />
-        </ComboBox>
-    </fb:control>
-</fb:FilterGroupItem>
-                    </fb:filterGroupItems>
-                </fb:FilterBar>
-            </f:DynamicPageHeader>
+
+    <HBox
+        alignItems="End"
+        renderType="Bare"
+        class="sapUiSmallMargin">
+
+        <VBox class="sapUiSmallMarginEnd">
+            <Label text="Mã nhân viên"/>
+            <Input
+                id="filterPernr"
+                placeholder="Chọn nhân viên..."
+                showValueHelp="true"
+                valueHelpOnly="true"
+                valueHelpRequest=".onPernrInputValueHelpRequest"/>
+        </VBox>
+
+        <VBox class="sapUiSmallMarginEnd">
+            <Label text="Phòng ban"/>
+            <Input
+                id="filterDept"
+                placeholder="Chọn phòng ban..."
+                showValueHelp="true"
+                valueHelpOnly="true"
+                valueHelpRequest=".onDeptInputValueHelpRequest"/>
+        </VBox>
+
+        <Button
+            icon="sap-icon://clear-filter"
+            tooltip="Xóa bộ lọc"
+            type="Transparent"
+            press=".onClearFilters"/>
+
+    </HBox>
+
+</f:DynamicPageHeader>
         </f:header>
 
         <f:content>
@@ -52,6 +69,7 @@
                                 icon="sap-icon://add" 
                                 type="Emphasized" 
                                 press=".onOpenCreateDialog" />
+                                
                     </OverflowToolbar>
                 </headerToolbar>
                 <columns>

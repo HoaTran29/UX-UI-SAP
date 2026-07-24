@@ -368,9 +368,6 @@ sap.ui.define([
             });
         },
 
-        /*
-         * Header search riêng: Nhân viên
-         */
         onHeaderEmployeeValueHelpRequest: function () {
             this._openEmployeeValueHelp("headerEmployee");
         },
@@ -395,9 +392,6 @@ sap.ui.define([
             this._applyHeaderFilters();
         },
 
-        /*
-         * Header search riêng: Phòng ban
-         */
         onHeaderDepartmentValueHelpRequest: function () {
             this._openDepartmentValueHelp("headerDepartment");
         },
@@ -482,9 +476,6 @@ sap.ui.define([
             oBinding.filter(aFilters);
         },
 
-        /*
-         * Value help nhân viên
-         */
         onPernrInputValueHelpRequest: function () {
             this._openEmployeeValueHelp("dialog");
         },
@@ -622,9 +613,6 @@ sap.ui.define([
             oEmployeeModel.setProperty("/employees", aAllEmployees);
         },
 
-        /*
-         * Value help phòng ban
-         */
         onDeptInputValueHelpRequest: function () {
             this._openDepartmentValueHelp("dialog");
         },
@@ -780,9 +768,6 @@ sap.ui.define([
             }
         },
 
-        /*
-         * Dialog
-         */
         onOpenCreateDialog: function () {
             var oModel = this.getView().getModel("dialogModel");
             var oData = this._getDefaultDialogData();
@@ -794,6 +779,13 @@ sap.ui.define([
         },
 
         _openEditDialog: function (oData) {
+            if (this._isPastDate(oData.PlanDate)) {
+                MessageBox.error(this._getPastDateMessage(oData.PlanDate), {
+                    title: "Không thể sửa lịch đã qua"
+                });
+                return;
+            }
+
             var oModel = this.getView().getModel("dialogModel");
 
             oModel.setData({
@@ -854,6 +846,7 @@ sap.ui.define([
 
             var oData = oAppointment.getBindingContext("calendarModel").getObject();
             var sFormattedDate = new Date(oData.PlanDate).toLocaleDateString("vi-VN");
+            var bPastDate = this._isPastDate(oData.PlanDate);
 
             var sMessage =
                 "Mã nhân viên: " + oData.Pernr + "\n" +
@@ -864,11 +857,20 @@ sap.ui.define([
                 "Giờ làm: " + (oData.ShiftTimeText || "") + "\n" +
                 "Số giờ OT: " + oData.OtHours + " tiếng\n";
 
+            if (bPastDate) {
+                sMessage += "\nLưu ý: Ngày này đã qua nên không được sửa hoặc xóa.";
+            }
+
             MessageBox.show(sMessage, {
                 icon: MessageBox.Icon.INFORMATION,
                 title: "Chi tiết lịch làm việc",
-                actions: ["Đóng", "Sửa", "Xóa"],
+                actions: bPastDate ? ["Đóng"] : ["Đóng", "Sửa", "Xóa"],
+                emphasizedAction: "Đóng",
                 onClose: function (sAction) {
+                    if (bPastDate) {
+                        return;
+                    }
+
                     if (sAction === "Xóa") {
                         this._deleteSchedule(oData);
                     } else if (sAction === "Sửa") {
@@ -878,9 +880,6 @@ sap.ui.define([
             });
         },
 
-        /*
-         * Save
-         */
         onSaveOtPlan: function () {
             var oView = this.getView();
             var oODataModel = oView.getModel();
@@ -910,6 +909,14 @@ sap.ui.define([
                     sap.ui.core.BusyIndicator.hide();
                     MessageBox.error("Không xác định được nhân viên cần sửa.", {
                         title: "Thiếu nhân viên"
+                    });
+                    return;
+                }
+
+                if (this._isPastDate(oDialogData.PlanDate)) {
+                    sap.ui.core.BusyIndicator.hide();
+                    MessageBox.error(this._getPastDateMessage(oDialogData.PlanDate), {
+                        title: "Không thể cập nhật lịch đã qua"
                     });
                     return;
                 }
@@ -1015,6 +1022,20 @@ sap.ui.define([
                 return;
             }
 
+            if (this._isPastDate(dStart)) {
+                sap.ui.core.BusyIndicator.hide();
+                MessageBox.error(
+                    "Khoảng thời gian có ngày đã qua.\n\n" +
+                    "Từ ngày: " + dStart.toLocaleDateString("vi-VN") + "\n" +
+                    "Hôm nay: " + this._getTodayDateOnly().toLocaleDateString("vi-VN") + "\n\n" +
+                    "Vui lòng chọn ngày hôm nay hoặc ngày tương lai.",
+                    {
+                        title: "Không thể tạo lịch cho ngày đã qua"
+                    }
+                );
+                return;
+            }
+
             var aDates = [];
             var dCurrent = new Date(dStart);
 
@@ -1028,6 +1049,12 @@ sap.ui.define([
             aEmployees.forEach(function (oEmployee) {
                 aDates.forEach(function (dWorkDate) {
                     pChain = pChain.then(function () {
+                        if (this._isPastDate(dWorkDate)) {
+                            return Promise.reject({
+                                message: this._getPastDateMessage(dWorkDate)
+                            });
+                        }
+
                         return this._createEmpShiftIfNotExists(
                             oODataModel,
                             oEmployee.Pernr,
@@ -1069,6 +1096,14 @@ sap.ui.define([
         _saveEditSchedule: function (oODataModel, oDialogData, fOtHours) {
             var dWorkDate = this._normalizeDate(oDialogData.PlanDate);
             var dODataWorkDate = this._toODataDate(dWorkDate);
+
+            if (this._isPastDate(dWorkDate)) {
+                sap.ui.core.BusyIndicator.hide();
+                MessageBox.error(this._getPastDateMessage(dWorkDate), {
+                    title: "Không thể cập nhật lịch đã qua"
+                });
+                return;
+            }
 
             var pSaveShift;
 
@@ -1128,6 +1163,13 @@ sap.ui.define([
         },
 
         _deleteSchedule: function (oData) {
+            if (this._isPastDate(oData.WorkDate || oData.PlanDate)) {
+                MessageBox.error(this._getPastDateMessage(oData.WorkDate || oData.PlanDate), {
+                    title: "Không thể xóa lịch đã qua"
+                });
+                return;
+            }
+
             var oODataModel = this.getView().getModel();
 
             sap.ui.core.BusyIndicator.show(0);
@@ -1172,9 +1214,6 @@ sap.ui.define([
             }.bind(this));
         },
 
-        /*
-         * OData helpers
-         */
         _createEmpShiftIfNotExists: function (oODataModel, sPernr, dWorkDate, sShiftId) {
             return this._readEmpShiftByDate(
                 oODataModel,
@@ -1371,9 +1410,6 @@ sap.ui.define([
             return sPernr || "0";
         },
 
-        /*
-         * Format helpers
-         */
         formatAppointmentType: function (sShiftId, sOtHours) {
             var fOt = parseFloat(sOtHours || "0");
 
@@ -1394,6 +1430,24 @@ sap.ui.define([
             }
 
             return sap.ui.unified.CalendarDayType.Type09;
+        },
+
+        _getTodayDateOnly: function () {
+            var dToday = new Date();
+            dToday.setHours(0, 0, 0, 0);
+            return dToday;
+        },
+
+        _isPastDate: function (vDate) {
+            var dDate = this._normalizeDate(vDate);
+            var dToday = this._getTodayDateOnly();
+
+            return dDate < dToday;
+        },
+
+        _getPastDateMessage: function (vDate) {
+            return "Ngày " + this._normalizeDate(vDate).toLocaleDateString("vi-VN") +
+                " đã qua. Không được thêm, sửa hoặc xóa lịch làm việc cho ngày đã qua.";
         },
 
         _toODataDate: function (vDate) {

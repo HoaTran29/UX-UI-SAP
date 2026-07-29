@@ -10,19 +10,19 @@
 
                 <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
-                        <Title text="Cấu hình Ngày Lễ" titleStyle="H2" class="holidayTitle"/>
-                        <Text text="Thiết lập ngày lễ để hệ thống không cho xếp ca vào ngày nghỉ"/>
+                        <Title text="{i18n>titleHolidayConfig}" titleStyle="H2" class="holidayTitle"/>
+                        <Text text="{i18n>descHolidayConfig}"/>
                     </VBox>
 
                     <Button
                         icon="sap-icon://add"
-                        text="Thêm Ngày Lễ"
+                        text="{i18n>btnAddHoliday}"
                         type="Emphasized"
                         press="onOpenAddDialog"/>
                 </HBox>
 
                 <MessageStrip
-                    text="Chủ nhật được hệ thống tự nhận diện, không cần khai báo vào bảng ngày lễ."
+                    text="{i18n>msgSundayAutoDetect}"
                     type="Information"
                     showIcon="true"
                     class="sapUiSmallMarginBottom"/>
@@ -37,15 +37,15 @@
 
                     <columns>
                         <Column width="180px">
-                            <Text text="Ngày lễ"/>
+                            <Text text="{i18n>colHolidayDate}"/>
                         </Column>
 
                         <Column>
-                            <Text text="Mô tả"/>
+                            <Text text="{i18n>colHolidayDesc}"/>
                         </Column>
 
                         <Column width="140px" hAlign="Center">
-                            <Text text="Thao tác"/>
+                            <Text text="{i18n>colAction}"/>
                         </Column>
                     </columns>
 
@@ -61,14 +61,14 @@
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
-                                        tooltip="Sửa ngày lễ"
+                                        tooltip="{i18n>ttEditHoliday}"
                                         press="onEditHoliday"
                                         class="sapUiTinyMarginEnd"/>
 
                                     <Button
                                         icon="sap-icon://delete"
                                         type="Reject"
-                                        tooltip="Xóa ngày lễ"
+                                        tooltip="{i18n>ttDeleteHoliday}"
                                         press="onDeleteHoliday"/>
                                 </HBox>
                             </cells>

@@ -4,7 +4,7 @@
 
     <SelectDialog
         id="departmentValueHelpDialog"
-        title="Chọn phòng ban"
+        title="{i18n>dialogTitleSelectDept}"
         search=".onDepartmentValueHelpSearch"
         liveChange=".onDepartmentValueHelpSearch"
         confirm=".onDepartmentValueHelpConfirm"
@@ -12,7 +12,7 @@
         items="{departmentLookupModel>/departments}"
         growing="true"
         growingThreshold="30"
-        noDataText="Không tìm thấy phòng ban">
+        noDataText="{i18n>noDataDept}">
 
         <StandardListItem
             title="{departmentLookupModel>DeptName}"

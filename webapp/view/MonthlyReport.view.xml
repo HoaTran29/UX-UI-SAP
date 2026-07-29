@@ -1,28 +1,26 @@
 <mvc:View controllerName="com.app.zu26g13.app.controller.MonthlyReport"
     xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:fb="sap.ui.comp.filterbar">
     
-    <Page title="Báo Cáo Tổng Hợp Theo Tháng" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
+    <Page title="{i18n>titleMonthlyReport}" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
         
         <!-- Thanh bộ lọc -->
         <fb:FilterBar id="monthlyFilter" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
             <fb:filterGroupItems>
-                <fb:FilterGroupItem groupName="G1" name="Month" label="Chọn Tháng/Năm" visibleInFilterBar="true">
+                <fb:FilterGroupItem groupName="G1" name="Month" label="{i18n>filterMonthYear}" visibleInFilterBar="true">
                     <fb:control>
-                        <!-- Dùng DatePicker nhưng chỉ cho chọn Tháng và Năm -->
-                        <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="MM/yyyy" />
+                        <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="{i18n>phSelectMonthYear}" />
                     </fb:control>
                 </fb:FilterGroupItem>
                 
-                <fb:FilterGroupItem groupName="G1" name="Pernr" label="Mã Nhân Viên" visibleInFilterBar="true">
+                <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                     <fb:control>
-                        <Input id="fltEmp" placeholder="Nhập mã NV..." />
+                        <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" />
                     </fb:control>
                 </fb:FilterGroupItem>
             </fb:filterGroupItems>
         </fb:FilterBar>
 
         <!-- Bảng hiển thị (Tích hợp sẵn PHÂN TRANG growing=true) -->
-        <!-- Lưu ý: Cần có một EntitySet tên là /MonthlyTimesheet dưới Backend -->
         <Table id="monthlyTable"
                items="{ path: '/MonthlyTimesheet', sorter: { path: 'Pernr' } }"
                growing="true" 
@@ -31,31 +29,30 @@
             
             <headerToolbar>
                 <OverflowToolbar>
-                    <Title text="Chi tiết tổng công" level="H4"/>
+                    <Title text="{i18n>titleMonthlyDetails}" level="H4"/>
                     <ToolbarSpacer/>
-                    <Button icon="sap-icon://excel-attachment" text="Xuất Excel" type="Success" press=".onExportExcel"/>
+                    <Button icon="sap-icon://excel-attachment" text="{i18n>btnExportExcel}" type="Success" press=".onExportExcel"/>
                 </OverflowToolbar>
             </headerToolbar>
 
             <columns>
-                <Column><Text text="Mã NV" /></Column>
-                <Column><Text text="Tháng/Năm" /></Column>
-                <Column hAlign="Center"><Text text="Tổng Giờ Chuẩn" /></Column>
-                <Column hAlign="Center"><Text text="Tổng Giờ Thực Tế" /></Column>
-                <Column hAlign="Center"><Text text="Tổng Giờ OT" /></Column>
+                <Column><Text text="{i18n>colEmpId}" /></Column>
+                <Column><Text text="{i18n>colMonthYear}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colTotalStdHours}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colTotalActHours}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colTotalOtHours}" /></Column>
             </columns>
             
             <items>
                 <ColumnListItem type="Active">
                     <cells>
                         <ObjectIdentifier title="{Pernr}" text="{EmployeeName}"/>
-                        <!-- Giả sử Backend trả về chuỗi MonthYear kiểu '07/2026' -->
                         <Text text="{MonthYear}" />
                         
-                        <ObjectNumber number="{TotalStdHours}" unit="Giờ" />
-                        <ObjectNumber number="{TotalActHours}" unit="Giờ" 
+                        <ObjectNumber number="{TotalStdHours}" unit="{i18n>unitHours}" />
+                        <ObjectNumber number="{TotalActHours}" unit="{i18n>unitHours}" 
                                       state="{= parseFloat(${TotalActHours}) >= parseFloat(${TotalStdHours}) ? 'Success' : 'Error' }"/>
-                        <ObjectNumber number="{TotalOtHours}" unit="Giờ" state="Warning"/>
+                        <ObjectNumber number="{TotalOtHours}" unit="{i18n>unitHours}" state="Warning"/>
                     </cells>
                 </ColumnListItem>
             </items>

@@ -11,7 +11,7 @@
         <f:title>
             <f:DynamicPageTitle id="pageTitleId">
                 <f:heading>
-                    <Title id="mainTitleId" text="Cấu hình nhân viên" />
+                    <Title id="mainTitleId" text="{i18n>titleEmpConfig}" />
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
@@ -25,20 +25,20 @@
         class="sapUiSmallMargin">
 
         <VBox class="sapUiSmallMarginEnd">
-            <Label text="Mã nhân viên"/>
+            <Label text="{i18n>filterEmpId}"/>
             <Input
                 id="filterPernr"
-                placeholder="Chọn nhân viên..."
+                placeholder="{i18n>phSelectEmpFilter}"
                 showValueHelp="true"
                 valueHelpOnly="true"
                 valueHelpRequest=".onPernrInputValueHelpRequest"/>
         </VBox>
 
         <VBox class="sapUiSmallMarginEnd">
-            <Label text="Phòng ban"/>
+            <Label text="{i18n>filterDept}"/>
             <Input
                 id="filterDept"
-                placeholder="Chọn phòng ban..."
+                placeholder="{i18n>phSelectDeptFilter}"
                 showValueHelp="true"
                 valueHelpOnly="true"
                 valueHelpRequest=".onDeptInputValueHelpRequest"/>
@@ -46,7 +46,7 @@
 
         <Button
             icon="sap-icon://clear-filter"
-            tooltip="Xóa bộ lọc"
+            tooltip="{i18n>ttClearFilter}"
             type="Transparent"
             press=".onClearFilters"/>
 
@@ -62,10 +62,10 @@
                    growingThreshold="20">
                 <headerToolbar>
                     <OverflowToolbar id="tableToolbarId">
-                        <Title id="tableTitleId" text="Danh sách nhân viên" level="H2"/>
+                        <Title id="tableTitleId" text="{i18n>titleEmpList}" level="H2"/>
                         <ToolbarSpacer id="toolbarSpacerId" />
                         <Button id="btnCreateId"
-                                text="Tạo mới nhân viên" 
+                                text="{i18n>btnCreateEmp}" 
                                 icon="sap-icon://add" 
                                 type="Emphasized" 
                                 press=".onOpenCreateDialog" />
@@ -73,14 +73,14 @@
                     </OverflowToolbar>
                 </headerToolbar>
                 <columns>
-    <Column id="colPernr"><Text id="txtColPernr" text="Mã NV " /></Column>
-    <Column id="colEname"><Text id="txtColEname" text="Họ và Tên " /></Column>
-    <Column id="colCardId"><Text id="txtColCardId" text="Mã thẻ " /></Column>
-    <Column id="colDept"><Text id="txtColDept" text="Phòng ban" /></Column>
-    <Column id="colRole"><Text id="txtColRole" text="Vai trò" /></Column>
+    <Column id="colPernr"><Text id="txtColPernr" text="{i18n>colEmpId}" /></Column>
+    <Column id="colEname"><Text id="txtColEname" text="{i18n>colEmpName}" /></Column>
+    <Column id="colCardId"><Text id="txtColCardId" text="{i18n>colCardId}" /></Column>
+    <Column id="colDept"><Text id="txtColDept" text="{i18n>colDept}" /></Column>
+    <Column id="colRole"><Text id="txtColRole" text="{i18n>colRole}" /></Column>
     
     <Column id="colAction" width="12rem" hAlign="Center">
-        <Text id="txtColAction" text="Thao tác" />
+        <Text id="txtColAction" text="{i18n>colAction}" />
     </Column>
 </columns>
 <items>
@@ -95,13 +95,13 @@
             <HBox id="actionBoxId" alignItems="Center" justifyContent="Center">
                 <Button id="btnEditRowId"
                         icon="sap-icon://edit" 
-                        text="Sửa"
+                        text="{i18n>btnEdit}"
                         type="Transparent" 
                         press=".onOpenEditDialog" />
                         
                 <Button id="btnDeleteRowId"
                         icon="sap-icon://delete" 
-                        text="Xóa"
+                        text="{i18n>btnDelete}"
                         type="Reject" 
                         press=".onDeleteEmployee" />
             </HBox>

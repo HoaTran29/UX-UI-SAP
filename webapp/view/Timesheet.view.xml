@@ -1,19 +1,19 @@
 <mvc:View controllerName="com.app.zu26g13.app.controller.Timesheet"
     xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:fb="sap.ui.comp.filterbar">
     
-    <Page title="Timesheet (In/Out) - Dữ liệu Hằng Ngày" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
+    <Page title="{i18n>titleDailyTimesheet}" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
         
         <fb:FilterBar id="timesheetFilter" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
             <fb:filterGroupItems>
-                <fb:FilterGroupItem groupName="G1" name="Date" label="Ngày làm việc" visibleInFilterBar="true">
+                <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
                     <fb:control>
-                        <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="Chọn ngày..." />
+                        <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" />
                     </fb:control>
                 </fb:FilterGroupItem>
                 
-                <fb:FilterGroupItem groupName="G1" name="Pernr" label="Mã Nhân Viên" visibleInFilterBar="true">
+                <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                     <fb:control>
-                        <Input id="fltEmp" placeholder="Nhập mã NV..." />
+                        <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" />
                     </fb:control>
                 </fb:FilterGroupItem>
             </fb:filterGroupItems>
@@ -23,20 +23,20 @@
                items="{ path: '/Timesheet', sorter: { path: 'DeptId' } }"
                growing="true" growingThreshold="20" class="sapUiElevationCore3">
             <columns>
-                <Column><Text text="Mã NV / Ca" /></Column>
-                <Column><Text text="Ngày làm việc" /></Column>
-                <Column hAlign="Center"><Text text="Trạng thái" /></Column> 
-                <Column hAlign="Center"><Text text="Giờ In" /></Column>
-                <Column hAlign="Center"><Text text="Giờ Out" /></Column>
-                <Column hAlign="Center"><Text text="Giờ tiêu chuẩn" /></Column>
-                <Column hAlign="Center"><Text text="Giờ thực tế" /></Column>
-                <Column hAlign="Center"><Text text="Giờ OT" /></Column>
-                <Column hAlign="Center"><Text text="Thao tác" /></Column>
+                <Column><Text text="{i18n>colEmpShift}" /></Column>
+                <Column><Text text="{i18n>colDate}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colStatus}" /></Column> 
+                <Column hAlign="Center"><Text text="{i18n>colTimeIn}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colTimeOut}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colStdHours}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colActHours}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colOtHours}" /></Column>
+                <Column hAlign="Center"><Text text="{i18n>colAction}" /></Column>
             </columns>
             <items>
                 <ColumnListItem type="Active">
                     <cells>
-                        <ObjectIdentifier title="{Pernr}" text="Ca: {ShiftId}"/>
+                        <ObjectIdentifier title="{Pernr}" text="{i18n>txtShiftPrefix}{ShiftId}"/>
                         <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
                         <ObjectStatus text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
                                       state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" 
@@ -46,7 +46,7 @@
                         <ObjectNumber number="{WorkHours}" />
                         <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
                         <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
-                        <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="Chỉnh sửa giờ &amp; Xác nhận OT"/>
+                        <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}"/>
                     </cells>
                 </ColumnListItem>
             </items>

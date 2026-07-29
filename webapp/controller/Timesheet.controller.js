@@ -195,6 +195,16 @@ sap.ui.define([
                 }
             });
         },
+        formatStatusText: function (sStatus, dWorkDate) {
+            if (!sStatus) {
+                return "";
+            }
+            // Mày có thể dùng switch/case ở đây để dịch sang tiếng Việt/Anh nếu muốn
+            // Ví dụ: if (sStatus === "COMPENSATE") return "Compensate";
+            
+            // CHỈ trả về đúng cái Status, tuyệt đối không cộng thêm dWorkDate vào
+            return sStatus;
+        },
         // 2. Xử lý Màu sắc Trạng thái
         formatStatusState: function (sStatus, dWorkDate) {
             if (!dWorkDate) {

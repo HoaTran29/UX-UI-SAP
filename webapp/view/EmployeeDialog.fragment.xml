@@ -22,7 +22,7 @@
 
     <Label id="lblRole" text="{i18n>colRole}" required="true" />
     <Select id="selectRole" items="{path: '/Role'}">
-    <   core:Item id="roleItemFragTemplate" key="{RoleId}" text="{RoleDesc}" />
+    <core:Item id="roleItemFragTemplate" key="{RoleId}" text="{RoleDesc}" />
     </Select>
                 </f:content>
             </f:SimpleForm>

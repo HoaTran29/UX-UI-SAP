@@ -7,7 +7,7 @@ sap.ui.define(
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/core/BusyIndicator"
+    "sap/ui/core/BusyIndicator",
   ],
   function (
     Controller,
@@ -17,36 +17,31 @@ sap.ui.define(
     MessageToast,
     MessageBox,
     JSONModel,
-    BusyIndicator
+    BusyIndicator,
   ) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.EmployeeConfig", {
       onInit: function () {
         this.getView().setModel(
-        new JSONModel({
+          new JSONModel({
             employees: [],
-            allEmployees: []
-        }),
-        "employeeLookupModel"
-    );
+            allEmployees: [],
+          }),
+          "employeeLookupModel",
+        );
 
-    // Model cho Department Value Help
-    this.getView().setModel(
-        new JSONModel({
+        // Model cho Department Value Help
+        this.getView().setModel(
+          new JSONModel({
             departments: [],
-            allDepartments: []
-        }),
-        "departmentLookupModel"
-    );
+            allDepartments: [],
+          }),
+          "departmentLookupModel",
+        );
 
-    // Lưu DeptId đã chọn để filter
-    this._sFilterDeptId = "";
-
-
-       
-          
-        
+        // Lưu DeptId đã chọn để filter
+        this._sFilterDeptId = "";
       },
 
       // Hàm bổ trợ: Tự động chèn dòng "Tất cả" vào vị trí đầu tiên sau khi Backend load xong dữ liệu
@@ -67,336 +62,357 @@ sap.ui.define(
           oComboBox.insertItem(oAllItem, 0); // Đẩy lên vị trí trên cùng danh sách
         }
       },
-_loadEmployeeLookup: function () {
-            var oODataModel = this.getView().getModel();
-            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+      _loadEmployeeLookup: function () {
+        var oODataModel = this.getView().getModel();
+        var oEmployeeModel = this.getView().getModel("employeeLookupModel");
 
-            if (!oODataModel) {
-                return Promise.resolve([]);
-            }
+        if (!oODataModel) {
+          return Promise.resolve([]);
+        }
 
-            return new Promise(function (resolve, reject) {
-                oODataModel.read("/Employee", {
-                    success: function (oData) {
-                        var aEmployees = (oData.results || []).map(function (item) {
-                            return {
-                                Pernr: item.Pernr || item.pernr || "",
-                                EmployeeName: item.EmployeeName ||
-                                    item.Ename ||
-                                    item.ename ||
-                                    item.Name ||
-                                    item.name ||
-                                    "Nhân viên chưa có tên",
-                                DeptId: item.DeptId ||
-                                    item.dept_id ||
-                                    item.Department ||
-                                    item.department ||
-                                    "",
-                                DeptName: item.DeptName ||
-                                    item.dept_name ||
-                                    ""
-                            };
-                        });
+        return new Promise(function (resolve, reject) {
+          oODataModel.read("/Employee", {
+            success: function (oData) {
+              var aEmployees = (oData.results || []).map(function (item) {
+                return {
+                  Pernr: item.Pernr || item.pernr || "",
+                  EmployeeName:
+                    item.EmployeeName ||
+                    item.Ename ||
+                    item.ename ||
+                    item.Name ||
+                    item.name ||
+                    "Nhân viên chưa có tên",
+                  DeptId:
+                    item.DeptId ||
+                    item.dept_id ||
+                    item.Department ||
+                    item.department ||
+                    "",
+                  DeptName: item.DeptName || item.dept_name || "",
+                };
+              });
 
-                        aEmployees.sort(function (a, b) {
-                            return String(a.EmployeeName || "").localeCompare(
-                                String(b.EmployeeName || ""),
-                                "vi"
-                            );
-                        });
+              aEmployees.sort(function (a, b) {
+                return String(a.EmployeeName || "").localeCompare(
+                  String(b.EmployeeName || ""),
+                  "vi",
+                );
+              });
 
-                        oEmployeeModel.setProperty("/employees", aEmployees);
-                        oEmployeeModel.setProperty("/allEmployees", aEmployees);
+              oEmployeeModel.setProperty("/employees", aEmployees);
+              oEmployeeModel.setProperty("/allEmployees", aEmployees);
 
-                        resolve(aEmployees);
-                    },
-                    error: function (oError) {
-                        console.error("Lỗi đọc /Employee:", oError);
-                        reject(oError);
-                    }
-                });
-            });
-        },
-         _loadDepartmentLookup: function () {
-            var oODataModel = this.getView().getModel();
-            var oDepartmentModel = this.getView().getModel("departmentLookupModel");
+              resolve(aEmployees);
+            },
+            error: function (oError) {
+              console.error("Lỗi đọc /Employee:", oError);
+              reject(oError);
+            },
+          });
+        });
+      },
+      _loadDepartmentLookup: function () {
+        var oODataModel = this.getView().getModel();
+        var oDepartmentModel = this.getView().getModel("departmentLookupModel");
 
-            if (!oODataModel) {
-                return Promise.resolve([]);
-            }
+        if (!oODataModel) {
+          return Promise.resolve([]);
+        }
 
-            return new Promise(function (resolve, reject) {
-                oODataModel.read("/Department", {
-                    success: function (oData) {
-                        var aDepartments = (oData.results || []).map(function (item) {
-                            return {
-                                DeptId: item.DeptId || item.dept_id || "",
-                                DeptName: item.DeptName || item.dept_name || ""
-                            };
-                        });
+        return new Promise(function (resolve, reject) {
+          oODataModel.read("/Department", {
+            success: function (oData) {
+              var aDepartments = (oData.results || []).map(function (item) {
+                return {
+                  DeptId: item.DeptId || item.dept_id || "",
+                  DeptName: item.DeptName || item.dept_name || "",
+                };
+              });
 
-                        aDepartments.sort(function (a, b) {
-                            return String(a.DeptName || "").localeCompare(
-                                String(b.DeptName || ""),
-                                "vi"
-                            );
-                        });
+              aDepartments.sort(function (a, b) {
+                return String(a.DeptName || "").localeCompare(
+                  String(b.DeptName || ""),
+                  "vi",
+                );
+              });
 
-                        oDepartmentModel.setProperty("/departments", aDepartments);
-                        oDepartmentModel.setProperty("/allDepartments", aDepartments);
+              oDepartmentModel.setProperty("/departments", aDepartments);
+              oDepartmentModel.setProperty("/allDepartments", aDepartments);
 
-                        resolve(aDepartments);
-                    },
-                    error: function (oError) {
-                        console.error("Lỗi đọc /Department:", oError);
-                        reject(oError);
-                    }
-                });
-            });
-        },
+              resolve(aDepartments);
+            },
+            error: function (oError) {
+              console.error("Lỗi đọc /Department:", oError);
+              reject(oError);
+            },
+          });
+        });
+      },
 
       // 1. Xử lý tìm kiếm và lọc dữ liệu (FilterBar)
       onSearch: function () {
-    var sPernr = this.byId("filterPernr").getValue();
-    var sDept = this._sFilterDeptId;
-    var aFilters = [];
+        var sPernr = this.byId("filterPernr").getValue();
+        var sDept = this._sFilterDeptId;
+        var aFilters = [];
 
-    if (sPernr) {
-        aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
-    }
+        if (sPernr) {
+          aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
+        }
 
-    if (sDept) {
-        aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));
-    }
+        if (sDept) {
+          aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));
+        }
 
-    var oTable = this.byId("employeeTable");
-    var oBinding = oTable.getBinding("items");
+        var oTable = this.byId("employeeTable");
+        var oBinding = oTable.getBinding("items");
 
-    if (oBinding) {
-        oBinding.filter(aFilters);
-    }
-},
-onClearFilters: function () {
+        if (oBinding) {
+          oBinding.filter(aFilters);
+        }
+      },
+      onClearFilters: function () {
+        this.byId("filterPernr").setValue("");
+        this.byId("filterDept").setValue("");
 
-    this.byId("filterPernr").setValue("");
-    this.byId("filterDept").setValue("");
+        this._sFilterDeptId = "";
 
-    this._sFilterDeptId = "";
-
-    var oBinding = this.byId("employeeTable").getBinding("items");
-    if (oBinding) {
-        oBinding.filter([]);
-    }
-},
+        var oBinding = this.byId("employeeTable").getBinding("items");
+        if (oBinding) {
+          oBinding.filter([]);
+        }
+      },
       onPernrInputValueHelpRequest: function () {
-    this._openEmployeeValueHelp();
-},
-onDeptInputValueHelpRequest: function () {
-    this._openDepartmentValueHelp();
-},
+        this._openEmployeeValueHelp();
+      },
+      onDeptInputValueHelpRequest: function () {
+        this._openDepartmentValueHelp();
+      },
       _openEmployeeValueHelp: function (sMode) {
-            var oView = this.getView();
-            var oEmployeeModel = oView.getModel("employeeLookupModel");
-            var aEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+        var oView = this.getView();
+        var oEmployeeModel = oView.getModel("employeeLookupModel");
+        var aEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
 
-            this._sEmployeeValueHelpMode = sMode || "dialog";
+        this._sEmployeeValueHelpMode = sMode || "dialog";
 
-            var fnOpenDialog = function () {
-                var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-                oEmployeeModel.setProperty("/employees", aAllEmployees);
+        var fnOpenDialog = function () {
+          var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+          oEmployeeModel.setProperty("/employees", aAllEmployees);
 
-                if (!this.pEmployeeDialog) {
-                    this.pEmployeeDialog = Fragment.load({
-                        id: oView.getId(),
-                        name: "com.app.zu26g13.app.view.EmployeeValueHelp",
-                        controller: this
-                    }).then(function (oDialog) {
-                        oView.addDependent(oDialog);
-                        return oDialog;
-                    });
-                }
-
-                this.pEmployeeDialog.then(function (oDialog) {
-                    oDialog.open();
-                });
-            }.bind(this);
-
-            if (aEmployees.length > 0) {
-                fnOpenDialog();
-                return;
-            }
-
-            BusyIndicator.show(0);
-
-            this._loadEmployeeLookup().then(function () {
-                BusyIndicator.hide();
-                fnOpenDialog();
-            }).catch(function () {
-                BusyIndicator.hide();
-                MessageBox.error("Không thể lấy danh sách nhân viên.", {
-                    title: "Lỗi dữ liệu nhân viên"
-                });
+          if (!this.pEmployeeDialog) {
+            this.pEmployeeDialog = Fragment.load({
+              id: oView.getId(),
+              name: "com.app.zu26g13.app.view.EmployeeValueHelp",
+              controller: this,
+            }).then(function (oDialog) {
+              oView.addDependent(oDialog);
+              return oDialog;
             });
-        },
+          }
 
-        onEmployeeValueHelpSearch: function (oEvent) {
-            var sValue = oEvent.getParameter("value") || "";
-            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
-            var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-            var sSearch = sValue.toLowerCase().trim();
+          this.pEmployeeDialog.then(function (oDialog) {
+            oDialog.open();
+          });
+        }.bind(this);
 
-            if (!sSearch) {
-                oEmployeeModel.setProperty("/employees", aAllEmployees);
-                return;
-            }
+        if (aEmployees.length > 0) {
+          fnOpenDialog();
+          return;
+        }
 
-            var aFiltered = aAllEmployees.filter(function (item) {
-                return String(item.Pernr || "").toLowerCase().indexOf(sSearch) !== -1 ||
-                    String(item.EmployeeName || "").toLowerCase().indexOf(sSearch) !== -1 ||
-                    String(item.DeptId || "").toLowerCase().indexOf(sSearch) !== -1 ||
-                    String(item.DeptName || "").toLowerCase().indexOf(sSearch) !== -1;
+        BusyIndicator.show(0);
+
+        this._loadEmployeeLookup()
+          .then(function () {
+            BusyIndicator.hide();
+            fnOpenDialog();
+          })
+          .catch(function () {
+            BusyIndicator.hide();
+            MessageBox.error("Không thể lấy danh sách nhân viên.", {
+              title: "Lỗi dữ liệu nhân viên",
             });
+          });
+      },
 
-            oEmployeeModel.setProperty("/employees", aFiltered);
-        },
+      onEmployeeValueHelpSearch: function (oEvent) {
+        var sValue = oEvent.getParameter("value") || "";
+        var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+        var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+        var sSearch = sValue.toLowerCase().trim();
 
-        onEmployeeValueHelpConfirm: function (oEvent) {
+        if (!sSearch) {
+          oEmployeeModel.setProperty("/employees", aAllEmployees);
+          return;
+        }
 
-    var oSelectedItem = oEvent.getParameter("selectedItem");
+        var aFiltered = aAllEmployees.filter(function (item) {
+          return (
+            String(item.Pernr || "")
+              .toLowerCase()
+              .indexOf(sSearch) !== -1 ||
+            String(item.EmployeeName || "")
+              .toLowerCase()
+              .indexOf(sSearch) !== -1 ||
+            String(item.DeptId || "")
+              .toLowerCase()
+              .indexOf(sSearch) !== -1 ||
+            String(item.DeptName || "")
+              .toLowerCase()
+              .indexOf(sSearch) !== -1
+          );
+        });
 
-    if (!oSelectedItem) {
+        oEmployeeModel.setProperty("/employees", aFiltered);
+      },
+
+      onEmployeeValueHelpConfirm: function (oEvent) {
+        var oSelectedItem = oEvent.getParameter("selectedItem");
+
+        if (!oSelectedItem) {
+          this._resetEmployeeValueHelpList();
+          return;
+        }
+
+        var oEmployee = oSelectedItem
+          .getBindingContext("employeeLookupModel")
+          .getObject();
+
+        this.byId("filterPernr").setValue(oEmployee.Pernr);
+
         this._resetEmployeeValueHelpList();
-        return;
-    }
 
-    var oEmployee = oSelectedItem
-        .getBindingContext("employeeLookupModel")
-        .getObject();
+        // nếu muốn tự tìm kiếm luôn
+        this.onSearch();
+      },
 
-    this.byId("filterPernr").setValue(oEmployee.Pernr);
+      onEmployeeValueHelpCancel: function () {
+        this._sEmployeeValueHelpMode = "dialog";
+        this._resetEmployeeValueHelpList();
+      },
 
-    this._resetEmployeeValueHelpList();
+      _resetEmployeeValueHelpList: function () {
+        var oEmployeeModel = this.getView().getModel("employeeLookupModel");
 
-    // nếu muốn tự tìm kiếm luôn
-    this.onSearch();
-},
+        if (!oEmployeeModel) {
+          return;
+        }
 
-        onEmployeeValueHelpCancel: function () {
-            this._sEmployeeValueHelpMode = "dialog";
-            this._resetEmployeeValueHelpList();
-        },
+        var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
+        oEmployeeModel.setProperty("/employees", aAllEmployees);
+      },
 
-        _resetEmployeeValueHelpList: function () {
-            var oEmployeeModel = this.getView().getModel("employeeLookupModel");
+      _openDepartmentValueHelp: function (sMode) {
+        var oView = this.getView();
+        var oDepartmentModel = oView.getModel("departmentLookupModel");
+        var aDepartments =
+          oDepartmentModel.getProperty("/allDepartments") || [];
 
-            if (!oEmployeeModel) {
-                return;
-            }
+        this._sDepartmentValueHelpMode = sMode || "dialog";
 
-            var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-            oEmployeeModel.setProperty("/employees", aAllEmployees);
-        },
+        var fnOpenDialog = function () {
+          var aAllDepartments =
+            oDepartmentModel.getProperty("/allDepartments") || [];
+          oDepartmentModel.setProperty("/departments", aAllDepartments);
 
-         _openDepartmentValueHelp: function (sMode) {
-            var oView = this.getView();
-            var oDepartmentModel = oView.getModel("departmentLookupModel");
-            var aDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
-
-            this._sDepartmentValueHelpMode = sMode || "dialog";
-
-            var fnOpenDialog = function () {
-                var aAllDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
-                oDepartmentModel.setProperty("/departments", aAllDepartments);
-
-                if (!this.pDepartmentDialog) {
-                    this.pDepartmentDialog = Fragment.load({
-                        id: oView.getId(),
-                        name: "com.app.zu26g13.app.view.DepartmentValueHelp",
-                        controller: this
-                    }).then(function (oDialog) {
-                        oView.addDependent(oDialog);
-                        return oDialog;
-                    });
-                }
-
-                this.pDepartmentDialog.then(function (oDialog) {
-                    oDialog.open();
-                });
-            }.bind(this);
-
-            if (aDepartments.length > 0) {
-                fnOpenDialog();
-                return;
-            }
-
-            BusyIndicator.show(0);
-
-            this._loadDepartmentLookup().then(function () {
-                BusyIndicator.hide();
-                fnOpenDialog();
-            }).catch(function () {
-                BusyIndicator.hide();
-                MessageBox.error("Không thể lấy danh sách phòng ban.", {
-                    title: "Lỗi dữ liệu phòng ban"
-                });
+          if (!this.pDepartmentDialog) {
+            this.pDepartmentDialog = Fragment.load({
+              id: oView.getId(),
+              name: "com.app.zu26g13.app.view.DepartmentValueHelp",
+              controller: this,
+            }).then(function (oDialog) {
+              oView.addDependent(oDialog);
+              return oDialog;
             });
-        },
+          }
 
-        onDepartmentValueHelpSearch: function (oEvent) {
-            var sValue = oEvent.getParameter("value") || "";
-            var oDepartmentModel = this.getView().getModel("departmentLookupModel");
-            var aAllDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
-            var sSearch = sValue.toLowerCase().trim();
+          this.pDepartmentDialog.then(function (oDialog) {
+            oDialog.open();
+          });
+        }.bind(this);
 
-            if (!sSearch) {
-                oDepartmentModel.setProperty("/departments", aAllDepartments);
-                return;
-            }
+        if (aDepartments.length > 0) {
+          fnOpenDialog();
+          return;
+        }
 
-            var aFiltered = aAllDepartments.filter(function (item) {
-                return String(item.DeptId || "").toLowerCase().indexOf(sSearch) !== -1 ||
-                    String(item.DeptName || "").toLowerCase().indexOf(sSearch) !== -1;
+        BusyIndicator.show(0);
+
+        this._loadDepartmentLookup()
+          .then(function () {
+            BusyIndicator.hide();
+            fnOpenDialog();
+          })
+          .catch(function () {
+            BusyIndicator.hide();
+            MessageBox.error("Không thể lấy danh sách phòng ban.", {
+              title: "Lỗi dữ liệu phòng ban",
             });
+          });
+      },
 
-            oDepartmentModel.setProperty("/departments", aFiltered);
-        },
+      onDepartmentValueHelpSearch: function (oEvent) {
+        var sValue = oEvent.getParameter("value") || "";
+        var oDepartmentModel = this.getView().getModel("departmentLookupModel");
+        var aAllDepartments =
+          oDepartmentModel.getProperty("/allDepartments") || [];
+        var sSearch = sValue.toLowerCase().trim();
+
+        if (!sSearch) {
+          oDepartmentModel.setProperty("/departments", aAllDepartments);
+          return;
+        }
+
+        var aFiltered = aAllDepartments.filter(function (item) {
+          return (
+            String(item.DeptId || "")
+              .toLowerCase()
+              .indexOf(sSearch) !== -1 ||
+            String(item.DeptName || "")
+              .toLowerCase()
+              .indexOf(sSearch) !== -1
+          );
+        });
+
+        oDepartmentModel.setProperty("/departments", aFiltered);
+      },
 
       onDepartmentValueHelpConfirm: function (oEvent) {
+        var oSelectedItem = oEvent.getParameter("selectedItem");
 
-    var oSelectedItem = oEvent.getParameter("selectedItem");
+        if (!oSelectedItem) {
+          this._resetDepartmentValueHelpList();
+          return;
+        }
 
-    if (!oSelectedItem) {
+        var oDepartment = oSelectedItem
+          .getBindingContext("departmentLookupModel")
+          .getObject();
+
+        this.byId("filterDept").setValue(oDepartment.DeptName);
+
+        this._sFilterDeptId = oDepartment.DeptId;
         this._resetDepartmentValueHelpList();
-        return;
-    }
 
-    var oDepartment = oSelectedItem
-        .getBindingContext("departmentLookupModel")
-        .getObject();
+        this.onSearch();
+      },
 
-    this.byId("filterDept").setValue(oDepartment.DeptName);
+      onDepartmentValueHelpCancel: function () {
+        this._sDepartmentValueHelpMode = "dialog";
+        this._resetDepartmentValueHelpList();
+      },
 
-    this._sFilterDeptId = oDepartment.DeptId;
-    this._resetDepartmentValueHelpList();
+      _resetDepartmentValueHelpList: function () {
+        var oDepartmentModel = this.getView().getModel("departmentLookupModel");
 
-    this.onSearch();
-},
+        if (!oDepartmentModel) {
+          return;
+        }
 
-        onDepartmentValueHelpCancel: function () {
-            this._sDepartmentValueHelpMode = "dialog";
-            this._resetDepartmentValueHelpList();
-        },
-
-        _resetDepartmentValueHelpList: function () {
-            var oDepartmentModel = this.getView().getModel("departmentLookupModel");
-
-            if (!oDepartmentModel) {
-                return;
-            }
-
-            var aAllDepartments = oDepartmentModel.getProperty("/allDepartments") || [];
-            oDepartmentModel.setProperty("/departments", aAllDepartments);
-        },
+        var aAllDepartments =
+          oDepartmentModel.getProperty("/allDepartments") || [];
+        oDepartmentModel.setProperty("/departments", aAllDepartments);
+      },
 
       // 2. Mở Popup Dialog để TẠO MỚI nhân viên
       onOpenCreateDialog: function () {
@@ -492,8 +508,19 @@ onDeptInputValueHelpRequest: function () {
                 oModel.remove(sPath, {
                   success: function () {
                     this.getView().setBusy(false);
+
+                    // Refresh OData
+                    oModel.refresh(true);
+
+                    // Reload dữ liệu Search Help
+                    this._loadEmployeeLookup();
+
                     MessageToast.show("Đã xóa nhân viên thành công!");
-                    // Hệ thống RAP / OData V2 sẽ tự động làm mới (refresh) lại bảng dữ liệu trên giao diện
+
+                    var oTable = this.byId("employeeTable");
+                    if (oTable && oTable.getBinding("items")) {
+                      oTable.getBinding("items").refresh(true);
+                    }
                   }.bind(this),
                   error: function (oError) {
                     this.getView().setBusy(false);
@@ -545,13 +572,23 @@ onDeptInputValueHelpRequest: function () {
 
           oModel.create("/Employee", oPayload, {
             success: function () {
-              oDialog.setBusy(false);
-              this.onCloseDialog();
-              MessageToast.show("Đã thêm nhân viên mới thành công!");
-              var oTable = this.byId("employeeTable");
-              if (oTable && oTable.getBinding("items")) {
-                oTable.getBinding("items").refresh();
-              }
+              // Refresh OData Model
+              oModel.refresh(true);
+
+              // Reload lại dữ liệu Search Help
+              this._loadEmployeeLookup().then(
+                function () {
+                  oDialog.setBusy(false);
+                  this.onCloseDialog();
+
+                  MessageToast.show("Đã thêm nhân viên mới thành công!");
+
+                  var oTable = this.byId("employeeTable");
+                  if (oTable && oTable.getBinding("items")) {
+                    oTable.getBinding("items").refresh(true);
+                  }
+                }.bind(this),
+              );
             }.bind(this),
             error: function (oError) {
               oDialog.setBusy(false);

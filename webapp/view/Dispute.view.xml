@@ -6,47 +6,6 @@
     xmlns:layout="sap.ui.layout">
 
     <Page id="pageDispute" showHeader="false" class="sapUiContentPadding">
-        
-        <dependents>
-            <Dialog id="approveDialog" title="{i18n>dialogTitleApprove}" contentWidth="400px">
-                <content>
-                    <layout:VerticalLayout class="sapUiContentPadding" width="100%">
-                        <Label text="{i18n>lblInTimeMgr}" design="Bold"/>
-                        <TimePicker id="tpNewIn" value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
-                        
-                        <Label text="{i18n>lblOutTimeMgr}" design="Bold" class="sapUiSmallMarginTop" />
-                        <TimePicker id="tpNewOut" value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
-                        
-                        <Label text="{i18n>lblEmpReason}" class="sapUiSmallMarginTop" design="Bold"/>
-                        <Text text="{Reason}" class="sapUiTinyMarginTop"/>
-                        <Label text="Manager Note:" class="sapUiSmallMarginTop" design="Bold" />
-                        <TextArea id="approveNote" value="{ApproverComment}" 
-                        width="100%" rows="4" placeholder="{i18n>phApproveReason}" maxLength="255"/>
-                    </layout:VerticalLayout>
-                </content>
-                <beginButton>
-                    <Button type="Accept" text="{i18n>btnSaveApprove}" press=".onConfirmApprove" />
-                </beginButton>
-                <endButton>
-                    <Button text="{i18n>btnClose}" press=".onCancelDialog" />
-                </endButton>
-            </Dialog>
-
-            <Dialog id="rejectDialog" title="{i18n>dialogTitleReject}" contentWidth="400px">
-                <content>
-                    <layout:VerticalLayout class="sapUiContentPadding" width="100%" required="true">
-                        <Label text="{i18n>lblRejectReason}" design="Bold"/>
-                        <TextArea id="rejectNote" value="{ApproverComment}" width="100%" rows="4" placeholder="{i18n>phRejectReason}" maxLength="255"/>
-                    </layout:VerticalLayout>
-                </content>
-                <beginButton>
-                    <Button type="Reject" text="{i18n>btnConfirmReject}" press=".onConfirmReject" />
-                </beginButton>
-                <endButton>
-                    <Button text="{i18n>btnCancel}" press=".onCancelReject" />
-                </endButton>
-            </Dialog>
-        </dependents>
 
         <Title id="titleDispute" text="{i18n>titleApproveReport}" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
 

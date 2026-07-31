@@ -1,0 +1,24 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:layout="sap.ui.layout">
+    <Dialog id="approveDialog" title="{i18n>dialogTitleApprove}" contentWidth="400px">
+        <content>
+            <layout:VerticalLayout class="sapUiContentPadding" width="100%">
+                <Label text="{i18n>lblInTimeMgr}" design="Bold"/>
+                <TimePicker id="tpNewIn" value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
+                
+                <Label text="{i18n>lblOutTimeMgr}" design="Bold" class="sapUiSmallMarginTop" />
+                <TimePicker id="tpNewOut" value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
+                
+                <Label text="{i18n>lblEmpReason}" class="sapUiSmallMarginTop" design="Bold"/>
+                <Text text="{Reason}" class="sapUiTinyMarginTop"/>
+                <Label text="Manager Note:" class="sapUiSmallMarginTop" design="Bold" />
+                <TextArea id="approveNoteInput" value="{ApproverComment}" width="100%" rows="4" placeholder="{i18n>phApproveReason}" maxLength="255"/>
+            </layout:VerticalLayout>
+        </content>
+        <beginButton>
+            <Button type="Accept" text="{i18n>btnSaveApprove}" press=".onConfirmApprove" />
+        </beginButton>
+        <endButton>
+            <Button text="{i18n>btnClose}" press=".onCancelDialog" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

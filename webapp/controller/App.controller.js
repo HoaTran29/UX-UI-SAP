@@ -7,6 +7,18 @@ sap.ui.define([
         
         onInit: function () {
             // Khởi tạo ứng dụng gốc
+            var oRouter = this.getOwnerComponent().getRouter();
+            oRouter.attachRouteMatched(this._onGlobalRouteMatched, this);
+        },
+
+        _onGlobalRouteMatched: function (oEvent) {
+            // Lấy OData Model gốc của toàn bộ App
+            var oModel = this.getOwnerComponent().getModel();
+            
+            if (oModel) {
+                // Tham số true ép nó vứt cache cũ đi, gửi lệnh GET mới xuống Backend
+                oModel.refresh(true);
+            }
         },
 
         // Hàm xử lý khi bấm nút "3 gạch" trên header để thu gọn/mở rộng menu

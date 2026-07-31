@@ -1,8 +1,9 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageToast",
-    "sap/ui/core/BusyIndicator"
-], function (Controller, MessageToast, BusyIndicator) {
+    "sap/ui/core/BusyIndicator",
+    "sap/ui/core/Fragment"
+], function (Controller, MessageToast, BusyIndicator, Fragment) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.Dispute", {
@@ -12,12 +13,23 @@ sap.ui.define([
 
         // 1. MỞ POPUP XỬ LÝ (DUYỆT)
         onOpenDialog: function (oEvent) {
-            var oButton = oEvent.getSource();
-            var oContext = oButton.getBindingContext();
-            var oDialog = this.byId("approveDialog");
+            var oView = this.getView();
+            var oContext = oEvent.getSource().getBindingContext();
 
-            oDialog.setBindingContext(oContext);
-            oDialog.open();
+            if (!this._pApproveDialog) {
+                this._pApproveDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.ApproveDialog", // Trỏ tới file mới
+                    controller: this
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    return oDialog;
+                });
+            }
+            this._pApproveDialog.then(function (oDialog) {
+                oDialog.setBindingContext(oContext);
+                oDialog.open();
+            });
         },
 
         // 2. HỦY & ĐÓNG POPUP (DUYỆT)
@@ -86,12 +98,23 @@ sap.ui.define([
 
         // 1. MỞ POPUP TỪ CHỐI
         onOpenRejectDialog: function (oEvent) {
-            var oButton = oEvent.getSource();
-            var oContext = oButton.getBindingContext();
-            var oDialog = this.byId("rejectDialog");
+            var oView = this.getView();
+            var oContext = oEvent.getSource().getBindingContext();
 
-            oDialog.setBindingContext(oContext);
-            oDialog.open();
+            if (!this._pRejectDialog) {
+                this._pRejectDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.RejectDialog", // Trỏ tới file mới
+                    controller: this
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    return oDialog;
+                });
+            }
+            this._pRejectDialog.then(function (oDialog) {
+                oDialog.setBindingContext(oContext);
+                oDialog.open();
+            });
         },
 
         // 2. HỦY & ĐÓNG POPUP TỪ CHỐI

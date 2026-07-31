@@ -39,21 +39,27 @@
             </layout:Grid>
 
             <Title id="titleTimesheet" text="{i18n>titleTimesheet}" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+            
             <fb:FilterBar id="filterBar" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
                 <fb:filterGroupItems>
+                    
+                    <!-- 1. ĐÃ SỬA: Bật Value Help cho ô Nhân viên -->
                     <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                         <fb:control>
-                            <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" />
+                            <Input id="fltEmp" 
+                                   placeholder="{i18n>phEnterEmpId}" 
+                                   showValueHelp="true" 
+                                   valueHelpRequest=".onEmpValueHelpRequest" />
                         </fb:control>
                     </fb:FilterGroupItem>
 
+                    <!-- 2. ĐÃ SỬA: Đổi ComboBox thành Input và bật Value Help cho ô Phòng ban -->
                     <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
                         <fb:control>
-                            <ComboBox id="fltDept" placeholder="{i18n>phSelectDeptFilter}">
-                                <core:Item key="IT_01" text="{i18n>deptIT}" />
-                                <core:Item key="HR_02" text="{i18n>deptHR}" />
-                                <core:Item key="SALES_03" text="{i18n>deptSales}" />
-                            </ComboBox>
+                            <Input id="fltDept" 
+                                   placeholder="{i18n>phSelectDeptFilter}" 
+                                   showValueHelp="true" 
+                                   valueHelpRequest=".onDeptValueHelpRequest" />
                         </fb:control>
                     </fb:FilterGroupItem>
 
@@ -64,6 +70,7 @@
                     </fb:FilterGroupItem>
                 </fb:filterGroupItems>
             </fb:FilterBar>
+
             <Table id="timesheetTable"
                    items="{
                        path: '/Timesheet',
@@ -98,9 +105,9 @@
                 <items>
                     <ColumnListItem id="cliTimesheet" type="Active">
                         <cells>
-                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Ca: {ShiftId}"/>
+                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Shift {ShiftId}"/>
 
-                            <Text id="txtCellDept" text="{ path: 'DeptId', formatter: '.formatDeptName' }" />
+                            <Text id="txtCellDept" text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
                             
                             <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />

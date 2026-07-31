@@ -1,0 +1,40 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    
+    <!-- Đổi từ SelectDialog sang Popover -->
+    <Popover
+        id="genericSearchHelpPopover"
+        title="{vhConfig>/title}"
+        placement="Bottom"
+        contentHeight="300px" 
+        contentWidth="350px">
+        
+        <!-- Thanh search gắn cố định trên đầu -->
+        <subHeader>
+            <Toolbar>
+                <SearchField 
+                    placeholder="Tìm kiếm..." 
+                    search=".onGenericValueHelpSearch" 
+                    liveChange=".onGenericValueHelpSearch" 
+                    width="100%"/>
+            </Toolbar>
+        </subHeader>
+        
+        <content>
+            <!-- Dùng List để hiển thị data -->
+            <List 
+                id="genericSearchHelpList"
+                mode="SingleSelectMaster"
+                selectionChange=".onGenericValueHelpConfirm"
+                noDataText="{vhConfig>/noDataText}"
+                growing="true"
+                growingThreshold="20">
+                <!-- Data sẽ được bơm động vào đây từ JS -->
+            </List>
+        </content>
+        
+        <endButton>
+            <Button text="Đóng" press=".onGenericValueHelpCancel" />
+        </endButton>
+        
+    </Popover>
+</core:FragmentDefinition>

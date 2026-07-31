@@ -195,6 +195,14 @@ sap.ui.define([
                 }
             });
         },
+
+        onCancelTimesheet: function () {
+            var oDialog = this.byId("editTimesheetDialog");
+            if (oDialog) {
+                oDialog.close();
+            }
+        },
+
         formatStatusText: function (sStatus, dWorkDate) {
             if (!sStatus) {
                 return "";

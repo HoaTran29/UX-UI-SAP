@@ -19,6 +19,9 @@
                         
                         <Label text="{i18n>lblEmpReason}" class="sapUiSmallMarginTop" design="Bold"/>
                         <Text text="{Reason}" class="sapUiTinyMarginTop"/>
+                        <Label text="Manager Note:" class="sapUiSmallMarginTop" design="Bold" />
+                        <TextArea id="approveNote" value="{ApproverComment}" 
+                        width="100%" rows="4" placeholder="{i18n>phApproveReason}" maxLength="255"/>
                     </layout:VerticalLayout>
                 </content>
                 <beginButton>
@@ -31,9 +34,9 @@
 
             <Dialog id="rejectDialog" title="{i18n>dialogTitleReject}" contentWidth="400px">
                 <content>
-                    <layout:VerticalLayout class="sapUiContentPadding" width="100%">
+                    <layout:VerticalLayout class="sapUiContentPadding" width="100%" required="true">
                         <Label text="{i18n>lblRejectReason}" design="Bold"/>
-                        <TextArea id="rejectNote" value="{ApproverComment}" width="100%" rows="4" placeholder="{i18n>phRejectReason}"/>
+                        <TextArea id="rejectNote" value="{ApproverComment}" width="100%" rows="4" placeholder="{i18n>phRejectReason}" maxLength="255"/>
                     </layout:VerticalLayout>
                 </content>
                 <beginButton>
@@ -72,8 +75,8 @@
                         <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
                         
                         <HBox id="hboxActions" justifyContent="Center">
-                            <Button id="btnReview" icon="sap-icon://edit" type="Emphasized" text="{i18n>btnProcess}" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
-                            <Button id="btnReject" icon="sap-icon://decline" type="Reject" text="{i18n>btnReject}" press=".onOpenRejectDialog"/>
+                            <Button id="btnReview" type="Accept" text="{i18n>btnApprove}" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
+                            <Button id="btnReject" type="Reject" text="{i18n>btnReject}" press=".onOpenRejectDialog"/>
                         </HBox>
                     </cells>
                 </ColumnListItem>

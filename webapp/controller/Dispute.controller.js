@@ -89,7 +89,6 @@ sap.ui.define([
         },
 
         // 3. XÁC NHẬN TỪ CHỐI BÊN TRONG POPUP
-        // 3. XÁC NHẬN TỪ CHỐI BÊN TRONG POPUP
         onConfirmReject: function () {
             var oDialog = this.byId("rejectDialog");
             var oContext = oDialog.getBindingContext();
@@ -122,14 +121,14 @@ sap.ui.define([
 
         // 4. HÀM CHUYÊN GỌI ACTION TỪ CHỐI (Đã gom 2 hàm trùng lại làm 1, sửa thành /Reject)
         _callRejectAction: function(sDisputeId, oModel, oDialog) {
-            oModel.callFunction("/Reject", { // <--- ĐỔI TÊN Ở ĐÂY CHO KHỚP BDEF
+            oModel.callFunction("/Reject", {
                 method: "POST",
                 urlParameters: { DisputeId: sDisputeId },
                 success: function () {
                     BusyIndicator.hide();
                     MessageToast.show("Đã TỪ CHỐI đơn report!");
                     if(oDialog) {
-                        oDialog.close(); // Đã thêm lệnh Đóng popup
+                        oDialog.close();
                     }
                     oModel.refresh(); 
                 },

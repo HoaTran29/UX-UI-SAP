@@ -6,16 +6,16 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.Dispute", {
-        
+
         onInit: function () {
         },
 
         // 1. MỞ POPUP XỬ LÝ (DUYỆT)
         onOpenDialog: function (oEvent) {
             var oButton = oEvent.getSource();
-            var oContext = oButton.getBindingContext(); 
+            var oContext = oButton.getBindingContext();
             var oDialog = this.byId("approveDialog");
-            
+
             oDialog.setBindingContext(oContext);
             oDialog.open();
         },
@@ -28,19 +28,31 @@ sap.ui.define([
 
         // 3. XÁC NHẬN DUYỆT
         onConfirmApprove: function () {
+            var oView = this.getView();
             var oDialog = this.byId("approveDialog");
             var oContext = oDialog.getBindingContext();
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
 
+            var oTextArea = this.byId("approveNote");
+            if (oTextArea) {
+                var sNote = oTextArea.getValue().trim();
+
+                // 2. LOGIC MẶC ĐỊNH: Nếu không nhập gì thì tự gán chữ "ĐÃ DUYỆT"
+                if (!sNote) {
+                    sNote = "ĐÃ DUYỆT";
+                }
+                oModel.setProperty(oContext.getPath() + "/ApproverComment", sNote); 
+            }
+
             BusyIndicator.show(0);
 
             if (oModel.hasPendingChanges()) {
                 oModel.submitChanges({
-                    success: function() {
+                    success: function () {
                         this._callApproveAction(sDisputeId, oModel, oDialog);
                     }.bind(this),
-                    error: function() {
+                    error: function () {
                         BusyIndicator.hide();
                         sap.m.MessageToast.show("Lỗi mạng khi lưu dữ liệu trước khi duyệt!");
                     }
@@ -51,15 +63,15 @@ sap.ui.define([
         },
 
         // 4. HÀM CHUYÊN GỌI ACTION DUYỆT XUỐNG BACKEND (Đã sửa /ApproveDispute thành /Approve)
-        _callApproveAction: function(sDisputeId, oModel, oDialog) {
+        _callApproveAction: function (sDisputeId, oModel, oDialog) {
             oModel.callFunction("/Approve", {  // <--- ĐỔI TÊN Ở ĐÂY CHO KHỚP BDEF
                 method: "POST",
                 urlParameters: { DisputeId: sDisputeId },
                 success: function () {
                     BusyIndicator.hide();
                     MessageToast.show("Đã DUYỆT đơn và tự động cập nhật Timesheet!");
-                    if(oDialog) oDialog.close(); // Đóng popup
-                    oModel.refresh(); 
+                    if (oDialog) oDialog.close(); // Đóng popup
+                    oModel.refresh();
                 },
                 error: function (oError) {
                     BusyIndicator.hide();
@@ -77,7 +89,7 @@ sap.ui.define([
             var oButton = oEvent.getSource();
             var oContext = oButton.getBindingContext();
             var oDialog = this.byId("rejectDialog");
-            
+
             oDialog.setBindingContext(oContext);
             oDialog.open();
         },
@@ -90,13 +102,23 @@ sap.ui.define([
 
         // 3. XÁC NHẬN TỪ CHỐI BÊN TRONG POPUP
         onConfirmReject: function () {
+            var oView = this.getView();
             var oDialog = this.byId("rejectDialog");
             var oContext = oDialog.getBindingContext();
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
 
-            // BẠO LỰC: Lấy chữ từ TextArea và nhét thẳng vào cột ApproverComment
-            var oTextArea = this.byId("rejectNote"); 
+            var oTextArea = this.byId("rejectNote");
+            var sReason = oTextArea.getValue().trim();
+
+            if (!sReason) {
+                sap.m.MessageToast.show("Vui lòng nhập lý do từ chối!");
+                oTextArea.setValueState("Error");
+                return;
+            } else {
+                oTextArea.setValueState("None");
+            }
+
             if (oTextArea) {
                 var sNote = oTextArea.getValue();
                 oModel.setProperty(oContext.getPath() + "/ApproverComment", sNote);
@@ -106,10 +128,10 @@ sap.ui.define([
 
             if (oModel.hasPendingChanges()) {
                 oModel.submitChanges({
-                    success: function() {
+                    success: function () {
                         this._callRejectAction(sDisputeId, oModel, oDialog);
                     }.bind(this),
-                    error: function() {
+                    error: function () {
                         BusyIndicator.hide();
                         sap.m.MessageToast.show("Lỗi mạng: Không thể lưu lý do từ chối!");
                     }
@@ -120,17 +142,17 @@ sap.ui.define([
         },
 
         // 4. HÀM CHUYÊN GỌI ACTION TỪ CHỐI (Đã gom 2 hàm trùng lại làm 1, sửa thành /Reject)
-        _callRejectAction: function(sDisputeId, oModel, oDialog) {
+        _callRejectAction: function (sDisputeId, oModel, oDialog) {
             oModel.callFunction("/Reject", {
                 method: "POST",
                 urlParameters: { DisputeId: sDisputeId },
                 success: function () {
                     BusyIndicator.hide();
                     MessageToast.show("Đã TỪ CHỐI đơn report!");
-                    if(oDialog) {
+                    if (oDialog) {
                         oDialog.close();
                     }
-                    oModel.refresh(); 
+                    oModel.refresh();
                 },
                 error: function (oError) {
                     BusyIndicator.hide();

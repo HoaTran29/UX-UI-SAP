@@ -43,7 +43,7 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error("Không lấy được dữ liệu ngày lễ.");
+                MessageBox.error("Unable to get holiday data.");
                 return;
             }
 
@@ -96,15 +96,15 @@ sap.ui.define([
             var sHolDesc = String(oHolidayData.HolDesc || "").trim();
 
             if (!dHolDate) {
-                MessageBox.error("Vui lòng chọn ngày lễ.", {
-                    title: "Thiếu ngày lễ"
+                MessageBox.error("Please select a holiday date.", {
+                    title: "Missing Holiday Date"
                 });
                 return;
             }
 
             if (!sHolDesc) {
-                MessageBox.error("Mô tả ngày lễ không được để trống hoặc chỉ nhập dấu cách.", {
-                    title: "Thiếu mô tả"
+                MessageBox.error("Holiday description cannot be empty or spaces only.", {
+                    title: "Missing Description"
                 });
                 return;
             }
@@ -131,17 +131,17 @@ sap.ui.define([
                 oODataModel.update(sUpdatePath, oPayloadUpdate, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
-                        MessageToast.show("Cập nhật ngày lễ thành công.");
+                        MessageToast.show("Holiday updated successfully.");
                         this.onCloseDialog();
-                        oODataModel.refresh(true);
+                        this._reloadViewData();
                     }.bind(this),
                     error: function (oError) {
                         sap.ui.core.BusyIndicator.hide();
-                        console.error("Lỗi update /Holiday:", oError);
+                        console.error("Error updating /Holiday:", oError);
                         MessageBox.error(
-                            this._getODataErrorMessage(oError, "Lỗi cập nhật ngày lễ."),
+                            this._getODataErrorMessage(oError, "Unable to update holiday."),
                             {
-                                title: "Không thể cập nhật ngày lễ"
+                                title: "Unable to Update Holiday"
                             }
                         );
                     }.bind(this)
@@ -153,20 +153,20 @@ sap.ui.define([
             oODataModel.create("/Holiday", oPayloadCreate, {
                 success: function () {
                     sap.ui.core.BusyIndicator.hide();
-                    MessageToast.show("Thêm ngày lễ thành công.");
+                    MessageToast.show("Holiday created successfully.");
                     this.onCloseDialog();
-                    oODataModel.refresh(true);
+                    this._reloadViewData();
                 }.bind(this),
                 error: function (oError) {
                     sap.ui.core.BusyIndicator.hide();
-                    console.error("Lỗi create /Holiday:", oError);
+                    console.error("Error creating /Holiday:", oError);
                     MessageBox.error(
                         this._getODataErrorMessage(
                             oError,
-                            "Lỗi thêm ngày lễ. Kiểm tra ngày lễ có bị trùng không."
+                            "Unable to create holiday. Please check whether the holiday date already exists."
                         ),
                         {
-                            title: "Không thể thêm ngày lễ"
+                            title: "Unable to Create Holiday"
                         }
                     );
                 }.bind(this)
@@ -177,7 +177,7 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error("Không lấy được dòng cần xóa.");
+                MessageBox.error("Unable to get the selected row for deletion.");
                 return;
             }
 
@@ -190,9 +190,9 @@ sap.ui.define([
             );
 
             MessageBox.confirm(
-                "Bạn có chắc muốn xóa ngày lễ " + this.formatDate(oData.HolDate) + " không?",
+                "Are you sure you want to delete holiday " + this.formatDate(oData.HolDate) + "?",
                 {
-                    title: "Xác nhận xóa",
+                    title: "Confirm Deletion",
                     actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
                     emphasizedAction: MessageBox.Action.OK,
                     onClose: function (sAction) {
@@ -205,16 +205,16 @@ sap.ui.define([
                         oODataModel.remove(sPath, {
                             success: function () {
                                 sap.ui.core.BusyIndicator.hide();
-                                MessageToast.show("Xóa ngày lễ thành công.");
-                                oODataModel.refresh(true);
+                                MessageToast.show("Holiday deleted successfully.");
+                                this._reloadViewData();
                             },
                             error: function (oError) {
                                 sap.ui.core.BusyIndicator.hide();
-                                console.error("Lỗi delete /Holiday:", oError);
+                                console.error("Error deleting /Holiday:", oError);
                                 MessageBox.error(
-                                    this._getODataErrorMessage(oError, "Lỗi khi xóa ngày lễ."),
+                                    this._getODataErrorMessage(oError, "Unable to delete holiday."),
                                     {
-                                        title: "Không thể xóa ngày lễ"
+                                        title: "Unable to Delete Holiday"
                                     }
                                 );
                             }.bind(this)
@@ -224,6 +224,21 @@ sap.ui.define([
             );
         },
 
+
+        _reloadViewData: function () {
+            var oODataModel = this.getView().getModel();
+            var oTable = this.byId("holidayTable");
+            var oBinding = oTable && oTable.getBinding("items");
+
+            if (oODataModel) {
+                oODataModel.refresh(true);
+            }
+
+            if (oBinding) {
+                oBinding.refresh(true);
+            }
+        },
+
         formatDate: function (vDate) {
             var dDate = this._toDate(vDate);
 
@@ -231,7 +246,7 @@ sap.ui.define([
                 return "";
             }
 
-            return dDate.toLocaleDateString("vi-VN", {
+            return dDate.toLocaleDateString("en-GB", {
                 timeZone: "Asia/Ho_Chi_Minh",
                 day: "2-digit",
                 month: "2-digit",
@@ -270,9 +285,9 @@ sap.ui.define([
         },
 
         /*
-         * Quan trọng:
-         * Gửi date dạng UTC 00:00 để OData không convert lùi 1 ngày ở GMT+7.
-         * Ví dụ chọn 21/07/2026 sẽ gửi datetime'2026-07-21T00:00:00'
+         * Important:
+         * Send date as UTC 00:00 so OData does not shift the date back in GMT+7.
+         * Example: selecting 21/07/2026 sends datetime'2026-07-21T00:00:00'.
          */
         _toODataDate: function (vDate) {
             var dDate = this._normalizeDate(vDate);
@@ -359,7 +374,7 @@ sap.ui.define([
                 return aMessages.join("\n");
             }
 
-            return sDefaultMessage || "Có lỗi xảy ra.";
+            return sDefaultMessage || "An unexpected error occurred.";
         }
 
     });

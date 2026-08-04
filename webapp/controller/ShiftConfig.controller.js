@@ -48,7 +48,7 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error("Không lấy được dữ liệu ca làm việc.");
+                MessageBox.error("Unable to get work shift data.");
                 return;
             }
 
@@ -107,29 +107,29 @@ sap.ui.define([
             var sGraceMins = String(oShiftData.GraceMins || "0").trim();
 
             if (!sShiftId) {
-                MessageBox.error("Mã ca không được để trống hoặc chỉ nhập dấu cách.", {
-                    title: "Thiếu mã ca"
+                MessageBox.error("Shift ID cannot be empty or spaces only.", {
+                    title: "Missing Shift ID"
                 });
                 return;
             }
 
             if (!/^[A-Z0-9_]+$/.test(sShiftId)) {
-                MessageBox.error("Mã ca chỉ được dùng chữ, số và dấu gạch dưới. Ví dụ: CA_01, CA_02, TEST.", {
-                    title: "Mã ca không hợp lệ"
+                MessageBox.error("Shift ID can only contain letters, numbers, and underscores. Example: CA_01, CA_02, TEST.", {
+                    title: "Invalid Shift ID"
                 });
                 return;
             }
 
             if (sShiftId.length > 20) {
-                MessageBox.error("Mã ca không được vượt quá 20 ký tự.", {
-                    title: "Mã ca quá dài"
+                MessageBox.error("Shift ID cannot exceed 20 characters.", {
+                    title: "Shift ID Too Long"
                 });
                 return;
             }
 
             if (!sStdHours) {
-                MessageBox.error("Giờ chuẩn không được để trống.", {
-                    title: "Thiếu giờ chuẩn"
+                MessageBox.error("Standard hours cannot be empty.", {
+                    title: "Missing Standard Hours"
                 });
                 return;
             }
@@ -137,8 +137,8 @@ sap.ui.define([
             var fStdHours = parseFloat(sStdHours);
 
             if (isNaN(fStdHours) || fStdHours <= 0 || fStdHours > 24) {
-                MessageBox.error("Giờ chuẩn phải là số từ 0 đến 24. Ví dụ: 8, 8.5, 8.28, 12.", {
-                    title: "Giờ chuẩn không hợp lệ"
+                MessageBox.error("Standard hours must be a number from 0 to 24. Example: 8, 8.5, 8.28, 12.", {
+                    title: "Invalid Standard Hours"
                 });
                 return;
             }
@@ -149,15 +149,15 @@ sap.ui.define([
             var sTimeOut = this._normalizeHHmmss(oShiftData.TimeOut);
 
             if (!sTimeIn || !sTimeOut) {
-                MessageBox.error("Vui lòng chọn Giờ bắt đầu và Giờ kết thúc hợp lệ.", {
-                    title: "Thiếu giờ làm việc"
+                MessageBox.error("Please select valid start time and end time.", {
+                    title: "Missing Working Time"
                 });
                 return;
             }
 
             if (!this._isValidHHmmss(sTimeIn) || !this._isValidHHmmss(sTimeOut)) {
-                MessageBox.error("Giờ bắt đầu hoặc giờ kết thúc không hợp lệ.", {
-                    title: "Giờ làm việc không hợp lệ"
+                MessageBox.error("Start time or end time is invalid.", {
+                    title: "Invalid Working Time"
                 });
                 return;
             }
@@ -167,29 +167,29 @@ sap.ui.define([
             var fActualHours = this._roundHour2(fActualHoursRaw);
 
             if (fActualHoursRaw <= 0) {
-                MessageBox.error("Giờ kết thúc phải lớn hơn giờ bắt đầu. Nếu ca qua ngày, hãy bật Ca qua ngày.", {
-                    title: "Sai khung giờ"
+                MessageBox.error("End time must be greater than start time. If the shift crosses midnight, enable Overnight Shift.", {
+                    title: "Invalid Time Range"
                 });
                 return;
             }
 
             if (fActualHoursRaw > 24) {
-                MessageBox.error("Tổng thời gian ca không được vượt quá 24 giờ.", {
-                    title: "Sai khung giờ"
+                MessageBox.error("Total shift duration cannot exceed 24 hours.", {
+                    title: "Invalid Time Range"
                 });
                 return;
             }
 
             if (Math.abs(fActualHours - fStdHours) > 0.001) {
                 MessageBox.error(
-                    "Giờ chuẩn không khớp với giờ bắt đầu và giờ kết thúc.\n\n" +
-                    "Giờ bắt đầu: " + this._formatTimeFromHHmmss(sTimeIn) + "\n" +
-                    "Giờ kết thúc: " + this._formatTimeFromHHmmss(sTimeOut) + "\n" +
-                    "Ca qua ngày: " + (bNextDay ? "Có" : "Không") + "\n" +
-                    "Số giờ thực tế: " + this._formatHourNumber(fActualHours) + "h\n" +
-                    "Giờ chuẩn bạn nhập: " + this._formatHourNumber(fStdHours) + "h",
+                    "Standard hours do not match start time and end time.\n\n" +
+                    "Start Time: " + this._formatTimeFromHHmmss(sTimeIn) + "\n" +
+                    "End Time: " + this._formatTimeFromHHmmss(sTimeOut) + "\n" +
+                    "Overnight Shift: " + (bNextDay ? "Yes" : "No") + "\n" +
+                    "Actual Hours: " + this._formatHourNumber(fActualHours) + "h\n" +
+                    "Entered Standard Hours: " + this._formatHourNumber(fStdHours) + "h",
                     {
-                        title: "Giờ chuẩn không khớp"
+                        title: "Standard Hours Mismatch"
                     }
                 );
                 return;
@@ -198,8 +198,8 @@ sap.ui.define([
             var iGraceMins = parseInt(sGraceMins || "0", 10);
 
             if (isNaN(iGraceMins) || iGraceMins < 0 || iGraceMins > 1440) {
-                MessageBox.error("Grace mins phải là số nguyên từ 0 đến 1440.", {
-                    title: "Grace mins không hợp lệ"
+                MessageBox.error("Grace minutes must be an integer from 0 to 1440.", {
+                    title: "Invalid Grace Minutes"
                 });
                 return;
             }
@@ -244,8 +244,8 @@ sap.ui.define([
                 if (bExists) {
                     sap.ui.core.BusyIndicator.hide();
 
-                    MessageBox.error("Mã ca " + oPayloadCreate.ShiftId + " đã tồn tại. Vui lòng dùng mã ca khác.", {
-                        title: "Trùng mã ca"
+                    MessageBox.error("Shift ID " + oPayloadCreate.ShiftId + " already exists. Please use another shift ID.", {
+                        title: "Duplicate Shift ID"
                     });
 
                     return;
@@ -254,32 +254,32 @@ sap.ui.define([
                 oODataModel.create("/Schedule", oPayloadCreate, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
-                        MessageToast.show("Tạo ca làm việc thành công.");
+                        MessageToast.show("Work shift created successfully.");
                         this.onCloseDialog();
-                        oODataModel.refresh(true);
+                        this._reloadViewData();
                     }.bind(this),
                     error: function (oError) {
                         sap.ui.core.BusyIndicator.hide();
-                        console.error("Lỗi tạo mới /Schedule:", oError);
+                        console.error("Error creating /Schedule:", oError);
                         MessageBox.error(
                             this._getODataErrorMessage(
                                 oError,
-                                "Lỗi tạo mới ca. Kiểm tra mã ca có bị trùng hoặc dữ liệu không hợp lệ."
+                                "Unable to create work shift. Please check duplicate shift ID or invalid data."
                             ),
                             {
-                                title: "Không thể tạo ca làm việc"
+                                title: "Unable to Create Work Shift"
                             }
                         );
                     }.bind(this)
                 });
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
-                console.error("Lỗi kiểm tra ca tồn tại:", oError);
+                console.error("Error checking shift existence:", oError);
 
                 MessageBox.error(
-                    this._getODataErrorMessage(oError, "Không thể kiểm tra mã ca trước khi tạo."),
+                    this._getODataErrorMessage(oError, "Unable to check shift ID before creating."),
                     {
-                        title: "Không thể kiểm tra mã ca"
+                        title: "Unable to Check Shift ID"
                     }
                 );
             }.bind(this));
@@ -291,17 +291,17 @@ sap.ui.define([
             oODataModel.update(sPath, oPayloadUpdate, {
                 success: function () {
                     sap.ui.core.BusyIndicator.hide();
-                    MessageToast.show("Cập nhật ca làm việc thành công.");
+                    MessageToast.show("Work shift updated successfully.");
                     this.onCloseDialog();
-                    oODataModel.refresh(true);
+                    this._reloadViewData();
                 }.bind(this),
                 error: function (oError) {
                     sap.ui.core.BusyIndicator.hide();
-                    console.error("Lỗi cập nhật /Schedule:", oError);
+                    console.error("Error updating /Schedule:", oError);
                     MessageBox.error(
-                        this._getODataErrorMessage(oError, "Lỗi cập nhật ca làm việc."),
+                        this._getODataErrorMessage(oError, "Unable to update work shift."),
                         {
-                            title: "Không thể cập nhật ca làm việc"
+                            title: "Unable to Update Work Shift"
                         }
                     );
                 }.bind(this)
@@ -312,7 +312,7 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error("Không lấy được dòng cần xóa.");
+                MessageBox.error("Unable to get the selected row for deletion.");
                 return;
             }
 
@@ -321,9 +321,9 @@ sap.ui.define([
             var sPath = this._buildSchedulePath(oODataModel, oData.ShiftId);
 
             MessageBox.confirm(
-                "Bạn có chắc muốn xóa ca " + oData.ShiftId + " không?",
+                "Are you sure you want to delete shift " + oData.ShiftId + "?",
                 {
-                    title: "Xác nhận xóa",
+                    title: "Confirm Deletion",
                     actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
                     emphasizedAction: MessageBox.Action.OK,
                     onClose: function (sAction) {
@@ -336,16 +336,16 @@ sap.ui.define([
                         oODataModel.remove(sPath, {
                             success: function () {
                                 sap.ui.core.BusyIndicator.hide();
-                                MessageToast.show("Xóa ca làm việc thành công.");
-                                oODataModel.refresh(true);
+                                MessageToast.show("Work shift deleted successfully.");
+                                this._reloadViewData();
                             },
                             error: function (oError) {
                                 sap.ui.core.BusyIndicator.hide();
-                                console.error("Lỗi xóa /Schedule:", oError);
+                                console.error("Error deleting /Schedule:", oError);
                                 MessageBox.error(
-                                    this._getODataErrorMessage(oError, "Lỗi khi xóa ca làm việc."),
+                                    this._getODataErrorMessage(oError, "Unable to delete work shift."),
                                     {
-                                        title: "Không thể xóa ca làm việc"
+                                        title: "Unable to Delete Work Shift"
                                     }
                                 );
                             }.bind(this)
@@ -355,12 +355,27 @@ sap.ui.define([
             );
         },
 
+
+        _reloadViewData: function () {
+            var oODataModel = this.getView().getModel();
+            var oTable = this.byId("shiftTable");
+            var oBinding = oTable && oTable.getBinding("items");
+
+            if (oODataModel) {
+                oODataModel.refresh(true);
+            }
+
+            if (oBinding) {
+                oBinding.refresh(true);
+            }
+        },
+
         formatODataTime: function (vTime) {
             return this._formatTimeFromHHmmss(this._edmTimeToHHmmss(vTime));
         },
 
         formatNextDayText: function (vNextDay) {
-            return this._isNextDayTrue(vNextDay) ? "Có" : "Không";
+            return this._isNextDayTrue(vNextDay) ? "Yes" : "No";
         },
 
         formatNextDayState: function (vNextDay) {
@@ -696,7 +711,7 @@ sap.ui.define([
                 return aMessages.join("\n");
             }
 
-            return sDefaultMessage || "Có lỗi xảy ra.";
+            return sDefaultMessage || "An unexpected error occurred.";
         }
 
     });

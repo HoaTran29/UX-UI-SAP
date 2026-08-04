@@ -11,13 +11,13 @@
 
                 <HBox class="shiftConfigHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
-                        <Title text="Cấu hình Ca Làm Việc" titleStyle="H2" class="shiftConfigTitle"/>
-                        <Text text="Thiết lập giờ vào, giờ ra, ca qua ngày và số phút cho phép đi trễ"/>
+                        <Title text="Shift Configuration" titleStyle="H2" class="shiftConfigTitle"/>
+                        <Text text="Maintain start time, end time, overnight flag, and allowed late minutes"/>
                     </VBox>
 
                     <Button
                         icon="sap-icon://add"
-                        text="Thêm Ca Mới"
+                        text="Add Shift"
                         type="Emphasized"
                         press="onOpenAddDialog"/>
                 </HBox>
@@ -32,23 +32,23 @@
 
                     <columns>
                         <Column width="130px">
-                            <Text text="Mã ca"/>
+                            <Text text="Shift ID"/>
                         </Column>
 
                         <Column width="120px" hAlign="End">
-                            <Text text="Giờ chuẩn"/>
+                            <Text text="Standard Hours"/>
                         </Column>
 
                         <Column width="150px">
-                            <Text text="Giờ bắt đầu"/>
+                            <Text text="Start Time"/>
                         </Column>
 
                         <Column width="150px">
-                            <Text text="Giờ kết thúc"/>
+                            <Text text="End Time"/>
                         </Column>
 
                         <Column width="130px" hAlign="Center">
-                            <Text text="Qua ngày"/>
+                            <Text text="Overnight"/>
                         </Column>
 
                         <Column width="130px" hAlign="End">
@@ -56,7 +56,7 @@
                         </Column>
 
                         <Column width="140px" hAlign="Center">
-                            <Text text="Thao tác"/>
+                            <Text text="Actions"/>
                         </Column>
                     </columns>
 
@@ -65,7 +65,7 @@
                             <cells>
                                 <ObjectIdentifier
                                     title="{ShiftId}"
-                                    text="Ca làm việc"/>
+                                    text="Work Shift"/>
 
                                 <ObjectNumber
                                     number="{StdHours}"
@@ -81,20 +81,20 @@
 
                                 <ObjectNumber
                                     number="{GraceMins}"
-                                    unit="phút"/>
+                                    unit="min"/>
 
                                 <HBox justifyContent="Center">
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
-                                        tooltip="Sửa ca"
+                                        tooltip="Edit shift"
                                         press="onEditShift"
                                         class="sapUiTinyMarginEnd"/>
 
                                     <Button
                                         icon="sap-icon://delete"
                                         type="Reject"
-                                        tooltip="Xóa ca"
+                                        tooltip="Delete shift"
                                         press="onDeleteShift"/>
                                 </HBox>
                             </cells>

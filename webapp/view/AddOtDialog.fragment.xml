@@ -4,14 +4,14 @@
 
     <Dialog 
         id="addOtDialog"
-        title="Xếp lịch làm việc &amp; OT"
+        title="Work Schedule &amp; OT"
         contentWidth="520px">
 
         <content>
             <VBox class="sapUiSmallMargin">
 
                 <Label
-                    text="Xếp lịch theo"
+                    text="Assign schedule by"
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
 
@@ -22,13 +22,13 @@
                     width="100%">
 
                     <items>
-                        <SegmentedButtonItem key="EMP" text="Nhân viên"/>
-                        <SegmentedButtonItem key="DEPT" text="Phòng ban"/>
+                        <SegmentedButtonItem key="EMP" text="Employee"/>
+                        <SegmentedButtonItem key="DEPT" text="Department"/>
                     </items>
                 </SegmentedButton>
 
                 <Label
-                    text="Mã nhân viên"
+                    text="Employee ID"
                     required="true"
                     visible="{= ${dialogModel>/AssignMode} === 'EMP' }"
                     class="sapUiTopMarginSmall"/>
@@ -36,7 +36,7 @@
                 <Input
                     id="PernrInput"
                     value="{dialogModel>/Pernr}"
-                    placeholder="Chọn nhân viên từ search help..."
+                    placeholder="Select an employee from value help..."
                     editable="{= !${dialogModel>/isEdit} }"
                     showValueHelp="true"
                     valueHelpRequest=".onPernrInputValueHelpRequest"
@@ -49,7 +49,7 @@
                     class="sapUiTinyMarginTop"/>
 
                 <Label
-                    text="Phòng ban"
+                    text="Department"
                     required="true"
                     visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"
                     class="sapUiTopMarginSmall"/>
@@ -57,7 +57,7 @@
                 <Input
                     id="DeptInput"
                     value="{dialogModel>/DeptId}"
-                    placeholder="Chọn phòng ban từ search help..."
+                    placeholder="Select a department from value help..."
                     editable="{= !${dialogModel>/isEdit} }"
                     showValueHelp="true"
                     valueHelpRequest=".onDeptInputValueHelpRequest"
@@ -70,7 +70,7 @@
                     class="sapUiTinyMarginTop"/>
 
                 <Label 
-                    text="Khoảng thời gian xếp lịch"
+                    text="Schedule Date Range"
                     required="true"
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
@@ -82,7 +82,7 @@
                     visible="{= !${dialogModel>/isEdit} }"/>
 
                 <Label 
-                    text="Ngày làm việc"
+                    text="Work Date"
                     required="true"
                     class="sapUiTopMarginSmall"
                     visible="{dialogModel>/isEdit}"/>
@@ -93,7 +93,7 @@
                     editable="false"
                     visible="{dialogModel>/isEdit}"/>
 
-                <Label text="Ca làm việc" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="Work Shift" required="true" class="sapUiTopMarginSmall"/>
 
                 <Select 
                     id="shiftSelect"
@@ -106,26 +106,26 @@
                         text="{shiftLookupModel>ShiftText}" />
                 </Select>
 
-                <Label text="Số giờ OT" class="sapUiTopMarginSmall"/>
+                <Label text="OT Hours" class="sapUiTopMarginSmall"/>
 
                 <Input 
                     value="{dialogModel>/OtHours}"
                     type="Number"
-                    placeholder="Nhập số giờ OT..." />
+                    placeholder="Enter OT hours..." />
 
             </VBox>
         </content>
 
         <beginButton>
             <Button 
-                text="Lưu dữ liệu"
+                text="Save"
                 type="Emphasized"
                 press=".onSaveOtPlan" />
         </beginButton>
 
         <endButton>
             <Button 
-                text="Đóng"
+                text="Close"
                 press=".onCloseAddDialog" />
         </endButton>
 

@@ -5,13 +5,13 @@
     xmlns:unified="sap.ui.unified"
     displayBlock="true">
 
-    <Page id="page" title="Xếp Lịch &amp; OT Nhân Viên">
+    <Page id="page" title="Employee Schedule &amp; OT">
 
         <headerContent>
             <Input
                 id="HeaderEmployeeSearchInput"
                 value="{headerSearchModel>/employeeQuery}"
-                placeholder="Tìm/chọn nhân viên..."
+                placeholder="Search or select an employee..."
                 width="260px"
                 showValueHelp="true"
                 valueHelpRequest=".onHeaderEmployeeValueHelpRequest"
@@ -22,7 +22,7 @@
             <Input
                 id="HeaderDepartmentSearchInput"
                 value="{headerSearchModel>/deptQuery}"
-                placeholder="Tìm/chọn phòng ban..."
+                placeholder="Search or select a department..."
                 width="260px"
                 showValueHelp="true"
                 valueHelpRequest=".onHeaderDepartmentValueHelpRequest"
@@ -33,13 +33,13 @@
             <Button
                 icon="sap-icon://clear-filter"
                 type="Transparent"
-                tooltip="Xóa bộ lọc"
+                tooltip="Clear filters"
                 press=".onClearHeaderFilters"
                 class="sapUiSmallMarginEnd"/>
 
             <Button 
                 icon="sap-icon://add"
-                text="Thêm lịch OT"
+                text="Add OT Schedule"
                 type="Emphasized"
                 press="onOpenCreateDialog"/>
         </headerContent>

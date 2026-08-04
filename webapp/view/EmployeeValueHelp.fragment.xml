@@ -4,7 +4,7 @@
 
     <SelectDialog
         id="employeeValueHelpDialog"
-        title="Chọn nhân viên"
+        title="Select Employee"
         search=".onEmployeeValueHelpSearch"
         liveChange=".onEmployeeValueHelpSearch"
         confirm=".onEmployeeValueHelpConfirm"
@@ -12,7 +12,7 @@
         items="{employeeLookupModel>/employees}"
         growing="true"
         growingThreshold="30"
-        noDataText="Không tìm thấy nhân viên">
+        noDataText="No employees found">
 
         <StandardListItem
             title="{employeeLookupModel>EmployeeName}"

@@ -3,38 +3,38 @@
     xmlns:core="sap.ui.core">
 
     <Dialog
-        title="{= ${holidayModel>/isEdit} ? 'Sửa Ngày Lễ' : 'Thêm Ngày Lễ' }"
+        title="{= ${holidayModel>/isEdit} ? 'Edit Holiday' : 'Add Holiday' }"
         contentWidth="460px"
         class="holidayDialog">
 
         <content>
             <VBox class="sapUiMediumMargin">
 
-                <Label text="Ngày lễ" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="Holiday Date" required="true" class="sapUiTopMarginSmall"/>
                 <DatePicker
                     dateValue="{holidayModel>/HolDate}"
                     displayFormat="dd/MM/yyyy"
                     width="100%"
                     editable="{= !${holidayModel>/isEdit} }"/>
 
-                <Label text="Mô tả" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="Description" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{holidayModel>/HolDesc}"
-                    placeholder="Ví dụ: Tết Dương lịch"/>
+                    placeholder="Example: New Year Holiday"/>
 
             </VBox>
         </content>
 
         <beginButton>
             <Button
-                text="Lưu"
+                text="Save"
                 type="Emphasized"
                 press="onSaveHoliday"/>
         </beginButton>
 
         <endButton>
             <Button
-                text="Hủy"
+                text="Cancel"
                 press="onCloseDialog"/>
         </endButton>
     </Dialog>

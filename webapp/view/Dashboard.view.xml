@@ -11,59 +11,66 @@
         <VBox class="sapUiSmallMargin">
             
             <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
-                <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng số nhân viên" subheader="Đang làm việc" 
+                <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalEmp}" subheader="{i18n>tileTotalEmpSub}" 
                 frameType="OneByOne" press=".onNavToEmployee">
                     <TileContent id="tcEmp">
                         <NumericContent id="ncEmp" value="{kpi>/totalEmp}" icon="sap-icon://employee" valueColor="Good"/>
                     </TileContent>
                 </GenericTile>
 
-                <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Tổng OT trong tháng" subheader="Toàn công ty (Giờ)" 
+                <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalOt}" subheader="{i18n>tileTotalOtSub}" 
                 frameType="OneByOne" press=".onNavToMonthlyReport">
                     <TileContent id="tcOT">
                         <NumericContent id="ncOT" value="{kpi>/totalOT}" icon="sap-icon://history" valueColor="Critical"/>
                     </TileContent>
                 </GenericTile>
 
-                <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Đơn Report" subheader="Đang chờ duyệt" frameType="OneByOne" press=".onGoToDispute">
+                <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileReport}" subheader="{i18n>tileReportSub}" frameType="OneByOne" press=".onGoToDispute">
                     <TileContent id="tcReport">
                         <NumericContent id="ncReport" value="{kpi>/pendingDisputes}" icon="sap-icon://alert" valueColor="Error"/>
                     </TileContent>
                 </GenericTile>
 
-                <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="Lịch Phân Ca" subheader="Quản lý thời gian làm việc" frameType="OneByOne" press=".onNavToSchedule">
+                <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileSchedule}" subheader="{i18n>tileScheduleSub}" frameType="OneByOne" press=".onNavToSchedule">
                     <TileContent id="tcSchedule">
                         <ImageContent src="sap-icon://calendar" />
                     </TileContent>
                 </GenericTile>
             </layout:Grid>
 
-            <Title id="titleTimesheet" text="Bảng theo dõi giờ làm nhân viên" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+            <Title id="titleTimesheet" text="{i18n>titleTimesheet}" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+            
             <fb:FilterBar id="filterBar" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
                 <fb:filterGroupItems>
-                    <fb:FilterGroupItem groupName="G1" name="Pernr" label="Mã Nhân Viên" visibleInFilterBar="true">
+                    
+                    <!-- 1. ĐÃ SỬA: Bật Value Help cho ô Nhân viên -->
+                    <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                         <fb:control>
-                            <Input id="fltEmp" placeholder="Nhập mã NV..." />
+                            <Input id="fltEmp" 
+                                   placeholder="{i18n>phEnterEmpId}" 
+                                   showValueHelp="true" 
+                                   valueHelpRequest=".onEmpValueHelpRequest" />
                         </fb:control>
                     </fb:FilterGroupItem>
 
-                    <fb:FilterGroupItem groupName="G1" name="Dept" label="Phòng ban" visibleInFilterBar="true">
+                    <!-- 2. ĐÃ SỬA: Đổi ComboBox thành Input và bật Value Help cho ô Phòng ban -->
+                    <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
                         <fb:control>
-                            <ComboBox id="fltDept" placeholder="Chọn phòng ban">
-                                <core:Item key="IT_01" text="Công nghệ thông tin" />
-                                <core:Item key="HR_02" text="Nhân sự" />
-                                <core:Item key="SALES_03" text="Kinh doanh" />
-                            </ComboBox>
+                            <Input id="fltDept" 
+                                   placeholder="{i18n>phSelectDeptFilter}" 
+                                   showValueHelp="true" 
+                                   valueHelpRequest=".onDeptValueHelpRequest" />
                         </fb:control>
                     </fb:FilterGroupItem>
 
-                    <fb:FilterGroupItem groupName="G1" name="Date" label="Ngày làm việc" visibleInFilterBar="true">
+                    <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
                         <fb:control>
-                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="Chọn ngày..." />
+                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" />
                         </fb:control>
                     </fb:FilterGroupItem>
                 </fb:filterGroupItems>
             </fb:FilterBar>
+
             <Table id="timesheetTable"
                    items="{
                        path: '/Timesheet',
@@ -78,29 +85,29 @@
                 
                 <headerToolbar>
                     <OverflowToolbar>
-                        <Title text="Chi tiết giờ làm" level="H4"/>
+                        <Title text="{i18n>titleWorkDetails}" level="H4"/>
                         <ToolbarSpacer/>
-                        <Button id="btnExport" icon="sap-icon://excel-attachment" text="Xuất Excel" type="Success" press=".onExportExcel" tooltip="Xuất dữ liệu ra Excel"/>
+                        <Button id="btnExport" icon="sap-icon://excel-attachment" text="{i18n>btnExportExcel}" type="Success" press=".onExportExcel" tooltip="{i18n>ttExportExcel}"/>
                     </OverflowToolbar>
                 </headerToolbar>
                 
                 <columns>
-                    <Column id="colEmp"><Text id="txtColEmp" text="Nhân viên / Ca" /></Column>
-                    <Column id="colDept"><Text id="txtColDept" text="Phòng ban" /></Column>
-                    <Column id="colDate"><Text id="txtColDate" text="Ngày làm việc" /></Column>
-                    <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="Giờ In / Out" /></Column>
-                    <Column id="colStdHours" hAlign="Center"><Text id="txtColStdHours" text="Giờ tiêu chuẩn" /></Column>
-                    <Column id="colActHours" hAlign="Center"><Text id="txtColActHours" text="Giờ thực tế" /></Column>
-                    <Column id="colOtHours" hAlign="Center"><Text id="txtColOtHours" text="Giờ OT" /></Column>
-                    <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="Trạng thái" /></Column>
+                    <Column id="colEmp"><Text id="txtColEmp" text="{i18n>colEmpShift}" /></Column>
+                    <Column id="colDept"><Text id="txtColDept" text="{i18n>colDept}" /></Column>
+                    <Column id="colDate"><Text id="txtColDate" text="{i18n>filterDate}" /></Column>
+                    <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="{i18n>colTimeInOut}" /></Column>
+                    <Column id="colStdHours" hAlign="Center"><Text id="txtColStdHours" text="{i18n>colStdHours}" /></Column>
+                    <Column id="colActHours" hAlign="Center"><Text id="txtColActHours" text="{i18n>colActHours}" /></Column>
+                    <Column id="colOtHours" hAlign="Center"><Text id="txtColOtHours" text="{i18n>colOtHours}" /></Column>
+                    <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="{i18n>colStatus}" /></Column>
                 </columns>
 
                 <items>
                     <ColumnListItem id="cliTimesheet" type="Active">
                         <cells>
-                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Ca: {ShiftId}"/>
+                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Shift {ShiftId}"/>
 
-                            <Text id="txtCellDept" text="{ path: 'DeptId', formatter: '.formatDeptName' }" />
+                            <Text id="txtCellDept" text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
                             
                             <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />

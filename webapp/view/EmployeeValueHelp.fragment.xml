@@ -4,7 +4,11 @@
 
     <SelectDialog
         id="employeeValueHelpDialog"
+<<<<<<< HEAD
         title="Select Employee"
+=======
+        title="{i18n>dialogTitleSelectEmp}"
+>>>>>>> origin/main
         search=".onEmployeeValueHelpSearch"
         liveChange=".onEmployeeValueHelpSearch"
         confirm=".onEmployeeValueHelpConfirm"
@@ -12,7 +16,11 @@
         items="{employeeLookupModel>/employees}"
         growing="true"
         growingThreshold="30"
+<<<<<<< HEAD
         noDataText="No employees found">
+=======
+        noDataText="{i18n>noDataEmp}">
+>>>>>>> origin/main
 
         <StandardListItem
             title="{employeeLookupModel>EmployeeName}"

@@ -3,12 +3,17 @@
     xmlns:core="sap.ui.core">
 
     <Dialog
+<<<<<<< HEAD
         title="{= ${shiftModel>/isEdit} ? 'Edit Work Shift' : 'Create Work Shift' }"
+=======
+        title="{= ${shiftModel>/isEdit} ? ${i18n>dialogTitleEditShift} : ${i18n>dialogTitleAddShift} }"
+>>>>>>> origin/main
         contentWidth="520px"
         class="shiftConfigDialog">
 
         <content>
             <VBox class="sapUiMediumMargin">
+<<<<<<< HEAD
                 <Label text="Shift ID" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/ShiftId}"
@@ -23,19 +28,42 @@
                     placeholder="Example: 8"/>
 
                 <Label text="Start Time" required="true" class="sapUiTopMarginSmall"/>
+=======
+                <Label text="{i18n>lblShiftId}" required="true" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{shiftModel>/ShiftId}"
+                    placeholder="{i18n>phShiftId}"
+                    maxLength="20"
+                    editable="{= !${shiftModel>/isEdit} }"/>
+
+                <Label text="{i18n>lblStdHours}" required="true" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{shiftModel>/StdHours}"
+                    type="Number"
+                    placeholder="{i18n>phStdHours}"/>
+
+                <Label text="{i18n>lblStartTime}" required="true" class="sapUiTopMarginSmall"/>
+>>>>>>> origin/main
                 <TimePicker
                     value="{shiftModel>/TimeIn}"
                     valueFormat="HHmmss"
                     displayFormat="HH:mm"
                     width="100%"
+<<<<<<< HEAD
                     placeholder="Select start time"/>
 
                 <Label text="End Time" required="true" class="sapUiTopMarginSmall"/>
+=======
+                    placeholder="{i18n>phStartTime}"/>
+
+                <Label text="{i18n>lblEndTime}" required="true" class="sapUiTopMarginSmall"/>
+>>>>>>> origin/main
                 <TimePicker
                     value="{shiftModel>/TimeOut}"
                     valueFormat="HHmmss"
                     displayFormat="HH:mm"
                     width="100%"
+<<<<<<< HEAD
                     placeholder="Select end time"/>
 
                 <Label text="Overnight Shift" class="sapUiTopMarginSmall"/>
@@ -49,20 +77,43 @@
                     value="{shiftModel>/GraceMins}"
                     type="Number"
                     placeholder="Example: 0"/>
+=======
+                    placeholder="{i18n>phEndTime}"/>
+
+                <Label text="{i18n>lblNextDay}" class="sapUiTopMarginSmall"/>
+                <Switch
+                    state="{shiftModel>/NextDayBool}"
+                    customTextOn="{i18n>switchYes}"
+                    customTextOff="{i18n>switchNo}"/>
+
+                <Label text="{i18n>lblGraceMins}" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{shiftModel>/GraceMins}"
+                    type="Number"
+                    placeholder="{i18n>phGraceMins}"/>
+>>>>>>> origin/main
 
             </VBox>
         </content>
 
         <beginButton>
             <Button
+<<<<<<< HEAD
                 text="Save"
+=======
+                text="{i18n>btnSave}"
+>>>>>>> origin/main
                 type="Emphasized"
                 press="onSaveShift"/>
         </beginButton>
 
         <endButton>
             <Button
+<<<<<<< HEAD
                 text="Cancel"
+=======
+                text="{i18n>btnCancel}"
+>>>>>>> origin/main
                 press="onCloseDialog"/>
         </endButton>
     </Dialog>

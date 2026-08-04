@@ -3,38 +3,61 @@
     xmlns:core="sap.ui.core">
 
     <Dialog
+<<<<<<< HEAD
         title="{= ${holidayModel>/isEdit} ? 'Edit Holiday' : 'Add Holiday' }"
+=======
+        title="{= ${holidayModel>/isEdit} ? ${i18n>dialogTitleEditHoliday} : ${i18n>dialogTitleAddHoliday} }"
+>>>>>>> origin/main
         contentWidth="460px"
         class="holidayDialog">
 
         <content>
             <VBox class="sapUiMediumMargin">
 
+<<<<<<< HEAD
                 <Label text="Holiday Date" required="true" class="sapUiTopMarginSmall"/>
+=======
+                <Label text="{i18n>lblHolidayDate}" required="true" class="sapUiTopMarginSmall"/>
+>>>>>>> origin/main
                 <DatePicker
                     dateValue="{holidayModel>/HolDate}"
                     displayFormat="dd/MM/yyyy"
                     width="100%"
                     editable="{= !${holidayModel>/isEdit} }"/>
 
+<<<<<<< HEAD
                 <Label text="Description" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{holidayModel>/HolDesc}"
                     placeholder="Example: New Year Holiday"/>
+=======
+                <Label text="{i18n>lblHolidayDesc}" required="true" class="sapUiTopMarginSmall"/>
+                <Input
+                    value="{holidayModel>/HolDesc}"
+                    placeholder="{i18n>phHolidayDesc}"/>
+>>>>>>> origin/main
 
             </VBox>
         </content>
 
         <beginButton>
             <Button
+<<<<<<< HEAD
                 text="Save"
+=======
+                text="{i18n>btnSave}"
+>>>>>>> origin/main
                 type="Emphasized"
                 press="onSaveHoliday"/>
         </beginButton>
 
         <endButton>
             <Button
+<<<<<<< HEAD
                 text="Cancel"
+=======
+                text="{i18n>btnCancel}"
+>>>>>>> origin/main
                 press="onCloseDialog"/>
         </endButton>
     </Dialog>

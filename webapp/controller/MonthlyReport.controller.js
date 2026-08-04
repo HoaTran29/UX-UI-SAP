@@ -1,8 +1,9 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/Filter",
-    "sap/ui/model/FilterOperator"
-], function (Controller, Filter, FilterOperator) {
+    "sap/ui/model/FilterOperator",
+    "sap/ui/export/Spreadsheet"
+], function (Controller, Filter, FilterOperator, Spreadsheet) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.MonthlyReport", {
@@ -52,9 +53,57 @@ sap.ui.define([
         onNavBack: function () {
             this.getOwnerComponent().getRouter().navTo("dashboard");
         },
+        // --- BẮT ĐẦU CODE XUẤT EXCEL (Chuẩn form Dashboard) ---
 
+        // Cấu hình các cột để xuất file Excel 
+        _createColumnConfig: function () {
+            return [
+                { label: 'Emp. ID', property: 'Pernr', type: 'String' },
+                { label: 'Employee Name', property: 'Ename', type: 'String' }, // Bỏ dòng này nếu backend ko có cột Tên
+                { label: 'Month/Year', property: 'MonthYear', type: 'String' },
+                { label: 'Total Standard Hours', property: 'TotalStdHours', type: 'Number', scale: 2 },
+                { label: 'Total Actual Hours', property: 'TotalActHours', type: 'Number', scale: 2 },
+                { label: 'Total OT Hours', property: 'TotalOtHours', type: 'Number', scale: 2 }
+            ];
+        },
+
+        // Xử lý chức năng xuất Excel
         onExportExcel: function () {
-            sap.m.MessageToast.show("Sếp có thể gắn thư viện Spreadsheet vào đây giống hệt trang Dashboard để xuất Excel!");
+            // LƯU Ý: Sửa chữ "monthlyTable" thành đúng ID thẻ <Table> trong file XML của sếp nha
+            var oTable = this.byId("monthlyTable");
+            var oRowBinding = oTable.getBinding("items");
+            var aCols = this._createColumnConfig();
+
+            // 1. Phải khởi tạo Date và cắt ngày tháng năm ra trước
+            var oDate = new Date();
+            var sDay = String(oDate.getDate()).padStart(2, '0');
+            var sMonth = String(oDate.getMonth() + 1).padStart(2, '0');
+            var sYear = oDate.getFullYear();
+
+            // Ráp lại thành tên file (VD: MonthlyReport_31072026.xlsx)
+            var sFileName = "MonthlyReport_" + sDay + sMonth + sYear + ".xlsx";
+
+            // 2. Cấu hình xuất Excel
+            var oSettings = {
+                workbook: {
+                    columns: aCols,
+                    context: {
+                        sheetName: 'Data' // Đặt tên sheet ngắn gọn
+                    }
+                },
+                dataSource: oRowBinding,
+                fileName: sFileName, // Gọi cái biến sFileName vừa tạo ở trên
+                worker: false
+            };
+
+            // 3. Thực thi tải file
+            var oSheet = new Spreadsheet(oSettings);
+            oSheet.build().finally(function () {
+                oSheet.destroy();
+            });
         }
+
+        // --- KẾT THÚC CODE XUẤT EXCEL ---
     });
+    
 });

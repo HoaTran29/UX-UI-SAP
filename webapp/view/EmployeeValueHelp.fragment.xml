@@ -1,33 +1,42 @@
 <core:FragmentDefinition
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
-
-    <SelectDialog
-        id="employeeValueHelpDialog"
-<<<<<<< HEAD
+    
+    <!-- Thay SelectDialog thành ResponsivePopover -->
+    <ResponsivePopover
+        id="empValueHelpDialog"
         title="Select Employee"
-=======
-        title="{i18n>dialogTitleSelectEmp}"
->>>>>>> origin/main
-        search=".onEmployeeValueHelpSearch"
-        liveChange=".onEmployeeValueHelpSearch"
-        confirm=".onEmployeeValueHelpConfirm"
-        cancel=".onEmployeeValueHelpCancel"
-        items="{employeeLookupModel>/employees}"
-        growing="true"
-        growingThreshold="30"
-<<<<<<< HEAD
-        noDataText="No employees found">
-=======
-        noDataText="{i18n>noDataEmp}">
->>>>>>> origin/main
-
-        <StandardListItem
-            title="{employeeLookupModel>EmployeeName}"
-            description="{employeeLookupModel>Pernr}"
-            info="{employeeLookupModel>DeptId}"
-            type="Active"/>
-
-    </SelectDialog>
-
+        placement="Bottom"
+        contentWidth="350px"
+        contentHeight="400px">
+        
+        <!-- Nút Đóng trên cùng bên phải -->
+        <endButton>
+            <Button text="Close" press=".onEmployeeValueHelpCancel" />
+        </endButton>
+        
+        <!-- Thanh Tìm Kiếm -->
+        <subHeader>
+            <Toolbar>
+                <SearchField placeholder="Search..." search=".onEmployeeValueHelpSearch" liveChange=".onEmployeeValueHelpSearch" width="100%" />
+            </Toolbar>
+        </subHeader>
+        
+        <!-- Danh sách Nhân Viên -->
+        <content>
+            <List
+                id="empValueHelpList"
+                items="{/Employee}"
+                mode="SingleSelectMaster"
+                selectionChange=".onEmployeeValueHelpConfirm"
+                noDataText="No employees found">
+                <StandardListItem
+                    title="{Ename}"
+                    description="{Pernr}"
+                    info="{DeptId}"
+                    type="Active" />
+            </List>
+        </content>
+        
+    </ResponsivePopover>
 </core:FragmentDefinition>

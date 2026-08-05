@@ -52,7 +52,8 @@ sap.ui.define([
 
                 // 2. LOGIC MẶC ĐỊNH: Nếu không nhập gì thì tự gán chữ "ĐÃ DUYỆT"
                 if (!sNote) {
-                    sNote = "ĐÃ DUYỆT";
+                    sNote = "APPROVED";
+                    oTextArea.setValue(sNote);
                 }
                 oModel.setProperty(oContext.getPath() + "/ApproverComment", sNote); 
             }

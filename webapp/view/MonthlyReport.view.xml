@@ -14,7 +14,7 @@
                 
                 <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                     <fb:control>
-                        <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" />
+                        <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" showValueHelp="true" valueHelpRequest=".onEmployeeValueHelpRequest" />
                     </fb:control>
                 </fb:FilterGroupItem>
             </fb:filterGroupItems>

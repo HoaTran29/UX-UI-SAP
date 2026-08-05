@@ -3,8 +3,9 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/m/MessageToast",
-    "sap/ui/core/Fragment" // THÊM THƯ VIỆN FRAGMENT
-], function (Controller, Filter, FilterOperator, MessageToast, Fragment) {
+    "sap/ui/core/Fragment",
+    "sap/m/MessageBox"
+], function (Controller, Filter, FilterOperator, MessageToast, Fragment, MessageBox) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.Timesheet", {
@@ -67,7 +68,7 @@ sap.ui.define([
             var oDialogModel = new sap.ui.model.json.JSONModel(oRowData);
 
             if (!this._pEditDialog) {
-                this._pEditDialog = sap.ui.core.Fragment.load({
+                this._pEditDialog = Fragment.load({
                     id: oView.getId(),
                     name: "com.app.zu26g13.app.view.EditTimesheetDialog",
                     controller: this
@@ -299,7 +300,78 @@ sap.ui.define([
             // Nếu có giờ làm thực tế, format ra chuẩn 24h (HH:mm:ss)
             var timeFormat = sap.ui.core.format.DateFormat.getTimeInstance({ pattern: "HH:mm:ss", UTC: true });
             return timeFormat.format(new Date(oTime.ms));
+        },
+
+// ==========================================================
+        // TÍNH NĂNG SEARCH HELP (DẠNG POPOVER CHO NHÂN VIÊN)
+        // ==========================================================
+
+        onEmployeeValueHelpRequest: function (oEvent) {
+            var oView = this.getView();
+            // Lấy thẻ Input làm "mỏ neo" để lát Popover biết chỗ mà hiển thị dưới chân
+            this._oInputEmp = oEvent.getSource(); 
+
+            if (!this._pEmpValueHelpDialog) {
+                this._pEmpValueHelpDialog = sap.ui.core.Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.EmployeeValueHelp", 
+                    controller: this
+                }).then(function (oPopover) {
+                    oView.addDependent(oPopover);
+                    return oPopover;
+                });
+            }
+            this._pEmpValueHelpDialog.then(function(oPopover) {
+                // Clear bộ lọc cũ đi mỗi lần mở lại
+                var oList = this.byId("empValueHelpList");
+                if (oList) { oList.getBinding("items").filter([]); }
+                
+                // MA THUẬT: Mở Popover ngay dưới thẻ Input
+                oPopover.openBy(this._oInputEmp);
+            }.bind(this));
+        },
+
+        onEmployeeValueHelpSearch: function (oEvent) {
+            // Bắt text tìm kiếm (hỗ trợ cả gõ phím lẫn ấn kính lúp)
+            var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
+            
+            var oFilterName = new sap.ui.model.Filter("Ename", sap.ui.model.FilterOperator.Contains, sValue);
+            var oFilterId = new sap.ui.model.Filter("Pernr", sap.ui.model.FilterOperator.Contains, sValue);
+            
+            var oCombinedFilter = new sap.ui.model.Filter({
+                filters: [oFilterName, oFilterId],
+                and: false
+            });
+            
+            // Trỏ thẳng vào cái List mới tạo trong XML để lọc
+            this.byId("empValueHelpList").getBinding("items").filter([oCombinedFilter]);
+        },
+
+        onEmployeeValueHelpConfirm: function (oEvent) {
+            // Vì đổi sang dùng thẻ List nên cách lấy dữ liệu là "listItem"
+            var oSelectedItem = oEvent.getParameter("listItem"); 
+            if (oSelectedItem) {
+                var sEmpId = oSelectedItem.getDescription();
+                this._oInputEmp.setValue(sEmpId);
+                
+                if (this.onSearch) {
+                    this.onSearch(); 
+                }
+            }
+            
+            // Chọn xong tự động đóng
+            if (this._pEmpValueHelpDialog) {
+                this._pEmpValueHelpDialog.then(function(oPopover) { oPopover.close(); });
+            }
+        },
+
+        onEmployeeValueHelpCancel: function () {
+            // Đóng Popover
+            if (this._pEmpValueHelpDialog) {
+                this._pEmpValueHelpDialog.then(function(oPopover) { oPopover.close(); });
+            }
         }
+    
     });
 
 

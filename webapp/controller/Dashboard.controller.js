@@ -22,6 +22,15 @@ sap.ui.define([
 
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("dashboard").attachPatternMatched(this._loadRealKpiData, this);
+
+            var oRouter = this.getOwnerComponent().getRouter();
+            oRouter.getRoute("dashboard").attachPatternMatched(this._onRouteMatched, this);
+        },
+
+        _onRouteMatched: function () {
+            if (this.onSearch) {
+                this.onSearch();
+            }
         },
 
         _loadRealKpiData: function () {
@@ -174,14 +183,16 @@ sap.ui.define([
             oBinding.filter(oFilter ? [oFilter] : []);
         },
 
-        onGenericValueHelpConfirm: function (oEvent) {
+onGenericValueHelpConfirm: function (oEvent) {
             // Với List (mode=SingleSelectMaster), dùng listItem thay vì selectedItem
             var oSelectedItem = oEvent.getParameter("listItem"); 
             if (oSelectedItem && this._oCurrentInput) {
                 var sCode = oSelectedItem.getDescription(); 
                 this._oCurrentInput.setValue(sCode);
-                
-                // Chọn xong thì đóng Popover lại
+                if (this.onSearch) {
+                    this.onSearch();
+                }
+
                 var oPopover = this.getView().byId("genericSearchHelpPopover");
                 if (oPopover) {
                     oPopover.close();

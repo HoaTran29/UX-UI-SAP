@@ -46,7 +46,7 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
 
-            var oTextArea = this.byId("approveNote");
+            var oTextArea = this.byId("approveNoteInput");
             if (oTextArea) {
                 var sNote = oTextArea.getValue().trim();
 
@@ -131,7 +131,7 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
 
-            var oTextArea = this.byId("rejectNote");
+            var oTextArea = this.byId("rejectReasonInput");
             var sReason = oTextArea.getValue().trim();
 
             if (!sReason) {

@@ -12,12 +12,23 @@ sap.ui.define([
         },
 
         _onGlobalRouteMatched: function (oEvent) {
-            // Lấy OData Model gốc của toàn bộ App
+            // 1. Logic ép refresh data (giữ nguyên của sếp)
             var oModel = this.getOwnerComponent().getModel();
-            
             if (oModel) {
-                // Tham số true ép nó vứt cache cũ đi, gửi lệnh GET mới xuống Backend
                 oModel.refresh(true);
+            }
+
+            // ==============================================================
+            // 2. MỚI: TỰ ĐỘNG HIGHLIGHT DẤU CHẤM XANH TRÊN THANH MENU BÊN TRÁI
+            // ==============================================================
+            var sRouteName = oEvent.getParameter("name"); // Lấy tên cái Route (trang) vừa nhảy tới (vd: "dispute")
+            
+            // LƯU Ý: Chữ "sideNavigation" bên dưới phải khớp với thuộc tính id="..." của thẻ <tnt:SideNavigation> trong file App.view.xml của sếp nha!
+            var oSideNav = this.byId("sideNavigation"); 
+            
+            if (oSideNav && sRouteName) {
+                // Ép thanh menu phải sáng lên ở đúng cái Key tương ứng với tên trang
+                oSideNav.setSelectedKey(sRouteName);
             }
         },
 

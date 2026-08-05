@@ -60,136 +60,188 @@ sap.ui.define([
         // 1. Hàm mở Pop-up khi bấm nút Edit hình cây bút
         onEditTimesheet: function (oEvent) {
             var oView = this.getView();
-            var oContext = oEvent.getSource().getBindingContext(); // Lấy đúng dòng dữ liệu đang bấm
+            var oContext = oEvent.getSource().getBindingContext(); 
 
-            // Load Pop-up lên nếu chưa có
+            // TẠO BẢN SAO DATA (DEEP COPY): Ngắt kết nối để gõ giờ không bị nhảy số ở bảng bên ngoài
+            var oRowData = JSON.parse(JSON.stringify(oContext.getObject()));
+            var oDialogModel = new sap.ui.model.json.JSONModel(oRowData);
+
             if (!this._pEditDialog) {
-                this._pEditDialog = Fragment.load({
+                this._pEditDialog = sap.ui.core.Fragment.load({
                     id: oView.getId(),
                     name: "com.app.zu26g13.app.view.EditTimesheetDialog",
                     controller: this
                 }).then(function (oDialog) {
-                    oView.addDependent(oDialog); // Ràng buộc Model chung
+                    oView.addDependent(oDialog); 
                     return oDialog;
                 });
             }
 
             this._pEditDialog.then(function (oDialog) {
-                oDialog.setBindingContext(oContext); // Đổ dữ liệu của nhân viên đó vào Pop-up
+                // Ép Dialog xài cái Model ảo cục bộ vừa tạo
+                oDialog.setModel(oDialogModel);
+                oDialog.bindElement("/"); 
+
+                // Lưu giữ đường dẫn OData gốc vào túi quần (để xài lúc Save)
+                oDialog.data("originalPath", oContext.getPath()); 
+
                 oDialog.open();
             });
         },
 
-        // MỚI THÊM: Hàm tự động tính toán Giờ Thực Tế khi thay đổi Giờ In/Out
-        onCalculateActualHours: function (oEvent) {
-            // Lấy dòng dữ liệu đang được chỉnh sửa
-            var oContext = oEvent.getSource().getBindingContext();
-            var oModel = oContext.getModel();
-
-            // Lấy giá trị Giờ In và Giờ Out (OData V2 lưu kiểu Time dưới dạng { ms: số_mili_giây })
-            var oActIn = oContext.getProperty("ActIn");
-            var oActOut = oContext.getProperty("ActOut");
-
-            // Nếu cả 2 ô đều có giờ thì mới tính
-            if (oActIn && oActOut && oActIn.ms !== undefined && oActOut.ms !== undefined) {
-
-                // Tính khoảng cách thời gian (mili giây)
-                var iDiffMs = oActOut.ms - oActIn.ms;
-
-                // Nếu ca làm qua đêm (Giờ Out lọt sang ngày hôm sau nên nhỏ hơn Giờ In), cộng thêm 24h
-                if (iDiffMs < 0) {
-                    iDiffMs += 24 * 60 * 60 * 1000;
-                }
-
-                // Đổi mili giây ra Giờ (chia cho 1000ms * 60s * 60p)
-                var fTotalHours = iDiffMs / (1000 * 60 * 60);
-
-                // Cập nhật con số vừa tính thẳng vào cột Giờ Thực Tế (TotHours) trên màn hình
-                // Làm tròn 2 chữ số thập phân cho đẹp
-                oModel.setProperty("TotHours", parseFloat(fTotalHours.toFixed(2)), oContext);
-            }
-        },
-
+        // 2. Hàm Save (Đã cập nhật Khiên Thép đặc chế cho sếp Hòa)
         onSaveTimesheet: function () {
             var oView = this.getView();
-            var oModel = oView.getModel();
-            var oContext = oView.byId("editTimesheetDialog").getBindingContext();
-            var oData = oContext.getObject(); 
+            var oODataModel = oView.getModel(); 
+            var oDialog = this.byId("editTimesheetDialog");
+            
+            var oData = oDialog.getModel().getData(); 
+            var sPath = oDialog.data("originalPath");
+            
+            // Rút dữ liệu GỐC từ OData Model ra để đối chiếu 
+            var oOriginalData = oODataModel.getProperty(sPath); 
 
-            // 1. Chuyển đổi giờ ra chuẩn Edm.Time của SAP
-            var formatToODataTime = function(timeVal) {
-                if (!timeVal) return null;
-                if (typeof timeVal === "object" && timeVal.__edmType === "Edm.Time") return timeVal;
-                if (typeof timeVal === "string") {
-                    var aParts = timeVal.split(":");
-                    if (aParts.length >= 2) {
-                        var ms = (parseInt(aParts[0],10)*3600000) + (parseInt(aParts[1],10)*60000) + (parseInt(aParts[2],10)*1000);
-                        return { ms: ms, __edmType: "Edm.Time" };
+            // --- 1. CHUẨN HÓA NGÀY LÀM VIỆC ĐỂ XÀI CHO VALIDATION ---
+            var dWorkDate = oData.WorkDate; 
+            if (typeof dWorkDate === "string" && dWorkDate.indexOf("/Date(") === 0) {
+                var iTime = parseInt(dWorkDate.replace(/\D/g, ""), 10);
+                dWorkDate = new Date(iTime);
+            } else if (!(dWorkDate instanceof Date)) {
+                dWorkDate = new Date(dWorkDate); 
+            }
+            var dODataWorkDate = new Date(Date.UTC(dWorkDate.getFullYear(), dWorkDate.getMonth(), dWorkDate.getDate(), 0, 0, 0));
+
+            // Lấy mốc ngày hôm nay (00:00:00) để so sánh xem ca có đang chạy không
+            var dToday = new Date();
+            dToday.setHours(0, 0, 0, 0);
+
+            // --- 2. HÀM BÓC TÁCH GIỜ THÀNH SỐ GIÂY ---
+            var getSecondsFromTime = function(t) {
+                if (!t) return 0;
+                var h = 0, m = 0, s = 0;
+                if (typeof t === "string") {
+                    if (t.indexOf("PT") === 0) {
+                        var aMatch = t.match(/PT(\d+)H(\d+)M(\d+)S/);
+                        if(aMatch) { h = parseInt(aMatch[1]); m = parseInt(aMatch[2]); s = parseInt(aMatch[3]); }
+                    } else {
+                        var aParts = t.split(":");
+                        if (aParts.length >= 2) { h = parseInt(aParts[0]); m = parseInt(aParts[1]); s = aParts[2] ? parseInt(aParts[2]) : 0; }
                     }
+                } else if (t.ms !== undefined) {
+                    return Math.floor(t.ms / 1000);
                 }
-                return timeVal;
+                return (h * 3600) + (m * 60) + s;
             };
 
-            // 2. Ép kiểu số an toàn cho các trường Decimal
+            var iNewInSec = getSecondsFromTime(oData.ActIn);
+            var iNewOutSec = getSecondsFromTime(oData.ActOut);
+            var iOldInSec = oOriginalData ? getSecondsFromTime(oOriginalData.ActIn) : 0;
+            var iOldOutSec = oOriginalData ? getSecondsFromTime(oOriginalData.ActOut) : 0;
+
+            // ==========================================================
+            // DÀN KHIÊN BẢO VỆ FRONT-END (VALIDATION)
+            // ==========================================================
+            
+            // Khiên 1: Bắt buộc phải có Giờ Check-in (Đi làm là phải có giờ vào)
+            if (iNewInSec === 0) {
+                sap.m.MessageBox.error("Vui lòng nhập Giờ Check-in!");
+                return;
+            }
+
+            // Khiên 5 (Đặc chế cho sếp Hòa): Ca đang chạy thì cấm gõ Check-out tay
+            // (Điều kiện: Ngày làm việc = Hôm nay + Chưa có giờ Check-out gốc + Đang cố nhập giờ Check-out mới)
+            if (dWorkDate.getTime() === dToday.getTime() && iOldOutSec === 0 && iNewOutSec > 0) {
+                sap.m.MessageBox.error("Ca làm việc đang diễn ra! Hệ thống đang đợi dữ liệu quẹt thẻ thực tế, không được điền tay Giờ Check-out lúc này để tránh ghi đè.");
+                return;
+            }
+
+            // Khiên 2: Chống gian lận đi làm sớm (Chỉ cản nếu ban đầu đã có quẹt thẻ)
+            if (iOldInSec > 0 && iNewInSec < iOldInSec) {
+                sap.m.MessageBox.error("Này này! Không được ăn gian lùi giờ Check-in SỚM HƠN giờ quẹt thẻ gốc đâu nhé!");
+                return;
+            }
+
+            // Khiên 3: Chống gian lận về muộn câu OT 
+            if (iOldOutSec > 0 && iNewOutSec > iOldOutSec) {
+                sap.m.MessageBox.error("Khoan đã! Không được chỉnh giờ Check-out TRỄ HƠN giờ quẹt thẻ gốc để câu OT đâu nha!");
+                return;
+            }
+
+            // Khiên 4: Chống Logic Ảo Ma (Chỉ check khi user đã nhập cả In và Out)
+            if (iNewInSec > 0 && iNewOutSec > 0) {
+                var iDiff = iNewOutSec - iNewInSec;
+                if (iDiff < 0) { iDiff += 24 * 3600; } // Ca qua đêm
+    
+                if (iDiff === 0) {
+                    sap.m.MessageBox.error("Lỗi logic: Giờ Check-in và Check-out không được trùng nhau!");
+                    return;
+                }
+                if (iDiff > 16 * 3600) { 
+                    sap.m.MessageBox.error("Thời gian làm việc vượt quá 16 tiếng? HR không tin đâu, vui lòng kiểm tra lại!");
+                    return;
+                }
+            }
+
+            // ==========================================================
+            // VƯỢT QUA KIỂM DUYỆT -> ĐÓNG GÓI GỬI XUỐNG ABAP
+            // ==========================================================
+
+            var formatToODataTime = function(sTime) {
+                if (!sTime) return null; // Trả về null nếu ô giờ bị bỏ trống (hợp lệ cho ca đang chạy)
+                var s = getSecondsFromTime(sTime);
+                return { ms: s * 1000, __edmType: "Edm.Time" };
+            };
+
             var sOtHours = oData.OtHours ? parseFloat(oData.OtHours).toString() : "0.00";
-            var sTotHours = oData.TotHours ? parseFloat(oData.TotHours).toString() : "0.00"; 
             var sWorkHours = oData.WorkHours ? parseFloat(oData.WorkHours).toString() : "0.00"; 
             
-            // Xử lý NUMC2 cho SeqNo (SAP đòi 2 ký tự: "01")
             var sSeqNo = oData.SeqNo ? oData.SeqNo.toString() : "01";
             if (sSeqNo.length === 1) sSeqNo = "0" + sSeqNo;
 
-            // 3. ĐÓNG GÓI PAYLOAD (Giống 100% cấu trúc của ZI_HR_TIMESHEET)
             var oPayload = {
                 "Pernr": oData.Pernr,
-                "WorkDate": oData.WorkDate,
+                "WorkDate": dODataWorkDate,
                 "SeqNo": sSeqNo,
                 "ShiftId": oData.ShiftId || "",
                 "DeptId": oData.DeptId || "",
                 "ActIn": formatToODataTime(oData.ActIn),
                 "ActOut": formatToODataTime(oData.ActOut),
-                "TotHours": sTotHours,
                 "WorkHours": sWorkHours,
                 "OtHours": sOtHours,
                 "Status": oData.Status || "COMPLETED"
             };
 
-            oView.setBusy(true);
-
-            // 4. CHỈ ĐỊNH ĐÍCH ĐẾN
-            var sPath = oModel.createKey("/Timesheet", {
+            var sNewPath = oODataModel.createKey("/Timesheet", {
                 SeqNo: sSeqNo,
                 Pernr: oData.Pernr,
-                WorkDate: oData.WorkDate
+                WorkDate: dODataWorkDate 
             });
 
-            // 5. GỬI LỆNH UPDATE (Tự bẻ lái qua Create nếu rỗng)
-            oModel.update(sPath, oPayload, {
+            oDialog.setBusy(true);
+
+            oODataModel.update(sNewPath, oPayload, {
                 success: function () {
-                    oView.setBusy(false);
-                    sap.m.MessageToast.show("Đã CẬP NHẬT thành công vào Database!");
-                    oView.byId("editTimesheetDialog").close();
-                    oModel.refresh(); 
+                    oDialog.setBusy(false);
+                    sap.m.MessageToast.show("Đã CẬP NHẬT thành công!");
+                    oDialog.close();
+                    oODataModel.refresh(true); 
                 },
                 error: function (oError) {
-                    if (oError.statusCode === "404" || oError.statusCode === 404) {
-                        console.log("DB trống, bẻ lái sang Create...");
-                        oModel.create("/Timesheet", oPayload, {
+                     if (oError.statusCode === "404" || oError.statusCode === 404) {
+                        oODataModel.create("/Timesheet", oPayload, {
                             success: function () {
-                                oView.setBusy(false);
-                                sap.m.MessageToast.show("Đã TẠO MỚI thành công vào Database!");
-                                oView.byId("editTimesheetDialog").close();
-                                oModel.refresh();
+                                oDialog.setBusy(false);
+                                sap.m.MessageToast.show("Đã TẠO MỚI thành công!");
+                                oDialog.close();
+                                oODataModel.refresh(true);
                             },
-                            error: function (errCreate) {
-                                oView.setBusy(false);
-                                console.error("Lỗi Backend chặn Create:", errCreate);
+                            error: function () {
+                                oDialog.setBusy(false);
                                 sap.m.MessageToast.show("Lỗi hệ thống khi tạo mới!");
                             }
                         });
                     } else {
-                        oView.setBusy(false);
-                        console.error("Lỗi Update OData:", oError);
+                        oDialog.setBusy(false);
                         sap.m.MessageToast.show("Lỗi: Dữ liệu không khớp chuẩn SAP!");
                     }
                 }
@@ -207,10 +259,6 @@ sap.ui.define([
             if (!sStatus) {
                 return "";
             }
-            // Mày có thể dùng switch/case ở đây để dịch sang tiếng Việt/Anh nếu muốn
-            // Ví dụ: if (sStatus === "COMPENSATE") return "Compensate";
-            
-            // CHỈ trả về đúng cái Status, tuyệt đối không cộng thêm dWorkDate vào
             return sStatus;
         },
         // 2. Xử lý Màu sắc Trạng thái

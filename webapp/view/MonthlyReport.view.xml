@@ -8,7 +8,7 @@
             <fb:filterGroupItems>
                 <fb:FilterGroupItem groupName="G1" name="Month" label="{i18n>filterMonthYear}" visibleInFilterBar="true">
                     <fb:control>
-                        <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="{i18n>phSelectMonthYear}" />
+                        <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="{i18n>phSelectMonthYear}" change=".onSearch" />
                     </fb:control>
                 </fb:FilterGroupItem>
                 

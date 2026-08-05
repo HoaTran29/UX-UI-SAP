@@ -65,7 +65,7 @@
 
                     <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
                         <fb:control>
-                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" />
+                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch" />
                         </fb:control>
                     </fb:FilterGroupItem>
                 </fb:filterGroupItems>

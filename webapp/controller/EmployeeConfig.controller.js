@@ -13,7 +13,7 @@ sap.ui.define([
     return Controller.extend("com.app.zu26g13.app.controller.EmployeeConfig", {
         
         onInit: function () {
-            // Auto-reload data when routing to this page
+            // Auto-reload data when routing to this view
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("employeeConfig").attachPatternMatched(this._onRouteMatched, this);
         },
@@ -23,6 +23,15 @@ sap.ui.define([
             if (oTable && oTable.getBinding("items")) {
                 oTable.getBinding("items").refresh();
             }
+        },
+
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+        
+        // Retrieve text from i18n, supports dynamic parameters array (e.g., [param1, param2])
+        _getI18nText: function (sKey, aArgs) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
         },
 
         // =========================================================
@@ -76,8 +85,8 @@ sap.ui.define([
             this._pEmpValueHelpDialog.then(function (oPopover) {
                 var oList = this.byId("empValueHelpList");
                 if (oList) {
-                    oList.getBinding("items").filter([]); // Clear previous search
-                    oList.removeSelections(true);         // Clear green selection
+                    oList.getBinding("items").filter([]); 
+                    oList.removeSelections(true);         
                 }
                 oPopover.openBy(this._oInputEmp);
             }.bind(this));
@@ -95,7 +104,7 @@ sap.ui.define([
         onEmployeeValueHelpConfirm: function (oEvent) {
             var oSelectedItem = oEvent.getParameter("listItem");
             if (oSelectedItem && this._oInputEmp) {
-                this._oInputEmp.setValue(oSelectedItem.getDescription()); // description is Pernr
+                this._oInputEmp.setValue(oSelectedItem.getDescription());
                 if (this.onSearch) { this.onSearch(); }
                 this._pEmpValueHelpDialog.then(function (oPopover) { oPopover.close(); });
             }
@@ -127,8 +136,8 @@ sap.ui.define([
             this._pDeptValueHelpDialog.then(function (oPopover) {
                 var oList = this.byId("deptValueHelpList");
                 if (oList) {
-                    oList.getBinding("items").filter([]); // Clear previous search
-                    oList.removeSelections(true);         // Clear green selection
+                    oList.getBinding("items").filter([]); 
+                    oList.removeSelections(true);         
                 }
                 oPopover.openBy(this._oInputDept);
             }.bind(this));
@@ -146,7 +155,7 @@ sap.ui.define([
         onDeptValueHelpConfirm: function (oEvent) {
             var oSelectedItem = oEvent.getParameter("listItem");
             if (oSelectedItem && this._oInputDept) {
-                this._oInputDept.setValue(oSelectedItem.getDescription()); // description is DeptId
+                this._oInputDept.setValue(oSelectedItem.getDescription()); 
                 if (this.onSearch) { this.onSearch(); }
                 this._pDeptValueHelpDialog.then(function (oPopover) { oPopover.close(); });
             }
@@ -185,9 +194,9 @@ sap.ui.define([
                 oView.byId("selectDept").setSelectedKey("");
                 oView.byId("selectRole").setSelectedKey("");
 
-                oDialog.setTitle("Create New Employee");
+                oDialog.setTitle(this._getI18nText("titleCreateEmp"));
                 oDialog.open();
-            });
+            }.bind(this));
         },
 
         onOpenEditDialog: function (oEvent) {
@@ -217,9 +226,9 @@ sap.ui.define([
                 oView.byId("selectDept").setSelectedKey(oRowData.DeptId);
                 oView.byId("selectRole").setSelectedKey(oRowData.RoleId);
 
-                oDialog.setTitle("Edit Employee Information");
+                oDialog.setTitle(this._getI18nText("titleEditEmp"));
                 oDialog.open();
-            });
+            }.bind(this));
         },
 
         onDeleteEmployee: function (oEvent) {
@@ -228,10 +237,12 @@ sap.ui.define([
             var oRowData = oContext.getObject();
             var sPath = oContext.getPath(); 
 
+            var sConfirmMsg = this._getI18nText("msgConfirmDeleteEmp", [oRowData.Ename, oRowData.Pernr]);
+
             MessageBox.confirm(
-                "Are you sure you want to delete employee " + oRowData.Ename + " (ID: " + oRowData.Pernr + ")?",
+                sConfirmMsg,
                 {
-                    title: "Confirm Deletion",
+                    title: this._getI18nText("titleConfirmDelete"),
                     actions: [MessageBox.Action.YES, MessageBox.Action.NO],
                     emphasizedAction: MessageBox.Action.YES,
                     onClose: function (oAction) {
@@ -242,12 +253,12 @@ sap.ui.define([
                             oModel.remove(sPath, {
                                 success: function () {
                                     this.getView().setBusy(false);
-                                    oModel.refresh(true); // Refresh table data
-                                    MessageToast.show("Employee deleted successfully!");
+                                    oModel.refresh(true); 
+                                    MessageToast.show(this._getI18nText("msgDeleteEmpSuccess"));
                                 }.bind(this),
                                 error: function (oError) {
                                     this.getView().setBusy(false);
-                                    MessageBox.error("System error: Unable to delete this employee.");
+                                    MessageBox.error(this._getI18nText("msgDeleteEmpError"));
                                 }.bind(this)
                             });
                         }
@@ -274,7 +285,7 @@ sap.ui.define([
 
             // Validate mandatory fields
             if (!oPayload.Pernr || !oPayload.Ename || !oPayload.CardId || !oPayload.DeptId || !oPayload.RoleId) {
-                MessageBox.error("Please fill in all mandatory fields (*)");
+                MessageBox.error(this._getI18nText("msgFillMandatoryFields"));
                 return;
             }
 
@@ -287,7 +298,7 @@ sap.ui.define([
                         oModel.refresh(true); 
                         oDialog.setBusy(false);
                         this.onCloseDialog();
-                        MessageToast.show("Employee created successfully!");
+                        MessageToast.show(this._getI18nText("msgCreateEmpSuccess"));
                     }.bind(this),
                     error: function (oError) {
                         oDialog.setBusy(false);
@@ -295,7 +306,7 @@ sap.ui.define([
                             var oResponse = JSON.parse(oError.responseText);
                             MessageBox.error(oResponse.error.message.value);
                         } catch (e) {
-                            MessageBox.error("System error: Unable to create employee.");
+                            MessageBox.error(this._getI18nText("msgCreateEmpError"));
                         }
                     }.bind(this)
                 });
@@ -307,11 +318,11 @@ sap.ui.define([
                     success: function () {
                         oDialog.setBusy(false);
                         this.onCloseDialog();
-                        MessageToast.show("Employee information updated successfully!");
+                        MessageToast.show(this._getI18nText("msgUpdateEmpSuccess"));
                     }.bind(this),
                     error: function (oError) {
                         oDialog.setBusy(false);
-                        MessageBox.error("System error: Unable to update employee information.");
+                        MessageBox.error(this._getI18nText("msgUpdateEmpError"));
                     }.bind(this)
                 });
             }

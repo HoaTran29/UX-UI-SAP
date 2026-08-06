@@ -22,6 +22,14 @@ sap.ui.define([
             );
         },
 
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+
+        _getI18nText: function (sKey, aArgs) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
+        },
+
         _getDefaultShiftData: function () {
             return {
                 ShiftId: "",
@@ -36,11 +44,13 @@ sap.ui.define([
             };
         },
 
+        // =========================================================
+        // DIALOG LOGIC
+        // =========================================================
+
         onOpenAddDialog: function () {
             var oShiftModel = this.getView().getModel("shiftModel");
-
             oShiftModel.setData(this._getDefaultShiftData());
-
             this._openDialog();
         },
 
@@ -48,7 +58,7 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error("Unable to get work shift data.");
+                MessageBox.error(this._getI18nText("msgErrorGetShiftData"));
                 return;
             }
 
@@ -97,6 +107,10 @@ sap.ui.define([
             }
         },
 
+        // =========================================================
+        // CRUD LOGIC
+        // =========================================================
+
         onSaveShift: function () {
             var oODataModel = this.getView().getModel();
             var oShiftModel = this.getView().getModel("shiftModel");
@@ -106,59 +120,44 @@ sap.ui.define([
             var sStdHours = String(oShiftData.StdHours || "").trim().replace(",", ".");
             var sGraceMins = String(oShiftData.GraceMins || "0").trim();
 
+            // Validations
             if (!sShiftId) {
-                MessageBox.error("Shift ID cannot be empty or spaces only.", {
-                    title: "Missing Shift ID"
-                });
+                MessageBox.error(this._getI18nText("msgMissingShiftId"), { title: this._getI18nText("titleMissingShiftId") });
                 return;
             }
 
             if (!/^[A-Z0-9_]+$/.test(sShiftId)) {
-                MessageBox.error("Shift ID can only contain letters, numbers, and underscores. Example: CA_01, CA_02, TEST.", {
-                    title: "Invalid Shift ID"
-                });
+                MessageBox.error(this._getI18nText("msgInvalidShiftIdFormat"), { title: this._getI18nText("titleInvalidShiftId") });
                 return;
             }
 
             if (sShiftId.length > 20) {
-                MessageBox.error("Shift ID cannot exceed 20 characters.", {
-                    title: "Shift ID Too Long"
-                });
+                MessageBox.error(this._getI18nText("msgShiftIdTooLong"), { title: this._getI18nText("titleShiftIdTooLong") });
                 return;
             }
 
             if (!sStdHours) {
-                MessageBox.error("Standard hours cannot be empty.", {
-                    title: "Missing Standard Hours"
-                });
+                MessageBox.error(this._getI18nText("msgMissingStdHours"), { title: this._getI18nText("titleMissingStdHours") });
                 return;
             }
 
             var fStdHours = parseFloat(sStdHours);
-
             if (isNaN(fStdHours) || fStdHours <= 0 || fStdHours > 24) {
-                MessageBox.error("Standard hours must be a number from 0 to 24. Example: 8, 8.5, 8.28, 12.", {
-                    title: "Invalid Standard Hours"
-                });
+                MessageBox.error(this._getI18nText("msgInvalidStdHours"), { title: this._getI18nText("titleInvalidStdHours") });
                 return;
             }
-
             fStdHours = this._roundHour2(fStdHours);
 
             var sTimeIn = this._normalizeHHmmss(oShiftData.TimeIn);
             var sTimeOut = this._normalizeHHmmss(oShiftData.TimeOut);
 
             if (!sTimeIn || !sTimeOut) {
-                MessageBox.error("Please select valid start time and end time.", {
-                    title: "Missing Working Time"
-                });
+                MessageBox.error(this._getI18nText("msgMissingWorkingTime"), { title: this._getI18nText("titleMissingWorkingTime") });
                 return;
             }
 
             if (!this._isValidHHmmss(sTimeIn) || !this._isValidHHmmss(sTimeOut)) {
-                MessageBox.error("Start time or end time is invalid.", {
-                    title: "Invalid Working Time"
-                });
+                MessageBox.error(this._getI18nText("msgInvalidWorkingTime"), { title: this._getI18nText("titleInvalidWorkingTime") });
                 return;
             }
 
@@ -167,40 +166,33 @@ sap.ui.define([
             var fActualHours = this._roundHour2(fActualHoursRaw);
 
             if (fActualHoursRaw <= 0) {
-                MessageBox.error("End time must be greater than start time. If the shift crosses midnight, enable Overnight Shift.", {
-                    title: "Invalid Time Range"
-                });
+                MessageBox.error(this._getI18nText("msgInvalidTimeRange"), { title: this._getI18nText("titleInvalidTimeRange") });
                 return;
             }
 
             if (fActualHoursRaw > 24) {
-                MessageBox.error("Total shift duration cannot exceed 24 hours.", {
-                    title: "Invalid Time Range"
-                });
+                MessageBox.error(this._getI18nText("msgExceed24Hours"), { title: this._getI18nText("titleInvalidTimeRange") });
                 return;
             }
 
+            // Check if actual calculated hours match entered standard hours
             if (Math.abs(fActualHours - fStdHours) > 0.001) {
-                MessageBox.error(
-                    "Standard hours do not match start time and end time.\n\n" +
-                    "Start Time: " + this._formatTimeFromHHmmss(sTimeIn) + "\n" +
-                    "End Time: " + this._formatTimeFromHHmmss(sTimeOut) + "\n" +
-                    "Overnight Shift: " + (bNextDay ? "Yes" : "No") + "\n" +
-                    "Actual Hours: " + this._formatHourNumber(fActualHours) + "h\n" +
-                    "Entered Standard Hours: " + this._formatHourNumber(fStdHours) + "h",
-                    {
-                        title: "Standard Hours Mismatch"
-                    }
-                );
+                var sYesNo = this._getI18nText(bNextDay ? "txtYes" : "txtNo");
+                var sMismatchMsg = this._getI18nText("msgStdHoursMismatch", [
+                    this._formatTimeFromHHmmss(sTimeIn),
+                    this._formatTimeFromHHmmss(sTimeOut),
+                    sYesNo,
+                    this._formatHourNumber(fActualHours),
+                    this._formatHourNumber(fStdHours)
+                ]);
+
+                MessageBox.error(sMismatchMsg, { title: this._getI18nText("titleStdHoursMismatch") });
                 return;
             }
 
             var iGraceMins = parseInt(sGraceMins || "0", 10);
-
             if (isNaN(iGraceMins) || iGraceMins < 0 || iGraceMins > 1440) {
-                MessageBox.error("Grace minutes must be an integer from 0 to 1440.", {
-                    title: "Invalid Grace Minutes"
-                });
+                MessageBox.error(this._getI18nText("msgInvalidGraceMins"), { title: this._getI18nText("titleInvalidGraceMins") });
                 return;
             }
 
@@ -243,18 +235,16 @@ sap.ui.define([
             this._scheduleExists(oODataModel, oPayloadCreate.ShiftId).then(function (bExists) {
                 if (bExists) {
                     sap.ui.core.BusyIndicator.hide();
-
-                    MessageBox.error("Shift ID " + oPayloadCreate.ShiftId + " already exists. Please use another shift ID.", {
-                        title: "Duplicate Shift ID"
+                    MessageBox.error(this._getI18nText("msgDuplicateShiftId", [oPayloadCreate.ShiftId]), {
+                        title: this._getI18nText("titleDuplicateShiftId")
                     });
-
                     return;
                 }
 
                 oODataModel.create("/Schedule", oPayloadCreate, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
-                        MessageToast.show("Work shift created successfully.");
+                        MessageToast.show(this._getI18nText("msgShiftCreated"));
                         this.onCloseDialog();
                         this._reloadViewData();
                     }.bind(this),
@@ -262,25 +252,17 @@ sap.ui.define([
                         sap.ui.core.BusyIndicator.hide();
                         console.error("Error creating /Schedule:", oError);
                         MessageBox.error(
-                            this._getODataErrorMessage(
-                                oError,
-                                "Unable to create work shift. Please check duplicate shift ID or invalid data."
-                            ),
-                            {
-                                title: "Unable to Create Work Shift"
-                            }
+                            this._getODataErrorMessage(oError, this._getI18nText("msgCreateShiftError")),
+                            { title: this._getI18nText("titleCreateShiftError") }
                         );
                     }.bind(this)
                 });
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 console.error("Error checking shift existence:", oError);
-
                 MessageBox.error(
-                    this._getODataErrorMessage(oError, "Unable to check shift ID before creating."),
-                    {
-                        title: "Unable to Check Shift ID"
-                    }
+                    this._getODataErrorMessage(oError, this._getI18nText("msgCheckShiftIdError")),
+                    { title: this._getI18nText("titleCheckShiftIdError") }
                 );
             }.bind(this));
         },
@@ -291,7 +273,7 @@ sap.ui.define([
             oODataModel.update(sPath, oPayloadUpdate, {
                 success: function () {
                     sap.ui.core.BusyIndicator.hide();
-                    MessageToast.show("Work shift updated successfully.");
+                    MessageToast.show(this._getI18nText("msgShiftUpdated"));
                     this.onCloseDialog();
                     this._reloadViewData();
                 }.bind(this),
@@ -299,10 +281,8 @@ sap.ui.define([
                     sap.ui.core.BusyIndicator.hide();
                     console.error("Error updating /Schedule:", oError);
                     MessageBox.error(
-                        this._getODataErrorMessage(oError, "Unable to update work shift."),
-                        {
-                            title: "Unable to Update Work Shift"
-                        }
+                        this._getODataErrorMessage(oError, this._getI18nText("msgUpdateShiftError")),
+                        { title: this._getI18nText("titleUpdateShiftError") }
                     );
                 }.bind(this)
             });
@@ -312,7 +292,7 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error("Unable to get the selected row for deletion.");
+                MessageBox.error(this._getI18nText("msgErrorGetDeleteRow"));
                 return;
             }
 
@@ -321,9 +301,9 @@ sap.ui.define([
             var sPath = this._buildSchedulePath(oODataModel, oData.ShiftId);
 
             MessageBox.confirm(
-                "Are you sure you want to delete shift " + oData.ShiftId + "?",
+                this._getI18nText("msgConfirmDeleteShift", [oData.ShiftId]),
                 {
-                    title: "Confirm Deletion",
+                    title: this._getI18nText("titleConfirmDeleteShift"),
                     actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
                     emphasizedAction: MessageBox.Action.OK,
                     onClose: function (sAction) {
@@ -336,17 +316,15 @@ sap.ui.define([
                         oODataModel.remove(sPath, {
                             success: function () {
                                 sap.ui.core.BusyIndicator.hide();
-                                MessageToast.show("Work shift deleted successfully.");
+                                MessageToast.show(this._getI18nText("msgShiftDeleted"));
                                 this._reloadViewData();
-                            },
+                            }.bind(this),
                             error: function (oError) {
                                 sap.ui.core.BusyIndicator.hide();
                                 console.error("Error deleting /Schedule:", oError);
                                 MessageBox.error(
-                                    this._getODataErrorMessage(oError, "Unable to delete work shift."),
-                                    {
-                                        title: "Unable to Delete Work Shift"
-                                    }
+                                    this._getODataErrorMessage(oError, this._getI18nText("msgDeleteShiftError")),
+                                    { title: this._getI18nText("titleDeleteShiftError") }
                                 );
                             }.bind(this)
                         });
@@ -354,7 +332,6 @@ sap.ui.define([
                 }
             );
         },
-
 
         _reloadViewData: function () {
             var oODataModel = this.getView().getModel();
@@ -370,12 +347,16 @@ sap.ui.define([
             }
         },
 
+        // =========================================================
+        // DATA FORMATTING & UTILS
+        // =========================================================
+
         formatODataTime: function (vTime) {
             return this._formatTimeFromHHmmss(this._edmTimeToHHmmss(vTime));
         },
 
         formatNextDayText: function (vNextDay) {
-            return this._isNextDayTrue(vNextDay) ? "Yes" : "No";
+            return this._getI18nText(this._isNextDayTrue(vNextDay) ? "txtYes" : "txtNo");
         },
 
         formatNextDayState: function (vNextDay) {
@@ -392,12 +373,10 @@ sap.ui.define([
                     },
                     error: function (oError) {
                         var iStatusCode = Number(oError && oError.statusCode);
-
                         if (iStatusCode === 404) {
                             resolve(false);
                             return;
                         }
-
                         reject(oError);
                     }
                 });
@@ -445,7 +424,6 @@ sap.ui.define([
             if (this._isSchedulePropertyBoolean("NextDay")) {
                 return !!bNextDay;
             }
-
             return bNextDay ? "X" : "";
         },
 
@@ -453,19 +431,15 @@ sap.ui.define([
             if (vNextDay === true) {
                 return true;
             }
-
             var sValue = String(vNextDay || "").trim().toUpperCase();
-
             return sValue === "X" || sValue === "TRUE" || sValue === "1";
         },
 
         _isSchedulePropertyBoolean: function (sPropertyName) {
             var oProperty = this._getScheduleProperty(sPropertyName);
-
             if (!oProperty) {
                 return false;
             }
-
             return oProperty.type === "Edm.Boolean";
         },
 
@@ -513,7 +487,6 @@ sap.ui.define([
                         sEntityTypeFullName = oEntitySet.entityType;
                         return true;
                     }
-
                     return false;
                 });
             });
@@ -576,7 +549,6 @@ sap.ui.define([
             }
 
             var sNormalized = this._normalizeHHmmss(sTime);
-
             return sNormalized || "000000";
         },
 
@@ -649,6 +621,10 @@ sap.ui.define([
             return sTime.substring(0, 2) + ":" + sTime.substring(2, 4);
         },
 
+        // =========================================================
+        // ERROR HANDLING
+        // =========================================================
+
         _getODataErrorMessage: function (oError, sDefaultMessage) {
             var aMessages = [];
 
@@ -659,11 +635,7 @@ sap.ui.define([
 
                 sMessage = String(sMessage).trim();
 
-                if (!sMessage) {
-                    return;
-                }
-
-                if (sMessage === "HTTP request failed") {
+                if (!sMessage || sMessage === "HTTP request failed") {
                     return;
                 }
 
@@ -711,7 +683,7 @@ sap.ui.define([
                 return aMessages.join("\n");
             }
 
-            return sDefaultMessage || "An unexpected error occurred.";
+            return sDefaultMessage || this._getI18nText("msgUnexpectedError");
         }
 
     });

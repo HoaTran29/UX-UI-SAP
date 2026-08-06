@@ -61,7 +61,7 @@
                                             icon="sap-icon://clear-filter"
                                             tooltip="{i18n>ttClearFilter}"
                                             type="Transparent"
-                                            press=".onClearFilters"/>
+                                            press=".onClear"/>
                                     </HBox>                                        
                                 </fb:control>
                             </fb:FilterGroupItem>

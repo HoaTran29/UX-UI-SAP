@@ -2,37 +2,47 @@ sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
-    "sap/ui/export/Spreadsheet"
-], function (Controller, Filter, FilterOperator, Spreadsheet) {
+    "sap/ui/export/Spreadsheet",
+    "sap/ui/core/Fragment"
+], function (Controller, Filter, FilterOperator, Spreadsheet, Fragment) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.MonthlyReport", {
 
         onInit: function () {
-            // Mặc định load tháng hiện tại khi vừa vào trang
+            // Default to current month upon navigation
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("monthlyReport").attachPatternMatched(this._onRouteMatched, this);
         },
 
         _onRouteMatched: function () {
             var oDatePicker = this.byId("fltMonth");
-            // Set tháng hiện tại
+            // Set current date
             oDatePicker.setDateValue(new Date());
             this.onSearch();
         },
+
+        // Helper to get text from i18n properties
+        _getI18nText: function (sKey) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
+        },
+
+        // =========================================================
+        // FILTER LOGIC
+        // =========================================================
 
         onSearch: function () {
             var aFilters = [];
             var oDate = this.byId("fltMonth").getDateValue();
             var sEmp = this.byId("fltEmp").getValue();
 
-            // Nếu người dùng chọn tháng (Ví dụ: Tháng 07/2026)
+            // If user selects a month (e.g., 07/2026)
             if (oDate) {
                 var y = oDate.getFullYear();
-                var m = oDate.getMonth() + 1; // getMonth() trả về 0-11
-                var sMonthYear = String(m).padStart(2, '0') + "/" + y; // Tạo chuỗi "07/2026"
+                var m = oDate.getMonth() + 1; 
+                var sMonthYear = String(m).padStart(2, '0') + "/" + y; 
 
-                // Lọc theo chuỗi Tháng/Năm
+                // Filter by Month/Year string
                 aFilters.push(new Filter("MonthYear", FilterOperator.EQ, sMonthYear));
             }
 
@@ -53,67 +63,67 @@ sap.ui.define([
         onNavBack: function () {
             this.getOwnerComponent().getRouter().navTo("dashboard");
         },
-        // --- BẮT ĐẦU CODE XUẤT EXCEL (Chuẩn form Dashboard) ---
 
-        // Cấu hình các cột để xuất file Excel 
+        // =========================================================
+        // EXPORT EXCEL LOGIC
+        // =========================================================
+
         _createColumnConfig: function () {
             return [
-                { label: 'Emp. ID', property: 'Pernr', type: 'String' },
-                { label: 'Employee Name', property: 'Ename', type: 'String' }, // Bỏ dòng này nếu backend ko có cột Tên
-                { label: 'Month/Year', property: 'MonthYear', type: 'String' },
-                { label: 'Total Standard Hours', property: 'TotalStdHours', type: 'Number', scale: 2 },
-                { label: 'Total Actual Hours', property: 'TotalActHours', type: 'Number', scale: 2 },
-                { label: 'Total OT Hours', property: 'TotalOtHours', type: 'Number', scale: 2 }
+                { label: this._getI18nText("colEmpId"), property: 'Pernr', type: 'String' },
+                { label: this._getI18nText("colEmpName"), property: 'Ename', type: 'String' }, // Remove this line if backend lacks 'Ename' column
+                { label: this._getI18nText("colMonthYear"), property: 'MonthYear', type: 'String' },
+                { label: this._getI18nText("colTotalStdHours"), property: 'TotalStdHours', type: 'Number', scale: 2 },
+                { label: this._getI18nText("colTotalActHours"), property: 'TotalActHours', type: 'Number', scale: 2 },
+                { label: this._getI18nText("colTotalOtHours"), property: 'TotalOtHours', type: 'Number', scale: 2 }
             ];
         },
 
-        // Xử lý chức năng xuất Excel
         onExportExcel: function () {
-            // LƯU Ý: Sửa chữ "monthlyTable" thành đúng ID thẻ <Table> trong file XML của sếp nha
             var oTable = this.byId("monthlyTable");
             var oRowBinding = oTable.getBinding("items");
             var aCols = this._createColumnConfig();
 
-            // 1. Phải khởi tạo Date và cắt ngày tháng năm ra trước
+            // Format date for filename
             var oDate = new Date();
             var sDay = String(oDate.getDate()).padStart(2, '0');
             var sMonth = String(oDate.getMonth() + 1).padStart(2, '0');
             var sYear = oDate.getFullYear();
 
-            // Ráp lại thành tên file (VD: MonthlyReport_31072026.xlsx)
+            // Construct filename (e.g., MonthlyReport_31072026.xlsx)
             var sFileName = "MonthlyReport_" + sDay + sMonth + sYear + ".xlsx";
 
-            // 2. Cấu hình xuất Excel
+            // Excel export settings
             var oSettings = {
                 workbook: {
                     columns: aCols,
                     context: {
-                        sheetName: 'Data' // Đặt tên sheet ngắn gọn
+                        sheetName: this._getI18nText("sheetNameData") 
                     }
                 },
                 dataSource: oRowBinding,
-                fileName: sFileName, // Gọi cái biến sFileName vừa tạo ở trên
+                fileName: sFileName,
                 worker: false
             };
 
-            // 3. Thực thi tải file
+            // Trigger download
             var oSheet = new Spreadsheet(oSettings);
             oSheet.build().finally(function () {
                 oSheet.destroy();
             });
         },
 
-// ==========================================================
-        // TÍNH NĂNG SEARCH HELP (DẠNG POPOVER CHO NHÂN VIÊN)
+        // ==========================================================
+        // EMPLOYEE VALUE HELP (POPOVER)
         // ==========================================================
 
         onEmployeeValueHelpRequest: function (oEvent) {
             var oView = this.getView();
-            // Lấy thẻ Input làm "mỏ neo" để lát Popover biết chỗ mà hiển thị dưới chân
+            // Get input field as anchor for Popover
             this._oInputEmp = oEvent.getSource(); 
 
             if (!this._pEmpValueHelpDialog) {
-                this._pEmpValueHelpDialog = sap.ui.core.Fragment.load({
+                this._pEmpValueHelpDialog = Fragment.load({
                     id: oView.getId(),
                     name: "com.app.zu26g13.app.view.EmployeeValueHelp", 
                     controller: this
@@ -122,34 +132,34 @@ sap.ui.define([
                     return oPopover;
                 });
             }
+            
             this._pEmpValueHelpDialog.then(function(oPopover) {
-                // Clear bộ lọc cũ đi mỗi lần mở lại
+                // Clear previous filter
                 var oList = this.byId("empValueHelpList");
                 if (oList) { oList.getBinding("items").filter([]); }
                 
-                // MA THUẬT: Mở Popover ngay dưới thẻ Input
+                // Open Popover below the input field
                 oPopover.openBy(this._oInputEmp);
             }.bind(this));
         },
 
         onEmployeeValueHelpSearch: function (oEvent) {
-            // Bắt text tìm kiếm (hỗ trợ cả gõ phím lẫn ấn kính lúp)
+            // Capture search text
             var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
             
-            var oFilterName = new sap.ui.model.Filter("Ename", sap.ui.model.FilterOperator.Contains, sValue);
-            var oFilterId = new sap.ui.model.Filter("Pernr", sap.ui.model.FilterOperator.Contains, sValue);
+            var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
             
-            var oCombinedFilter = new sap.ui.model.Filter({
+            var oCombinedFilter = new Filter({
                 filters: [oFilterName, oFilterId],
                 and: false
             });
             
-            // Trỏ thẳng vào cái List mới tạo trong XML để lọc
+            // Apply filter to List
             this.byId("empValueHelpList").getBinding("items").filter([oCombinedFilter]);
         },
 
         onEmployeeValueHelpConfirm: function (oEvent) {
-            // Vì đổi sang dùng thẻ List nên cách lấy dữ liệu là "listItem"
             var oSelectedItem = oEvent.getParameter("listItem"); 
             if (oSelectedItem) {
                 var sEmpId = oSelectedItem.getDescription();
@@ -160,20 +170,16 @@ sap.ui.define([
                 }
             }
             
-            // Chọn xong tự động đóng
+            // Auto close on selection
             if (this._pEmpValueHelpDialog) {
                 this._pEmpValueHelpDialog.then(function(oPopover) { oPopover.close(); });
             }
         },
 
         onEmployeeValueHelpCancel: function () {
-            // Đóng Popover
             if (this._pEmpValueHelpDialog) {
                 this._pEmpValueHelpDialog.then(function(oPopover) { oPopover.close(); });
             }
         }
-
-        
     });
-    
 });

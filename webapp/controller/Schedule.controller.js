@@ -19,7 +19,7 @@ sap.ui.define([
 
             this._initModels();
 
-            // Auto-reload data when routing to this page
+            // Auto-reload data when routing to this view
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("schedule").attachPatternMatched(this._onRouteMatched, this);
         },
@@ -37,26 +37,22 @@ sap.ui.define([
             jQuery(document).off(".hidePlanningCalendarMonths");
         },
 
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+
+        _getI18nText: function (sKey, aArgs) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
+        },
+
         _initModels: function () {
+            this.getView().setModel(new JSONModel({ employees: [] }), "calendarModel");
+            this.getView().setModel(new JSONModel({ shifts: [] }), "shiftLookupModel");
             this.getView().setModel(new JSONModel({
-                employees: []
-            }), "calendarModel");
-
-            this.getView().setModel(new JSONModel({
-                shifts: []
-            }), "shiftLookupModel");
-
-            this.getView().setModel(new JSONModel({
-                employeeQuery: "",
-                employeeFilter: "",
-                deptQuery: "",
-                deptFilter: ""
+                employeeQuery: "", employeeFilter: "",
+                deptQuery: "", deptFilter: ""
             }), "headerSearchModel");
-
-            this.getView().setModel(
-                new JSONModel(this._getDefaultDialogData()),
-                "dialogModel"
-            );
+            this.getView().setModel(new JSONModel(this._getDefaultDialogData()), "dialogModel");
         },
 
         _getDefaultDialogData: function () {
@@ -83,15 +79,14 @@ sap.ui.define([
         // UI HACKS (Hide 'Months' view from PlanningCalendar)
         // =========================================================
         _installHideMonthsOption: function () {
-            if (this._bHideMonthsOptionInstalled) {
-                return;
-            }
+            if (this._bHideMonthsOptionInstalled) return;
             this._bHideMonthsOptionInstalled = true;
 
             var fnHideMonths = function () {
                 this._hideMonthsOption();
             }.bind(this);
 
+            // Bind click and keydown events to re-apply the hack when calendar re-renders
             jQuery(document).on("click.hidePlanningCalendarMonths", function () {
                 setTimeout(fnHideMonths, 50);
                 setTimeout(fnHideMonths, 150);
@@ -110,6 +105,7 @@ sap.ui.define([
         _hideMonthsOption: function () {
             jQuery(".sapMSelectListItemBase, .sapMSelectListItem").each(function () {
                 var oItem = jQuery(this);
+                // Hardcoded text search for standard UI5 'Months' string
                 if (oItem.text().trim() === "Months") {
                     oItem.hide();
                     oItem.attr("aria-hidden", "true");
@@ -126,7 +122,7 @@ sap.ui.define([
 
             sap.ui.core.BusyIndicator.show(0);
 
-            // Using Promise.all to fetch EmpShift, OtPlan and Employee Master simultaneously (HEAD version resolved)
+            // Fetch EmpShift, OtPlan and Employee Master concurrently
             Promise.all([
                 this._readSet("/EmpShift"),
                 this._readSet("/OtPlan").catch(function () { return []; }),
@@ -154,8 +150,8 @@ sap.ui.define([
 
                 MessageBox.error(this._getODataErrorMessage(
                     oError,
-                    "Unable to load work schedule data from SAP backend."
-                ), { title: "Unable to Load Schedule" });
+                    this._getI18nText("msgLoadScheduleError")
+                ), { title: this._getI18nText("titleLoadScheduleError") });
             }.bind(this));
         },
 
@@ -163,9 +159,7 @@ sap.ui.define([
             var mEmployeeByPernr = {};
             (aEmployees || []).forEach(function (oEmployee) {
                 var sKey = this._normalizePernrForCompare(oEmployee.Pernr);
-                if (sKey) {
-                    mEmployeeByPernr[sKey] = oEmployee;
-                }
+                if (sKey) { mEmployeeByPernr[sKey] = oEmployee; }
             }.bind(this));
             return mEmployeeByPernr;
         },
@@ -177,9 +171,7 @@ sap.ui.define([
             aOtPlan.forEach(function (ot) {
                 var sPernrKey = this._normalizePernrForCompare(ot.Pernr);
                 var sDateKey = this._dateKey(this._toDate(ot.PlanDate));
-                if (sPernrKey) {
-                    mOtByKey[sPernrKey + "|" + sDateKey] = ot;
-                }
+                if (sPernrKey) mOtByKey[sPernrKey + "|" + sDateKey] = ot;
             }.bind(this));
 
             aEmpShift.forEach(function (item) {
@@ -187,7 +179,7 @@ sap.ui.define([
                 var oEmployeeMaster = mEmployeeByPernr ? mEmployeeByPernr[sPernrKey] : null;
 
                 var sDisplayPernr = oEmployeeMaster && oEmployeeMaster.Pernr ? oEmployeeMaster.Pernr : item.Pernr;
-                var sEmployeeName = oEmployeeMaster && oEmployeeMaster.Ename ? oEmployeeMaster.Ename : item.EmployeeName || "Unknown Employee";
+                var sEmployeeName = oEmployeeMaster && oEmployeeMaster.Ename ? oEmployeeMaster.Ename : item.EmployeeName || this._getI18nText("txtUnknownEmployee");
                 var sDeptId = oEmployeeMaster && oEmployeeMaster.DeptId ? oEmployeeMaster.DeptId : item.DeptId || "";
                 var sDeptName = oEmployeeMaster && oEmployeeMaster.DeptName ? oEmployeeMaster.DeptName : item.DeptName || "";
 
@@ -238,26 +230,16 @@ sap.ui.define([
                     OtHours: sOtHours,
                     IsOt: oOt ? oOt.IsOt : false,
 
-                    AppointmentTitle: "Shift: " + item.ShiftId,
-                    AppointmentText: sShiftTimeText + " | OT: " + sOtHours + "h",
-                    AppointmentTooltip:
-                        "Employee: " + sEmployeeName +
-                        " | Employee ID: " + sDisplayPernr +
-                        " | Department: " + (sDeptName || sDeptId || "N/A") +
-                        " | Shift: " + item.ShiftId +
-                        " | Time: " + sShiftTimeText +
-                        " | OT: " + sOtHours + "h",
+                    AppointmentTitle: this._getI18nText("txtShiftTitle", [item.ShiftId]),
+                    AppointmentText: this._getI18nText("txtAppointmentText", [sShiftTimeText, sOtHours]),
+                    AppointmentTooltip: this._getI18nText("txtAppointmentTooltip", [
+                        sEmployeeName, sDisplayPernr, (sDeptName || sDeptId || this._getI18nText("txtNA")), 
+                        item.ShiftId, sShiftTimeText, sOtHours
+                    ]),
 
-                    sEmpShiftPath: this._buildEmpShiftPath(
-                        oODataModel,
-                        item.Pernr,
-                        dWorkDate,
-                        item.ShiftId
-                    ),
-
+                    sEmpShiftPath: this._buildEmpShiftPath(oODataModel, item.Pernr, dWorkDate, item.ShiftId),
                     sOtPath: oOt ? oODataModel.createKey("/OtPlan", {
-                        Pernr: oOt.Pernr,
-                        PlanDate: this._toODataDate(this._toDate(oOt.PlanDate))
+                        Pernr: oOt.Pernr, PlanDate: this._toODataDate(this._toDate(oOt.PlanDate))
                     }) : ""
                 });
             }.bind(this));
@@ -279,9 +261,7 @@ sap.ui.define([
                             ShiftId: item.ShiftId,
                             TimeIn: item.TimeIn,
                             TimeOut: item.TimeOut,
-                            ShiftText: item.ShiftId + " - " +
-                                this._formatTime(item.TimeIn) + " to " +
-                                this._formatTime(item.TimeOut)
+                            ShiftText: item.ShiftId + " - " + this._formatTime(item.TimeIn) + " to " + this._formatTime(item.TimeOut)
                         };
                     }.bind(this));
 
@@ -546,7 +526,7 @@ sap.ui.define([
 
         _openEditDialog: function (oData) {
             if (this._isPastDate(oData.PlanDate)) {
-                MessageBox.error(this._getPastDateMessage(oData.PlanDate), { title: "Unable to Edit Past Schedule" });
+                MessageBox.error(this._getPastDateMessage(oData.PlanDate), { title: this._getI18nText("titleEditPastError") });
                 return;
             }
 
@@ -598,26 +578,33 @@ sap.ui.define([
             var oData = oAppointment.getBindingContext("calendarModel").getObject();
             var bPastDate = this._isPastDate(oData.PlanDate);
 
-            var sMessage =
-                "Employee ID: " + (oData.DisplayPernr || oData.Pernr) + "\n" +
-                "Employee Name: " + (oData.EmployeeName || "") + "\n" +
-                "Department: " + (oData.DeptName || oData.DeptId || "N/A") + "\n" +
-                "Work Date: " + this._normalizeDate(oData.PlanDate).toLocaleDateString("en-GB") + "\n" +
-                "Shift: " + oData.ShiftId + "\n" +
-                "Working Time: " + (oData.ShiftTimeText || "") + "\n" +
-                "OT Hours: " + oData.OtHours + " hour(s)\n";
+            var sMessage = this._getI18nText("msgScheduleDetails", [
+                (oData.DisplayPernr || oData.Pernr),
+                (oData.EmployeeName || ""),
+                (oData.DeptName || oData.DeptId || this._getI18nText("txtNA")),
+                this._normalizeDate(oData.PlanDate).toLocaleDateString("en-GB"),
+                oData.ShiftId,
+                (oData.ShiftTimeText || ""),
+                oData.OtHours
+            ]);
 
-            if (bPastDate) sMessage += "\nNote: This date has already passed, editing or deleting is not allowed.";
+            if (bPastDate) {
+                sMessage += "\n\n" + this._getI18nText("msgPastDateNote");
+            }
+
+            var sBtnClose = this._getI18nText("btnActionClose");
+            var sBtnEdit = this._getI18nText("btnActionEdit");
+            var sBtnDelete = this._getI18nText("btnActionDelete");
 
             MessageBox.show(sMessage, {
                 icon: MessageBox.Icon.INFORMATION,
-                title: "Work Schedule Details",
-                actions: bPastDate ? ["Close"] : ["Close", "Edit", "Delete"],
-                emphasizedAction: "Close",
+                title: this._getI18nText("titleScheduleDetails"),
+                actions: bPastDate ? [sBtnClose] : [sBtnClose, sBtnEdit, sBtnDelete],
+                emphasizedAction: sBtnClose,
                 onClose: function (sAction) {
                     if (bPastDate) return;
-                    if (sAction === "Delete") this._deleteSchedule(oData);
-                    else if (sAction === "Edit") this._openEditDialog(oData);
+                    if (sAction === sBtnDelete) this._deleteSchedule(oData);
+                    else if (sAction === sBtnEdit) this._openEditDialog(oData);
                 }.bind(this)
             });
         },
@@ -630,12 +617,12 @@ sap.ui.define([
             var fOtHours = parseFloat(oDialogData.OtHours || "0");
 
             if (isNaN(fOtHours) || fOtHours < 0) {
-                MessageBox.error("Invalid OT hours.", { title: "Invalid OT Data" });
+                MessageBox.error(this._getI18nText("msgInvalidOt"), { title: this._getI18nText("titleInvalidOt") });
                 return;
             }
 
             if (!oDialogData.ShiftId) {
-                MessageBox.error("Please select a work shift.", { title: "Missing Shift" });
+                MessageBox.error(this._getI18nText("msgMissingShift"), { title: this._getI18nText("titleMissingShift") });
                 return;
             }
 
@@ -657,13 +644,13 @@ sap.ui.define([
         _handleEditSave: function (oODataModel, oDialogData, fOtHours) {
             if (!oDialogData.Pernr) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("Unable to identify the employee to update.", { title: "Missing Employee" });
+                MessageBox.error(this._getI18nText("msgMissingEmpUpdate"), { title: this._getI18nText("titleMissingEmp") });
                 return;
             }
 
             if (this._isPastDate(oDialogData.PlanDate)) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(this._getPastDateMessage(oDialogData.PlanDate), { title: "Unable to Update Past Schedule" });
+                MessageBox.error(this._getPastDateMessage(oDialogData.PlanDate), { title: this._getI18nText("titleUpdatePastError") });
                 return;
             }
 
@@ -673,27 +660,27 @@ sap.ui.define([
         _handleDepartmentCreate: function (oODataModel, oDialogData, fOtHours) {
             if (!oDialogData.DeptId) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("Please select a department.", { title: "Missing Department" });
+                MessageBox.error(this._getI18nText("msgMissingDept"), { title: this._getI18nText("titleMissingDept") });
                 return;
             }
 
             this._getEmployeesByDepartment(oDialogData.DeptId).then(function (aEmployees) {
                 if (aEmployees.length === 0) {
                     sap.ui.core.BusyIndicator.hide();
-                    MessageBox.error("This department has no employees.", { title: "No Employees Found" });
+                    MessageBox.error(this._getI18nText("msgDeptNoEmp"), { title: this._getI18nText("titleNoEmpFound") });
                     return;
                 }
                 this._saveCreateScheduleForEmployees(oODataModel, oDialogData, fOtHours, aEmployees);
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(this._getODataErrorMessage(oError, "Unable to load employees by department."));
+                MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgLoadDeptEmpError")));
             }.bind(this));
         },
 
         _handleEmployeeCreate: function (oODataModel, oDialogModel, oDialogData, fOtHours) {
             if (!oDialogData.Pernr) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("Please select an employee.", { title: "Missing Employee" });
+                MessageBox.error(this._getI18nText("msgSelectEmp"), { title: this._getI18nText("titleMissingEmp") });
                 return;
             }
 
@@ -707,10 +694,10 @@ sap.ui.define([
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 MessageBox.error(
-                    oError && oError.message ? oError.message : "Employee ID does not exist. Please select from value help.",
-                    { title: "Invalid Employee" }
+                    oError && oError.message ? oError.message : this._getI18nText("msgEmpNotExistValueHelp"),
+                    { title: this._getI18nText("titleInvalidEmp") }
                 );
-            });
+            }.bind(this));
         },
 
         _getEmployeesByDepartment: function (sDeptId) {
@@ -724,8 +711,8 @@ sap.ui.define([
                 filters: [new Filter("Pernr", FilterOperator.EQ, sPernr)]
             }).then(function (aRes) {
                 if (aRes && aRes.length > 0) return aRes[0];
-                return Promise.reject({ message: "Employee ID " + sPernr + " does not exist." });
-            });
+                return Promise.reject({ message: this._getI18nText("msgEmpNotExist", [sPernr]) });
+            }.bind(this));
         },
 
         _saveCreateScheduleForEmployees: function (oODataModel, oDialogData, fOtHours, aEmployees) {
@@ -734,18 +721,15 @@ sap.ui.define([
 
             if (dStart > dEnd) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error("The selected date range is invalid.", { title: "Invalid Date Range" });
+                MessageBox.error(this._getI18nText("msgInvalidDateRange"), { title: this._getI18nText("titleInvalidDateRange") });
                 return;
             }
 
             if (this._isPastDate(dStart)) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(
-                    "The selected date range contains past dates.\n\n" +
-                    "Start Date: " + dStart.toLocaleDateString("en-GB") + "\n" +
-                    "Please select today or a future date.",
-                    { title: "Unable to Create Schedule" }
-                );
+                MessageBox.error(this._getI18nText("msgContainsPastDates", [dStart.toLocaleDateString("en-GB")]), { 
+                    title: this._getI18nText("titleCreateScheduleError") 
+                });
                 return;
             }
 
@@ -760,7 +744,7 @@ sap.ui.define([
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
                 if (oError && oError.cancelled) return;
-                MessageBox.error("Unable to check non-working dates or holidays.");
+                MessageBox.error(this._getI18nText("msgCheckNonWorkingError"));
             }.bind(this));
         },
 
@@ -774,21 +758,23 @@ sap.ui.define([
                     return "- " + item.DateText + ": " + item.Reason;
                 }).join("\n");
 
+                var sBtnCreateOff = this._getI18nText("btnCreateIncludeOff");
+                var sBtnSkipOff = this._getI18nText("btnSkipOff");
+
                 return new Promise(function (resolve, reject) {
                     MessageBox.confirm(
-                        "The selected date range contains Sundays or holidays:\n\n" + sDateList + "\n\n" +
-                        "Do you want to create schedules for these dates?",
+                        this._getI18nText("msgConfirmNonWorking", [sDateList]),
                         {
-                            title: "Confirm Non-working Date Schedule",
-                            actions: ["Create Including Days Off", "Skip Days Off", MessageBox.Action.CANCEL],
-                            emphasizedAction: "Create Including Days Off",
+                            title: this._getI18nText("titleConfirmNonWorking"),
+                            actions: [sBtnCreateOff, sBtnSkipOff, MessageBox.Action.CANCEL],
+                            emphasizedAction: sBtnCreateOff,
                             onClose: function (sAction) {
                                 if (sAction === MessageBox.Action.CANCEL) {
                                     reject({ cancelled: true });
                                     return;
                                 }
 
-                                if (sAction === "Create Including Days Off") {
+                                if (sAction === sBtnCreateOff) {
                                     sap.ui.core.BusyIndicator.show(0);
                                     resolve(aDates);
                                     return;
@@ -801,7 +787,7 @@ sap.ui.define([
                                 }.bind(this));
 
                                 if (aFinalDates.length === 0) {
-                                    MessageBox.error("All selected dates are Sundays or holidays. There are no regular working days to schedule.");
+                                    MessageBox.error(this._getI18nText("msgAllNonWorking"));
                                     reject({ cancelled: true });
                                     return;
                                 }
@@ -842,12 +828,12 @@ sap.ui.define([
 
             pChain.then(function () {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.success("Work schedule has been created successfully.");
+                MessageBox.success(this._getI18nText("msgScheduleCreated"));
                 this.onCloseAddDialog();
                 this._loadCalendarData();
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(this._getODataErrorMessage(oError, "An error occurred while saving the work schedule or OT data."));
+                MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgCreateScheduleError")));
             }.bind(this));
         },
 
@@ -880,12 +866,12 @@ sap.ui.define([
                 return this._removeOtPlanByKey(oODataModel, oDialogData.Pernr, dWorkDate);
             }.bind(this)).then(function () {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.success("Work schedule has been updated successfully.");
+                MessageBox.success(this._getI18nText("msgScheduleUpdated"));
                 this.onCloseAddDialog();
                 this._loadCalendarData();
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(this._getODataErrorMessage(oError, "An error occurred while updating the work schedule."));
+                MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgUpdateScheduleError")));
             }.bind(this));
         },
 
@@ -911,11 +897,11 @@ sap.ui.define([
                 return Promise.resolve();
             }.bind(this)).then(function () {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.success("Work schedule has been deleted successfully.");
+                MessageBox.success(this._getI18nText("msgScheduleDeleted"));
                 this._loadCalendarData();
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(this._getODataErrorMessage(oError, "An error occurred while deleting the work schedule."));
+                MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgDeleteScheduleError")));
             }.bind(this));
         },
 
@@ -936,7 +922,7 @@ sap.ui.define([
             return this._readEmpShiftByDate(oODataModel, sPernr, dWorkDate).then(function (aExisting) {
                 if (aExisting.length > 0) {
                     return Promise.reject({
-                        message: "Employee " + sPernr + " already has shift " + (aExisting[0].ShiftId || "") + " on " + this._normalizeDate(dWorkDate).toLocaleDateString("en-GB") + ". Please edit the existing schedule instead."
+                        message: this._getI18nText("msgShiftAlreadyExists", [sPernr, (aExisting[0].ShiftId || ""), this._normalizeDate(dWorkDate).toLocaleDateString("en-GB")])
                     });
                 }
                 return this._createEmpShift(oODataModel, {
@@ -1038,8 +1024,8 @@ sap.ui.define([
                 aDates.forEach(function (dDate) {
                     var sDateKey = this._dateKey(dDate);
                     var aReasons = [];
-                    if (this._isSunday(dDate)) aReasons.push("Sunday");
-                    if (mHolidayMap[sDateKey]) aReasons.push("Holiday: " + mHolidayMap[sDateKey]);
+                    if (this._isSunday(dDate)) aReasons.push(this._getI18nText("txtSunday"));
+                    if (mHolidayMap[sDateKey]) aReasons.push(this._getI18nText("txtHolidayPrefix", [mHolidayMap[sDateKey]]));
 
                     if (aReasons.length > 0) {
                         aResult.push({
@@ -1057,7 +1043,7 @@ sap.ui.define([
             return this._readSet("/Holiday").then(function (aHolidays) {
                 var mHolidayMap = {};
                 aHolidays.forEach(function (item) {
-                    mHolidayMap[this._dateKey(this._toDate(item.HolDate))] = item.HolDesc || "Holiday";
+                    mHolidayMap[this._dateKey(this._toDate(item.HolDate))] = item.HolDesc || this._getI18nText("txtHoliday");
                 }.bind(this));
                 return mHolidayMap;
             }.bind(this)).catch(function () { return {}; });
@@ -1087,7 +1073,7 @@ sap.ui.define([
         },
 
         _getPastDateMessage: function (vDate) {
-            return "Date " + this._normalizeDate(vDate).toLocaleDateString("en-GB") + " has already passed. Creating, editing, or deleting work schedules for past dates is not allowed.";
+            return this._getI18nText("msgDatePassed", [this._normalizeDate(vDate).toLocaleDateString("en-GB")]);
         },
 
         _toODataDate: function (vDate) {
@@ -1167,7 +1153,7 @@ sap.ui.define([
                 if (oError && oError.responseText) fnAddMessage(oError.responseText);
             }
             if (oError && oError.message) fnAddMessage(oError.message);
-            return aMessages.length > 0 ? aMessages.join("\n") : sDefaultMessage || "An unexpected error occurred.";
+            return aMessages.length > 0 ? aMessages.join("\n") : sDefaultMessage || this._getI18nText("msgUnexpectedError");
         }
     });
 });

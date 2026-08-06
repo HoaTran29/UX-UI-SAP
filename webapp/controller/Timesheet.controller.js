@@ -22,6 +22,19 @@ sap.ui.define([
             this.onSearch();
         },
 
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+
+        // Retrieve text from i18n
+        _getI18nText: function (sKey) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
+        },
+
+        // =========================================================
+        // FILTERING & NAVIGATION
+        // =========================================================
+
         onSearch: function () {
             var aFilters = [];
             var oDate = this.byId("fltDate").getDateValue();
@@ -56,14 +69,16 @@ sap.ui.define([
             this.getOwnerComponent().getRouter().navTo("dashboard");
         },
 
-        // --- BƯỚC 3: LOGIC POP-UP CHỈNH SỬA & XÁC NHẬN OT ---
+        // =========================================================
+        // EDIT TIMESHEET DIALOG & SAVING LOGIC
+        // =========================================================
 
-        // 1. Hàm mở Pop-up khi bấm nút Edit hình cây bút
+        // 1. Open Edit Dialog
         onEditTimesheet: function (oEvent) {
             var oView = this.getView();
             var oContext = oEvent.getSource().getBindingContext(); 
 
-            // TẠO BẢN SAO DATA (DEEP COPY): Ngắt kết nối để gõ giờ không bị nhảy số ở bảng bên ngoài
+            // Create a deep copy of data to prevent live-updating the table outside before saving
             var oRowData = JSON.parse(JSON.stringify(oContext.getObject()));
             var oDialogModel = new sap.ui.model.json.JSONModel(oRowData);
 
@@ -79,18 +94,18 @@ sap.ui.define([
             }
 
             this._pEditDialog.then(function (oDialog) {
-                // Ép Dialog xài cái Model ảo cục bộ vừa tạo
+                // Bind local JSON model to the dialog
                 oDialog.setModel(oDialogModel);
                 oDialog.bindElement("/"); 
 
-                // Lưu giữ đường dẫn OData gốc vào túi quần (để xài lúc Save)
+                // Store original OData path for saving later
                 oDialog.data("originalPath", oContext.getPath()); 
 
                 oDialog.open();
             });
         },
 
-        // 2. Hàm Save (Đã cập nhật Khiên Thép đặc chế cho sếp Hòa)
+        // 2. Save Timesheet with Validations (Shields)
         onSaveTimesheet: function () {
             var oView = this.getView();
             var oODataModel = oView.getModel(); 
@@ -99,10 +114,10 @@ sap.ui.define([
             var oData = oDialog.getModel().getData(); 
             var sPath = oDialog.data("originalPath");
             
-            // Rút dữ liệu GỐC từ OData Model ra để đối chiếu 
+            // Extract original data from OData Model for comparison
             var oOriginalData = oODataModel.getProperty(sPath); 
 
-            // --- 1. CHUẨN HÓA NGÀY LÀM VIỆC ĐỂ XÀI CHO VALIDATION ---
+            // --- 1. Normalize Work Date for Validation ---
             var dWorkDate = oData.WorkDate; 
             if (typeof dWorkDate === "string" && dWorkDate.indexOf("/Date(") === 0) {
                 var iTime = parseInt(dWorkDate.replace(/\D/g, ""), 10);
@@ -112,11 +127,11 @@ sap.ui.define([
             }
             var dODataWorkDate = new Date(Date.UTC(dWorkDate.getFullYear(), dWorkDate.getMonth(), dWorkDate.getDate(), 0, 0, 0));
 
-            // Lấy mốc ngày hôm nay (00:00:00) để so sánh xem ca có đang chạy không
+            // Setup current date at 00:00:00 to check for ongoing shifts
             var dToday = new Date();
             dToday.setHours(0, 0, 0, 0);
 
-            // --- 2. HÀM BÓC TÁCH GIỜ THÀNH SỐ GIÂY ---
+            // --- 2. Time Extraction Helper ---
             var getSecondsFromTime = function(t) {
                 if (!t) return 0;
                 var h = 0, m = 0, s = 0;
@@ -140,55 +155,54 @@ sap.ui.define([
             var iOldOutSec = oOriginalData ? getSecondsFromTime(oOriginalData.ActOut) : 0;
 
             // ==========================================================
-            // DÀN KHIÊN BẢO VỆ FRONT-END (VALIDATION)
+            // FRONT-END VALIDATIONS (SHIELDS)
             // ==========================================================
             
-            // Khiên 1: Bắt buộc phải có Giờ Check-in (Đi làm là phải có giờ vào)
+            // Shield 1: Check-in time is mandatory
             if (iNewInSec === 0) {
-                sap.m.MessageBox.error("Vui lòng nhập Giờ Check-in!");
+                MessageBox.error(this._getI18nText("msgMissingCheckIn"));
                 return;
             }
 
-            // Khiên 5 (Đặc chế cho sếp Hòa): Ca đang chạy thì cấm gõ Check-out tay
-            // (Điều kiện: Ngày làm việc = Hôm nay + Chưa có giờ Check-out gốc + Đang cố nhập giờ Check-out mới)
+            // Shield 2: Block manual check-out if shift is today and ongoing
             if (dWorkDate.getTime() === dToday.getTime() && iOldOutSec === 0 && iNewOutSec > 0) {
-                sap.m.MessageBox.error("Ca làm việc đang diễn ra! Hệ thống đang đợi dữ liệu quẹt thẻ thực tế, không được điền tay Giờ Check-out lúc này để tránh ghi đè.");
+                MessageBox.error(this._getI18nText("msgShiftOngoing"));
                 return;
             }
 
-            // Khiên 2: Chống gian lận đi làm sớm (Chỉ cản nếu ban đầu đã có quẹt thẻ)
+            // Shield 3: Prevent entering an earlier check-in than originally recorded
             if (iOldInSec > 0 && iNewInSec < iOldInSec) {
-                sap.m.MessageBox.error("Này này! Không được ăn gian lùi giờ Check-in SỚM HƠN giờ quẹt thẻ gốc đâu nhé!");
+                MessageBox.error(this._getI18nText("msgEarlyCheckIn"));
                 return;
             }
 
-            // Khiên 3: Chống gian lận về muộn câu OT 
+            // Shield 4: Prevent entering a later check-out than originally recorded (OT abuse prevention)
             if (iOldOutSec > 0 && iNewOutSec > iOldOutSec) {
-                sap.m.MessageBox.error("Khoan đã! Không được chỉnh giờ Check-out TRỄ HƠN giờ quẹt thẻ gốc để câu OT đâu nha!");
+                MessageBox.error(this._getI18nText("msgLateCheckOut"));
                 return;
             }
 
-            // Khiên 4: Chống Logic Ảo Ma (Chỉ check khi user đã nhập cả In và Out)
+            // Shield 5: Logical validations for complete shifts
             if (iNewInSec > 0 && iNewOutSec > 0) {
                 var iDiff = iNewOutSec - iNewInSec;
-                if (iDiff < 0) { iDiff += 24 * 3600; } // Ca qua đêm
+                if (iDiff < 0) { iDiff += 24 * 3600; } // Handle overnight shifts
     
                 if (iDiff === 0) {
-                    sap.m.MessageBox.error("Lỗi logic: Giờ Check-in và Check-out không được trùng nhau!");
+                    MessageBox.error(this._getI18nText("msgIdenticalTimes"));
                     return;
                 }
                 if (iDiff > 16 * 3600) { 
-                    sap.m.MessageBox.error("Thời gian làm việc vượt quá 16 tiếng? HR không tin đâu, vui lòng kiểm tra lại!");
+                    MessageBox.error(this._getI18nText("msgExceed16Hours"));
                     return;
                 }
             }
 
             // ==========================================================
-            // VƯỢT QUA KIỂM DUYỆT -> ĐÓNG GÓI GỬI XUỐNG ABAP
+            // VALIDATION PASSED -> PREPARE ODATA PAYLOAD
             // ==========================================================
 
             var formatToODataTime = function(sTime) {
-                if (!sTime) return null; // Trả về null nếu ô giờ bị bỏ trống (hợp lệ cho ca đang chạy)
+                if (!sTime) return null; // Allow null for ongoing shifts
                 var s = getSecondsFromTime(sTime);
                 return { ms: s * 1000, __edmType: "Edm.Time" };
             };
@@ -220,32 +234,34 @@ sap.ui.define([
 
             oDialog.setBusy(true);
 
+            // Execute Update Request
             oODataModel.update(sNewPath, oPayload, {
                 success: function () {
                     oDialog.setBusy(false);
-                    sap.m.MessageToast.show("Đã CẬP NHẬT thành công!");
+                    MessageToast.show(this._getI18nText("msgTimesheetUpdated"));
                     oDialog.close();
                     oODataModel.refresh(true); 
-                },
+                }.bind(this),
                 error: function (oError) {
                      if (oError.statusCode === "404" || oError.statusCode === 404) {
+                        // Fallback to Create if record doesn't exist
                         oODataModel.create("/Timesheet", oPayload, {
                             success: function () {
                                 oDialog.setBusy(false);
-                                sap.m.MessageToast.show("Đã TẠO MỚI thành công!");
+                                MessageToast.show(this._getI18nText("msgTimesheetCreated"));
                                 oDialog.close();
                                 oODataModel.refresh(true);
-                            },
+                            }.bind(this),
                             error: function () {
                                 oDialog.setBusy(false);
-                                sap.m.MessageToast.show("Lỗi hệ thống khi tạo mới!");
-                            }
+                                MessageToast.show(this._getI18nText("msgCreateTimesheetError"));
+                            }.bind(this)
                         });
                     } else {
                         oDialog.setBusy(false);
-                        sap.m.MessageToast.show("Lỗi: Dữ liệu không khớp chuẩn SAP!");
+                        MessageToast.show(this._getI18nText("msgUpdateTimesheetError"));
                     }
-                }
+                }.bind(this)
             });
         },
 
@@ -256,13 +272,17 @@ sap.ui.define([
             }
         },
 
+        // =========================================================
+        // FORMATTERS
+        // =========================================================
+
         formatStatusText: function (sStatus, dWorkDate) {
             if (!sStatus) {
                 return "";
             }
             return sStatus;
         },
-        // 2. Xử lý Màu sắc Trạng thái
+
         formatStatusState: function (sStatus, dWorkDate) {
             if (!dWorkDate) {
                 return "None";
@@ -273,46 +293,45 @@ sap.ui.define([
             var oWork = new Date(dWorkDate);
             oWork.setHours(0, 0, 0, 0);
 
-            // Ngày tương lai cho màu xám trung tính (None) hoặc xanh dương (Information)
+            // Future date logic (Neutral gray or blue info state)
             if (oWork > oToday) {
                 return "None";
             }
 
-            // Tô màu theo logic cũ
-            if (sStatus === "ABSENT") return "Error";          // Đỏ
-            if (sStatus === "COMPLETED") return "Success";     // Xanh lá
-            if (sStatus === "COMPENSATE") return "Warning";    // Vàng
+            // Map backend status to UI color states
+            if (sStatus === "ABSENT") return "Error";          // Red
+            if (sStatus === "COMPLETED") return "Success";     // Green
+            if (sStatus === "COMPENSATE") return "Warning";    // Yellow
             return "None";
         },
 
-        // 3. Xử lý hiển thị Giờ 00:00 thay vì 12:00:00 AM
         formatTimeDisplay: function (oTime, dWorkDate) {
             var oToday = new Date();
             oToday.setHours(0, 0, 0, 0);
             var oWork = new Date(dWorkDate);
             oWork.setHours(0, 0, 0, 0);
 
-            // Nếu là ngày tương lai, hoặc time rỗng/bằng 0 -> Trả về 00:00
+            // Display "00:00" for future dates or empty times instead of "12:00:00 AM"
             if (oWork > oToday || !oTime || oTime.ms === 0 || oTime === "PT00H00M00S") {
                 return "00:00";
             }
 
-            // Nếu có giờ làm thực tế, format ra chuẩn 24h (HH:mm:ss)
+            // Format actual time to 24-hour layout (HH:mm:ss)
             var timeFormat = sap.ui.core.format.DateFormat.getTimeInstance({ pattern: "HH:mm:ss", UTC: true });
             return timeFormat.format(new Date(oTime.ms));
         },
 
-// ==========================================================
-        // TÍNH NĂNG SEARCH HELP (DẠNG POPOVER CHO NHÂN VIÊN)
+        // ==========================================================
+        // EMPLOYEE VALUE HELP (POPOVER)
         // ==========================================================
 
         onEmployeeValueHelpRequest: function (oEvent) {
             var oView = this.getView();
-            // Lấy thẻ Input làm "mỏ neo" để lát Popover biết chỗ mà hiển thị dưới chân
+            // Anchor point for Popover
             this._oInputEmp = oEvent.getSource(); 
 
             if (!this._pEmpValueHelpDialog) {
-                this._pEmpValueHelpDialog = sap.ui.core.Fragment.load({
+                this._pEmpValueHelpDialog = Fragment.load({
                     id: oView.getId(),
                     name: "com.app.zu26g13.app.view.EmployeeValueHelp", 
                     controller: this
@@ -321,34 +340,30 @@ sap.ui.define([
                     return oPopover;
                 });
             }
+
             this._pEmpValueHelpDialog.then(function(oPopover) {
-                // Clear bộ lọc cũ đi mỗi lần mở lại
                 var oList = this.byId("empValueHelpList");
                 if (oList) { oList.getBinding("items").filter([]); }
                 
-                // MA THUẬT: Mở Popover ngay dưới thẻ Input
                 oPopover.openBy(this._oInputEmp);
             }.bind(this));
         },
 
         onEmployeeValueHelpSearch: function (oEvent) {
-            // Bắt text tìm kiếm (hỗ trợ cả gõ phím lẫn ấn kính lúp)
             var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
             
-            var oFilterName = new sap.ui.model.Filter("Ename", sap.ui.model.FilterOperator.Contains, sValue);
-            var oFilterId = new sap.ui.model.Filter("Pernr", sap.ui.model.FilterOperator.Contains, sValue);
+            var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
             
-            var oCombinedFilter = new sap.ui.model.Filter({
+            var oCombinedFilter = new Filter({
                 filters: [oFilterName, oFilterId],
                 and: false
             });
             
-            // Trỏ thẳng vào cái List mới tạo trong XML để lọc
             this.byId("empValueHelpList").getBinding("items").filter([oCombinedFilter]);
         },
 
         onEmployeeValueHelpConfirm: function (oEvent) {
-            // Vì đổi sang dùng thẻ List nên cách lấy dữ liệu là "listItem"
             var oSelectedItem = oEvent.getParameter("listItem"); 
             if (oSelectedItem) {
                 var sEmpId = oSelectedItem.getDescription();
@@ -359,20 +374,16 @@ sap.ui.define([
                 }
             }
             
-            // Chọn xong tự động đóng
             if (this._pEmpValueHelpDialog) {
                 this._pEmpValueHelpDialog.then(function(oPopover) { oPopover.close(); });
             }
         },
 
         onEmployeeValueHelpCancel: function () {
-            // Đóng Popover
             if (this._pEmpValueHelpDialog) {
                 this._pEmpValueHelpDialog.then(function(oPopover) { oPopover.close(); });
             }
         }
     
     });
-
-
 });

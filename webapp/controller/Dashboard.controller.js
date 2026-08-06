@@ -10,6 +10,7 @@ sap.ui.define([
 
     return Controller.extend("com.app.zu26g13.app.controller.Dashboard", {
         onInit: function () {
+            // Init KPI model
             var oKpiModel = new JSONModel({
                 totalEmp: 0,
                 totalOT: 0,
@@ -17,18 +18,26 @@ sap.ui.define([
             });
             this.getView().setModel(oKpiModel, "kpi");
 
+            // Init Department lookup model
             var oDeptLookupModel = new JSONModel({});
             this.getView().setModel(oDeptLookupModel, "deptLookup");
 
+            // Attach routing events
             var oRouter = this.getOwnerComponent().getRouter();
             oRouter.getRoute("dashboard").attachPatternMatched(this._loadRealKpiData, this);
             oRouter.getRoute("dashboard").attachPatternMatched(this._onRouteMatched, this);
         },
 
         _onRouteMatched: function () {
+            // Trigger default search when navigating to the view
             if (this.onSearch) {
                 this.onSearch();
             }
+        },
+
+        // Helper to get text from i18n properties
+        _getI18nText: function (sKey) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
         },
 
         _loadRealKpiData: function () {
@@ -104,9 +113,10 @@ sap.ui.define([
             }
             this._pEmpValueHelpDialog.then(function (oPopover) {
                 var oList = this.byId("empValueHelpList");
-                if (oList) { oList.getBinding("items").filter([]);
+                if (oList) { 
+                    oList.getBinding("items").filter([]);
                     oList.removeSelections(true);
-                 }
+                }
                 oPopover.openBy(this._oInputEmp);
             }.bind(this));
         },
@@ -116,8 +126,10 @@ sap.ui.define([
             var oListBinding = this.byId("empValueHelpList").getBinding("items");
 
             if (!sValue) {
+                // Remove filter if search input is empty
                 oListBinding.filter([]);
             } else {
+                // Apply combined filter for search value
                 var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
                 var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
                 var oCombinedFilter = new Filter({ filters: [oFilterName, oFilterId], and: false });
@@ -160,9 +172,10 @@ sap.ui.define([
             }
             this._pDeptValueHelpDialog.then(function (oPopover) {
                 var oList = this.byId("deptValueHelpList");
-                if (oList) { oList.getBinding("items").filter([]);
+                if (oList) { 
+                    oList.getBinding("items").filter([]);
                     oList.removeSelections(true);
-                 }
+                }
                 oPopover.openBy(this._oInputDept);
             }.bind(this));
         },
@@ -171,11 +184,11 @@ sap.ui.define([
             var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue") || "";
             var oListBinding = this.byId("deptValueHelpList").getBinding("items");
 
-            // NẾU XÓA TRẮNG: Nhả filter ra, load lại full danh sách
             if (!sValue) {
+                // Remove filter to show full list
                 oListBinding.filter([]);
             } else {
-                // NẾU CÓ CHỮ: Áp dụng bộ lọc tìm kiếm
+                // Apply search filter on Name and ID
                 var oFilterName = new Filter("DeptName", FilterOperator.Contains, sValue);
                 var oFilterId = new Filter("DeptId", FilterOperator.Contains, sValue);
                 var oCombinedFilter = new Filter({ filters: [oFilterName, oFilterId], and: false });
@@ -249,7 +262,7 @@ sap.ui.define([
                 aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));
             }
 
-            // Convert to UTC to avoid timezone issues
+            // Convert date to UTC to avoid timezone issues
             if (oDate) {
                 var y = oDate.getFullYear();
                 var m = oDate.getMonth();
@@ -261,14 +274,14 @@ sap.ui.define([
                 aFilters.push(new Filter("WorkDate", FilterOperator.BT, dStart, dEnd));
             }
 
-            // Apply filters
+            // Apply filters to table
             this.byId("timesheetTable").getBinding("items").filter(aFilters);
         },
 
         onClear: function () {
             this.byId("fltEmp").setValue("");
             this.byId("fltDept").setValue("");
-            this.byId("fltDate").setValue("");
+            this.byId("fltDate").setDateValue(new Date());
             this.byId("timesheetTable").getBinding("items").filter([]);
         },
 
@@ -278,16 +291,16 @@ sap.ui.define([
 
         _createColumnConfig: function () {
             return [
-                { label: 'Employee ID', property: 'Pernr', type: 'String' },
-                { label: 'Department', property: 'DeptId', type: 'String' },
-                { label: 'Shift', property: 'ShiftId', type: 'String' },
-                { label: 'Work Date', property: 'WorkDate', type: 'Date' },
-                { label: 'Check In', property: 'ActIn', type: 'Time' },
-                { label: 'Check Out', property: 'ActOut', type: 'Time' },
-                { label: 'Standard Hours', property: 'WorkHours', type: 'Number', scale: 2 },
-                { label: 'Actual Hours', property: 'TotHours', type: 'Number', scale: 2 },
-                { label: 'Overtime Hours', property: 'OtHours', type: 'Number', scale: 2 },
-                { label: 'Status', property: 'Status', type: 'String' }
+                { label: this._getI18nText("colEmpId"), property: 'Pernr', type: 'String' },
+                { label: this._getI18nText("colDept"), property: 'DeptId', type: 'String' },
+                { label: this._getI18nText("colShift"), property: 'ShiftId', type: 'String' },
+                { label: this._getI18nText("colDate"), property: 'WorkDate', type: 'Date' },
+                { label: this._getI18nText("colTimeIn"), property: 'ActIn', type: 'Time' },
+                { label: this._getI18nText("colTimeOut"), property: 'ActOut', type: 'Time' },
+                { label: this._getI18nText("colStdHours"), property: 'WorkHours', type: 'Number', scale: 2 },
+                { label: this._getI18nText("colActHours"), property: 'TotHours', type: 'Number', scale: 2 },
+                { label: this._getI18nText("colOtHours"), property: 'OtHours', type: 'Number', scale: 2 },
+                { label: this._getI18nText("colStatus"), property: 'Status', type: 'String' }
             ];
         },
 

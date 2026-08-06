@@ -1,32 +1,38 @@
 <core:FragmentDefinition
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
-
-    <SelectDialog
-        id="departmentValueHelpDialog"
-<<<<<<< HEAD
-        title="Select Department"
-=======
+    
+    <ResponsivePopover
+        id="deptValueHelpDialog"
         title="{i18n>dialogTitleSelectDept}"
->>>>>>> origin/main
-        search=".onDepartmentValueHelpSearch"
-        liveChange=".onDepartmentValueHelpSearch"
-        confirm=".onDepartmentValueHelpConfirm"
-        cancel=".onDepartmentValueHelpCancel"
-        items="{departmentLookupModel>/departments}"
-        growing="true"
-        growingThreshold="30"
-<<<<<<< HEAD
-        noDataText="No departments found">
-=======
-        noDataText="{i18n>noDataDept}">
->>>>>>> origin/main
-
-        <StandardListItem
-            title="{departmentLookupModel>DeptName}"
-            description="{departmentLookupModel>DeptId}"
-            type="Active"/>
-
-    </SelectDialog>
-
+        placement="Bottom"
+        contentWidth="350px"
+        contentHeight="400px">
+        
+        <endButton>
+            <Button text="Close" press=".onDeptValueHelpCancel" />
+        </endButton>
+        
+        <subHeader>
+            <Toolbar>
+                <SearchField placeholder="Tìm kiếm..." search=".onDeptValueHelpSearch" liveChange=".onDeptValueHelpSearch" width="100%" />
+            </Toolbar>
+        </subHeader>
+        
+        <content>
+            <List
+                id="deptValueHelpList"
+                items="{/Department}"
+                mode="SingleSelectMaster"
+                selectionChange=".onDeptValueHelpConfirm"
+                noDataText="{i18n>noDataDept}">
+                
+                <StandardListItem
+                    title="{DeptName}"
+                    description="{DeptId}"
+                    type="Active" />
+            </List>
+        </content>
+        
+    </ResponsivePopover>
 </core:FragmentDefinition>

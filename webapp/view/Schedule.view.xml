@@ -5,23 +5,16 @@
     xmlns:unified="sap.ui.unified"
     displayBlock="true">
 
-<<<<<<< HEAD
-    <Page id="page" title="Employee Schedule &amp; OT">
-=======
     <Page id="page" title="{i18n>titleScheduleOt}">
->>>>>>> origin/main
 
         <headerContent>
             <Input
                 id="HeaderEmployeeSearchInput"
                 value="{headerSearchModel>/employeeQuery}"
-<<<<<<< HEAD
-                placeholder="Search or select an employee..."
-=======
                 placeholder="{i18n>phSearchSelectEmp}"
->>>>>>> origin/main
                 width="260px"
                 showValueHelp="true"
+                valueHelpOnly="true"
                 valueHelpRequest=".onHeaderEmployeeValueHelpRequest"
                 liveChange=".onHeaderEmployeeLiveChange"
                 submit=".onHeaderEmployeeSubmit"
@@ -30,13 +23,10 @@
             <Input
                 id="HeaderDepartmentSearchInput"
                 value="{headerSearchModel>/deptQuery}"
-<<<<<<< HEAD
-                placeholder="Search or select a department..."
-=======
                 placeholder="{i18n>phSearchSelectDept}"
->>>>>>> origin/main
                 width="260px"
                 showValueHelp="true"
+                valueHelpOnly="true"
                 valueHelpRequest=".onHeaderDepartmentValueHelpRequest"
                 liveChange=".onHeaderDepartmentLiveChange"
                 submit=".onHeaderDepartmentSubmit"
@@ -45,21 +35,13 @@
             <Button
                 icon="sap-icon://clear-filter"
                 type="Transparent"
-<<<<<<< HEAD
-                tooltip="Clear filters"
-=======
                 tooltip="{i18n>ttClearFilter}"
->>>>>>> origin/main
                 press=".onClearHeaderFilters"
                 class="sapUiSmallMarginEnd"/>
 
             <Button 
                 icon="sap-icon://add"
-<<<<<<< HEAD
-                text="Add OT Schedule"
-=======
-                text="{i18n>btnAddOtSchedule}"
->>>>>>> origin/main
+                text="{i18n>btnAddSchedule}"
                 type="Emphasized"
                 press="onOpenCreateDialog"/>
         </headerContent>

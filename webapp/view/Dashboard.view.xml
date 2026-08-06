@@ -2,75 +2,111 @@
     controllerName="com.app.zu26g13.app.controller.Dashboard"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:f="sap.f"
     xmlns:layout="sap.ui.layout"
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:core="sap.ui.core">
 
-    <Page id="pageDashboard" showHeader="false">
-        
-        <VBox class="sapUiSmallMargin">
-            
-            <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
-                <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalEmp}" subheader="{i18n>tileTotalEmpSub}" 
-                frameType="OneByOne" press=".onNavToEmployee">
-                    <TileContent id="tcEmp">
-                        <NumericContent id="ncEmp" value="{kpi>/totalEmp}" icon="sap-icon://employee" valueColor="Good"/>
-                    </TileContent>
-                </GenericTile>
+    <f:DynamicPage id="dynamicPageDashboard">
 
-                <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalOt}" subheader="{i18n>tileTotalOtSub}" 
-                frameType="OneByOne" press=".onNavToMonthlyReport">
-                    <TileContent id="tcOT">
-                        <NumericContent id="ncOT" value="{kpi>/totalOT}" icon="sap-icon://history" valueColor="Critical"/>
-                    </TileContent>
-                </GenericTile>
+        <f:title>
+            <f:DynamicPageTitle id="pageTitleDashboardId">
+                <f:heading>
+                    <Title id="mainTitleDashboardId" text="Dashboard" level="H1" />
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
 
-                <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileReport}" subheader="{i18n>tileReportSub}" frameType="OneByOne" press=".onGoToDispute">
-                    <TileContent id="tcReport">
-                        <NumericContent id="ncReport" value="{kpi>/pendingDisputes}" icon="sap-icon://alert" valueColor="Error"/>
-                    </TileContent>
-                </GenericTile>
+        <f:header>
+            <f:DynamicPageHeader id="dynamicPageHeaderDashboardId">
+                
+                <VBox>
+                    <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
+                        <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalEmp}" subheader="{i18n>tileTotalEmpSub}" 
+                        frameType="OneByOne" press=".onNavToEmployee">
+                            <TileContent id="tcEmp">
+                                <NumericContent id="ncEmp" value="{kpi>/totalEmp}" icon="sap-icon://employee" valueColor="Good"/>
+                            </TileContent>
+                        </GenericTile>
 
-                <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileSchedule}" subheader="{i18n>tileScheduleSub}" frameType="OneByOne" press=".onNavToSchedule">
-                    <TileContent id="tcSchedule">
-                        <ImageContent src="sap-icon://calendar" />
-                    </TileContent>
-                </GenericTile>
-            </layout:Grid>
+                        <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalOt}" subheader="{i18n>tileTotalOtSub}" 
+                        frameType="OneByOne" press=".onNavToMonthlyReport">
+                            <TileContent id="tcOT">
+                                <NumericContent id="ncOT" value="{kpi>/totalOT}" icon="sap-icon://history" valueColor="Critical"/>
+                            </TileContent>
+                        </GenericTile>
 
-            <Title id="titleTimesheet" text="{i18n>titleTimesheet}" titleStyle="H3" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
-            
-            <fb:FilterBar id="filterBar" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
-                <fb:filterGroupItems>
+                        <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileReport}" subheader="{i18n>tileReportSub}" frameType="OneByOne" press=".onGoToDispute">
+                            <TileContent id="tcReport">
+                                <NumericContent id="ncReport" value="{kpi>/pendingDisputes}" icon="sap-icon://alert" valueColor="Error"/>
+                            </TileContent>
+                        </GenericTile>
+
+                        <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileSchedule}" subheader="{i18n>tileScheduleSub}" frameType="OneByOne" press=".onNavToSchedule">
+                            <TileContent id="tcSchedule">
+                                <ImageContent src="sap-icon://calendar" />
+                            </TileContent>
+                        </GenericTile>
+                    </layout:Grid>
+
+                    <Title id="titleTimesheet" text="{i18n>titleTimesheet}" titleStyle="H3" class="sapUiSmallMarginBottom sapUiMediumMarginTop"/>
                     
-                    <!-- 1. ĐÃ SỬA: Bật Value Help cho ô Nhân viên -->
-                    <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
-                        <fb:control>
-                            <Input id="fltEmp" 
-                                   placeholder="{i18n>phEnterEmpId}" 
-                                   showValueHelp="true" 
-                                   valueHelpRequest=".onEmpValueHelpRequest" />
-                        </fb:control>
-                    </fb:FilterGroupItem>
+                    <fb:FilterBar id="filterBar" 
+                        search=".onSearch" 
+                        showGoOnFB="false" 
+                        showClearOnFB="false" 
+                        showFilterConfiguration="false" 
+                        useToolbar="false" 
+                        class="sapUiBottomMargin">
+                        
+                        <fb:filterGroupItems>
+                            <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
+                                <fb:control>
+                                    <Input id="fltEmp" 
+                                           placeholder="{i18n>phEnterEmpId}" 
+                                           showValueHelp="true" 
+                                           valueHelpOnly="true"
+                                           valueHelpRequest=".onEmpValueHelpRequest"
+                                           change=".onSearch"/>
+                                </fb:control>
+                            </fb:FilterGroupItem>
 
-                    <!-- 2. ĐÃ SỬA: Đổi ComboBox thành Input và bật Value Help cho ô Phòng ban -->
-                    <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
-                        <fb:control>
-                            <Input id="fltDept" 
-                                   placeholder="{i18n>phSelectDeptFilter}" 
-                                   showValueHelp="true" 
-                                   valueHelpRequest=".onDeptValueHelpRequest" />
-                        </fb:control>
-                    </fb:FilterGroupItem>
+                            <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
+                                <fb:control>
+                                    <Input id="fltDept" 
+                                           placeholder="{i18n>phSelectDeptFilter}" 
+                                           showValueHelp="true" 
+                                           valueHelpOnly="true"
+                                           valueHelpRequest=".onDeptValueHelpRequest"
+                                           change=".onSearch" />
+                                </fb:control>
+                            </fb:FilterGroupItem>
 
-                    <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
-                        <fb:control>
-                            <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch" />
-                        </fb:control>
-                    </fb:FilterGroupItem>
-                </fb:filterGroupItems>
-            </fb:FilterBar>
+                            <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
+                                <fb:control>
+                                    <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch"/>
+                                </fb:control>
+                            </fb:FilterGroupItem>
 
+                            <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
+                                <fb:control>
+                                    <HBox alignItems="Center">
+                                        <Button
+                                            icon="sap-icon://clear-filter"
+                                            tooltip="{i18n>ttClearFilter}"
+                                            type="Transparent"
+                                            press=".onClearFilters"/>
+                                    </HBox>                                        
+                                </fb:control>
+                            </fb:FilterGroupItem>
+                        </fb:filterGroupItems>
+                    </fb:FilterBar>
+                </VBox>
+                
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <f:content>
             <Table id="timesheetTable"
                    items="{
                        path: '/Timesheet',
@@ -106,23 +142,17 @@
                     <ColumnListItem id="cliTimesheet" type="Active">
                         <cells>
                             <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Shift {ShiftId}"/>
-
                             <Text id="txtCellDept" text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                            
                             <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
-                            
                             <ObjectNumber id="objNumStd" number="{WorkHours}" />
-
                             <ObjectNumber id="objNumAct"
                                 number="{TotHours}" 
                                 state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
-
                             <ObjectNumber id="objNumOt"
                                 number="{OtHours}" 
                                 state="Warning"
                                 visible="{= parseFloat(${OtHours}) > 0 }"/>
-                            
                             <ObjectStatus id="objStatStatus"
                                 text="{Status}" 
                                 inverted="true"
@@ -134,7 +164,7 @@
                     </ColumnListItem>
                 </items>
             </Table>
-            
-        </VBox>
-    </Page>
+        </f:content>
+        
+    </f:DynamicPage>
 </mvc:View>

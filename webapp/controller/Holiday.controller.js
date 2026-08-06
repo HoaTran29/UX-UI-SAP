@@ -207,7 +207,7 @@ sap.ui.define([
                                 sap.ui.core.BusyIndicator.hide();
                                 MessageToast.show("Holiday deleted successfully.");
                                 this._reloadViewData();
-                            },
+                            }.bind(this),
                             error: function (oError) {
                                 sap.ui.core.BusyIndicator.hide();
                                 console.error("Error deleting /Holiday:", oError);

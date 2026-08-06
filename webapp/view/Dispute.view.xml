@@ -3,43 +3,58 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
+    xmlns:f="sap.f"
     xmlns:layout="sap.ui.layout">
 
-    <Page id="pageDispute" showHeader="false" class="sapUiContentPadding">
+    <f:DynamicPage id="dynamicPageDispute" class="sapUiContentPadding">
 
-        <Title id="titleDispute" text="{i18n>titleApproveReport}" titleStyle="H2" class="sapUiMediumMarginBottom sapUiMediumMarginTop"/>
+        <!-- PHẦN 1: TIÊU ĐỀ TRANG -->
+        <f:title>
+            <f:DynamicPageTitle id="pageTitleDispute">
+                <f:heading>
+                    <Title id="titleDispute" text="{i18n>titleApproveReport}" level="H1"/>
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
 
-        <Table id="disputeTable"
-               items="{
-                   path: '/Dispute',
-                   filters: [{ path: 'Status', operator: 'EQ', value1: 'PENDING' }]
-               }"
-               growing="true"
-               class="sapUiElevationCore3">
-            <columns>
-                <Column id="colEmpId"><Text id="txtEmpId" text="{i18n>colEmpId}" /></Column>
-                <Column id="colReqType"><Text id="txtReqType" text="{i18n>colReqType}" /></Column>
-                <Column id="colWorkDate"><Text id="txtWorkDate" text="{i18n>colDate}" /></Column>
-                <Column id="colTimeEdit"><Text id="txtTimeEdit" text="{i18n>colTimeEdit}" /></Column>
-                <Column id="colReason" width="20%"><Text id="txtReason" text="{i18n>colReason}" /></Column>
-                <Column id="colAction" hAlign="Center"><Text id="txtAction" text="{i18n>colAction}" /></Column>
-            </columns>
-            <items>
-                <ColumnListItem id="cliDisputeItem">
-                    <cells>
-                        <ObjectIdentifier id="objEmpId" title="{Pernr}" />
-                        <Text id="txtReqTypeVal" text="{RequestType}" />
-                        <Text id="txtWorkDateVal" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                        <Text id="txtTimeEditVal" text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
-                        <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
-                        
-                        <HBox id="hboxActions" justifyContent="Center">
-                            <Button id="btnReview" type="Accept" text="{i18n>btnApprove}" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
-                            <Button id="btnReject" type="Reject" text="{i18n>btnReject}" press=".onOpenRejectDialog"/>
-                        </HBox>
-                    </cells>
-                </ColumnListItem>
-            </items>
-        </Table>
-    </Page>
+        <!-- PHẦN 2: NỘI DUNG CHÍNH (BẢNG DISPUTE) -->
+        <f:content>
+            <Table id="disputeTable"
+                   items="{
+                       path: '/Dispute',
+                       filters: [{ path: 'Status', operator: 'EQ', value1: 'PENDING' }]
+                   }"
+                   growing="true"
+                   class="sapUiElevationCore3">
+                   
+                <columns>
+                    <Column id="colEmpId"><Text id="txtEmpId" text="{i18n>colEmpId}" /></Column>
+                    <Column id="colReqType"><Text id="txtReqType" text="{i18n>colReqType}" /></Column>
+                    <Column id="colWorkDate"><Text id="txtWorkDate" text="{i18n>colDate}" /></Column>
+                    <Column id="colTimeEdit"><Text id="txtTimeEdit" text="{i18n>colTimeEdit}" /></Column>
+                    <Column id="colReason" width="20%"><Text id="txtReason" text="{i18n>colReason}" /></Column>
+                    <Column id="colAction" hAlign="Center"><Text id="txtAction" text="{i18n>colAction}" /></Column>
+                </columns>
+                
+                <items>
+                    <ColumnListItem id="cliDisputeItem">
+                        <cells>
+                            <ObjectIdentifier id="objEmpId" title="{Pernr}" />
+                            <Text id="txtReqTypeVal" text="{RequestType}" />
+                            <Text id="txtWorkDateVal" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                            <Text id="txtTimeEditVal" text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                            <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
+                            
+                            <HBox id="hboxActions" justifyContent="Center">
+                                <Button id="btnReview" type="Accept" text="{i18n>btnApprove}" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
+                                <Button id="btnReject" type="Reject" text="{i18n>btnReject}" press=".onOpenRejectDialog"/>
+                            </HBox>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+                
+            </Table>
+        </f:content>
+        
+    </f:DynamicPage>
 </mvc:View>

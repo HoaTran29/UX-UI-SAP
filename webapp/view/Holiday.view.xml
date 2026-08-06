@@ -10,32 +10,19 @@
 
                 <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
-<<<<<<< HEAD
-                        <Title text="Holiday Configuration" titleStyle="H2" class="holidayTitle"/>
-                        <Text text="Maintain holidays used by the scheduling system"/>
-=======
                         <Title text="{i18n>titleHolidayConfig}" titleStyle="H2" class="holidayTitle"/>
                         <Text text="{i18n>descHolidayConfig}"/>
->>>>>>> origin/main
                     </VBox>
 
                     <Button
                         icon="sap-icon://add"
-<<<<<<< HEAD
-                        text="Add Holiday"
-=======
                         text="{i18n>btnAddHoliday}"
->>>>>>> origin/main
                         type="Emphasized"
                         press="onOpenAddDialog"/>
                 </HBox>
 
                 <MessageStrip
-<<<<<<< HEAD
-                    text="Sundays are detected automatically; they do not need to be maintained as holidays."
-=======
                     text="{i18n>msgSundayAutoDetect}"
->>>>>>> origin/main
                     type="Information"
                     showIcon="true"
                     class="sapUiSmallMarginBottom"/>
@@ -50,17 +37,6 @@
 
                     <columns>
                         <Column width="180px">
-<<<<<<< HEAD
-                            <Text text="Holiday Date"/>
-                        </Column>
-
-                        <Column>
-                            <Text text="Description"/>
-                        </Column>
-
-                        <Column width="140px" hAlign="Center">
-                            <Text text="Actions"/>
-=======
                             <Text text="{i18n>colHolidayDate}"/>
                         </Column>
 
@@ -70,7 +46,6 @@
 
                         <Column width="140px" hAlign="Center">
                             <Text text="{i18n>colAction}"/>
->>>>>>> origin/main
                         </Column>
                     </columns>
 
@@ -86,22 +61,14 @@
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
-<<<<<<< HEAD
-                                        tooltip="Edit holiday"
-=======
                                         tooltip="{i18n>ttEditHoliday}"
->>>>>>> origin/main
                                         press="onEditHoliday"
                                         class="sapUiTinyMarginEnd"/>
 
                                     <Button
                                         icon="sap-icon://delete"
                                         type="Reject"
-<<<<<<< HEAD
-                                        tooltip="Delete holiday"
-=======
                                         tooltip="{i18n>ttDeleteHoliday}"
->>>>>>> origin/main
                                         press="onDeleteHoliday"/>
                                 </HBox>
                             </cells>

@@ -2,77 +2,67 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
-    <!-- Shift Configuration Add/Edit Dialog Fragment -->
-    <Dialog 
-        title="{= ${shiftModel>/isEdit} ? ${i18n>dialogTitleEditShift} : ${i18n>dialogTitleAddShift} }"
+    <Dialog
+        title="{= ${shiftModel>/isEdit} ? 'Edit Work Shift' : 'Create Work Shift' }"
         contentWidth="520px"
         class="shiftConfigDialog">
 
-        <!-- Dialog Content Container -->
         <content>
             <VBox class="sapUiMediumMargin">
-                
-                <!-- Shift ID Field -->
-                <Label text="{i18n>lblShiftId}" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="Shift ID" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/ShiftId}"
-                    placeholder="{i18n>phShiftId}"
+                    placeholder="Example: CA_01"
                     maxLength="20"
                     editable="{= !${shiftModel>/isEdit} }"/>
 
-                <!-- Standard Working Hours Field -->
-                <Label text="{i18n>lblStdHours}" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="Standard Hours" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/StdHours}"
                     type="Number"
-                    placeholder="{i18n>phStdHours}"/>
+                    placeholder="Example: 8"/>
 
-                <!-- Shift Start Time (Time In) -->
-                <Label text="{i18n>lblStartTime}" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="Start Time" required="true" class="sapUiTopMarginSmall"/>
                 <TimePicker
                     value="{shiftModel>/TimeIn}"
                     valueFormat="HHmmss"
                     displayFormat="HH:mm"
                     width="100%"
-                    placeholder="{i18n>phStartTime}"/>
+                    placeholder="Select start time"/>
 
-                <!-- Shift End Time (Time Out) -->
-                <Label text="{i18n>lblEndTime}" required="true" class="sapUiTopMarginSmall"/>
+                <Label text="End Time" required="true" class="sapUiTopMarginSmall"/>
                 <TimePicker
                     value="{shiftModel>/TimeOut}"
                     valueFormat="HHmmss"
                     displayFormat="HH:mm"
                     width="100%"
-                    placeholder="{i18n>phEndTime}"/>
+                    placeholder="Select end time"/>
 
-                <!-- Next Day Indicator Switch -->
-                <Label text="{i18n>lblNextDay}" class="sapUiTopMarginSmall"/>
+                <Label text="Overnight Shift" class="sapUiTopMarginSmall"/>
                 <Switch
                     state="{shiftModel>/NextDayBool}"
-                    customTextOn="{i18n>switchYes}"
-                    customTextOff="{i18n>switchNo}"/>
+                    customTextOn="Yes"
+                    customTextOff="No"/>
 
-                <!-- Grace Period Minutes Field -->
-                <Label text="{i18n>lblGraceMins}" class="sapUiTopMarginSmall"/>
+                <Label text="Allowed Late Minutes" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/GraceMins}"
                     type="Number"
-                    placeholder="{i18n>phGraceMins}"/>
+                    placeholder="Example: 0"/>
 
             </VBox>
         </content>
 
-        <!-- Dialog Action Buttons: Save & Cancel -->
         <beginButton>
             <Button
-                text="{i18n>btnSave}"
+                text="Save"
                 type="Emphasized"
                 press="onSaveShift"/>
         </beginButton>
 
         <endButton>
             <Button
-                text="{i18n>btnCancel}"
+                text="Cancel"
                 press="onCloseDialog"/>
         </endButton>
     </Dialog>

@@ -1,6 +1,27 @@
 <core:FragmentDefinition
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
+
+    <SelectDialog
+        id="employeeValueHelpDialog"
+        title="Select Employee"
+        search=".onEmployeeValueHelpSearch"https://github.com/HoaTran29/UX-UI-SAP/pull/14/conflict?name=webapp%252Fview%252FEmployeeValueHelp.fragment.xml&ancestor_oid=1f00cbee7bae432ce7d1c66ff4ede3f5f6ad4400&base_oid=ffda749e14d1f6e98e5db3766a621e2919e3f92b&head_oid=2c3306d032f5f46188c69590bfa8c912d8e5b393
+        liveChange=".onEmployeeValueHelpSearch"
+        confirm=".onEmployeeValueHelpConfirm"
+        cancel=".onEmployeeValueHelpCancel"
+        items="{employeeLookupModel>/employees}"
+        growing="true"
+        growingThreshold="30"
+        noDataText="No employees found">
+
+        <StandardListItem
+            title="{employeeLookupModel>EmployeeName}"
+            description="{employeeLookupModel>Pernr}"
+            info="{employeeLookupModel>DeptId}"
+            type="Active"/>
+
+    </SelectDialog>
+
     
     <!-- Employee Value Help Responsive Popover Fragment -->
     <ResponsivePopover

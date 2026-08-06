@@ -1,36 +1,32 @@
 <mvc:View
     controllerName="com.app.zu26g13.app.controller.Holiday"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns:core="sap.ui.core"
     xmlns="sap.m"
     displayBlock="true">
 
-    <!-- Holiday Configuration Page Container -->
     <Page id="pageHoliday" showHeader="false" class="holidayPage">
         <content>
-            <VBox class="holidayWrapper sapUiResponsiveMargin">
+            <VBox class="holidayWrapper">
 
-                <!-- Page Header Section with Title, Description, and Add Button -->
                 <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
-                        <Title text="{i18n>titleHolidayConfig}" titleStyle="H2" class="holidayTitle"/>
+                        <Title text="Holiday Configuration" titleStyle="H2" class="holidayTitle"/>
+                        <Text text="Maintain holidays used by the scheduling system"/>
                     </VBox>
 
                     <Button
                         icon="sap-icon://add"
-                        text="{i18n>btnAddHoliday}"
+                        text="Add Holiday"
                         type="Emphasized"
                         press="onOpenAddDialog"/>
                 </HBox>
 
-                <!-- Information Message Strip (Sunday Auto-detection Notice) -->
                 <MessageStrip
-                    text="{i18n>msgSundayAutoDetect}"
+                    text="Sundays are detected automatically; they do not need to be maintained as holidays."
                     type="Information"
                     showIcon="true"
                     class="sapUiSmallMarginBottom"/>
 
-                <!-- Holiday Management Data Table -->
                 <Table
                     id="holidayTable"
                     items="{/Holiday}"
@@ -39,44 +35,40 @@
                     class="holidayTable sapUiResponsiveMargin"
                     width="auto">
 
-                    <!-- Table Columns Definition -->
                     <columns>
                         <Column width="180px">
-                            <Text text="{i18n>colHolidayDate}"/>
+                            <Text text="Holiday Date"/>
                         </Column>
 
                         <Column>
-                            <Text text="{i18n>colHolidayDesc}"/>
+                            <Text text="Description"/>
                         </Column>
 
                         <Column width="140px" hAlign="Center">
-                            <Text text="{i18n>colAction}"/>
+                            <Text text="Actions"/>
                         </Column>
                     </columns>
 
-                    <!-- Table Rows Binding Template -->
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
-                                <!-- Holiday Date Cell -->
+
                                 <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
 
-                                <!-- Holiday Description Cell -->
                                 <Text text="{HolDesc}"/>
 
-                                <!-- Row Action Buttons: Edit & Delete -->
                                 <HBox justifyContent="Center">
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
-                                        tooltip="{i18n>ttEditHoliday}"
+                                        tooltip="Edit holiday"
                                         press="onEditHoliday"
                                         class="sapUiTinyMarginEnd"/>
 
                                     <Button
                                         icon="sap-icon://delete"
                                         type="Reject"
-                                        tooltip="{i18n>ttDeleteHoliday}"
+                                        tooltip="Delete holiday"
                                         press="onDeleteHoliday"/>
                                 </HBox>
                             </cells>

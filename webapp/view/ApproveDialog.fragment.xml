@@ -19,6 +19,10 @@
                 <Label text="{i18n>lblEmpReason}" class="sapUiSmallMarginTop" design="Bold"/>
                 <Text text="{Reason}" class="sapUiTinyMarginTop"/>
                 
+                <!-- Conditional Display of OT Hours Input Field -->
+                <Label text="{i18n>colOtHoursEdit}" class="sapUiSmallMarginTop" design="Bold" visible="{= ${RequestType} === 'OVERTIME' }"/>
+                <StepInput value="{ path: 'OtHours', type: 'sap.ui.model.odata.type.Decimal' }" min="0" max="12" step="0.5" displayValuePrecision="1" visible="{= ${RequestType} === 'OVERTIME' }" width="100%"/>
+
                 <!-- Manager Comment / Note Input Area -->
                 <Label text="{i18n>lblManagerNote}" class="sapUiSmallMarginTop" design="Bold" />
                 <TextArea id="approveNoteInput" value="{ApproverComment}" width="100%" rows="4" placeholder="{i18n>phApproveReason}" maxLength="255"/>

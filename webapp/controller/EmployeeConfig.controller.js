@@ -43,7 +43,7 @@ sap.ui.define([
             var aFilters = [];
 
             if (sPernr) {
-                aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
+                aFilters.push(new Filter("Pernr", FilterOperator.EQ, sPernr));
             }
             if (sDept) {
                 aFilters.push(new Filter("DeptId", FilterOperator.Contains, sDept));
@@ -95,7 +95,7 @@ sap.ui.define([
         onEmployeeValueHelpSearch: function (oEvent) {
             var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
             var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
-            var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("Pernr", FilterOperator.EQ, sValue);
             var oCombinedFilter = new Filter({ filters: [oFilterName, oFilterId], and: false });
 
             this.byId("empValueHelpList").getBinding("items").filter([oCombinedFilter]);

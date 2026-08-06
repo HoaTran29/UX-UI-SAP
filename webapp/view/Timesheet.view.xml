@@ -5,66 +5,69 @@
     xmlns:core="sap.ui.core" 
     xmlns:fb="sap.ui.comp.filterbar">
     
+    <!-- Daily Timesheet Management Dynamic Page Layout -->
     <f:DynamicPage id="dynamicPageTimesheet">
         
-        <!-- PHẦN 1: TIÊU ĐỀ TRANG -->
+        <!-- Page Title & Navigation Back Action Section -->
         <f:title>
             <f:DynamicPageTitle id="pageTitleTimesheet">
                 <f:heading>
                     <Title text="{i18n>titleDailyTimesheet}" level="H1"/>
                 </f:heading>
                 
-                <!-- Khu vực đặt nút Back (Chức năng tương đương showNavButton) -->
+                <!-- Navigation Back Action Button -->
                 <f:navigationActions>
-                    <Button icon="sap-icon://nav-back" type="Transparent" press=".onNavBack"/>
+                    <Button icon="sap-icon://nav-back" type="Transparent" press=".onNavBack" tooltip="{i18n>btnBack}"/>
                 </f:navigationActions>
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- PHẦN 2: HEADER CHỨA BỘ LỌC -->
+        <!-- Page Header Section Containing Filter Bar -->
         <f:header>
             <f:DynamicPageHeader id="dynamicHeaderTimesheet">
                 
-                <!-- Bỏ hết nút mặc định của FilterBar -->
+                <!-- Standard FilterBar with Custom Filter Items -->
                 <fb:FilterBar id="timesheetFilter" 
-                              search=".onSearch" 
-                              showGoOnFB="false" 
-                              showClearOnFB="false" 
-                              showFilterConfiguration="false" 
-                              useToolbar="false" 
-                              class="sapUiBottomMargin">
+                             search=".onSearch" 
+                             showGoOnFB="false" 
+                             showClearOnFB="false" 
+                             showFilterConfiguration="false" 
+                             useToolbar="false" 
+                             class="sapUiBottomMargin">
                     
                     <fb:filterGroupItems>
-                        <!-- Lọc theo Ngày -->
+                        <!-- Work Date Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
                             <fb:control>
                                 <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch" />
                             </fb:control>
                         </fb:FilterGroupItem>
                         
+                        <!-- Employee ID Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                             <fb:control>
-                                    <Input id="fltEmp" 
-                                           placeholder="{i18n>phEnterEmpId}" 
-                                           showValueHelp="true" 
-                                           valueHelpRequest=".onEmployeeValueHelpRequest" 
-                                           change=".onSearch" 
-                                           valueHelpOnly="true">
-                                    </Input>
+                                <Input id="fltEmp" 
+                                       placeholder="{i18n>phEnterEmpId}" 
+                                       showValueHelp="true" 
+                                       valueHelpRequest=".onEmployeeValueHelpRequest" 
+                                       change=".onSearch" 
+                                       valueHelpOnly="true">
+                                </Input>
                             </fb:control>
                         </fb:FilterGroupItem>
 
+                        <!-- Custom Clear Filters Action Button -->
                         <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
-                                <fb:control>
-                                    <HBox alignItems="Center">
-                                        <Button
-                                            icon="sap-icon://clear-filter"
-                                            tooltip="{i18n>ttClearFilter}"
-                                            type="Transparent"
-                                            press=".onClear"/>
-                                    </HBox>                                        
-                                </fb:control>
-                            </fb:FilterGroupItem>
+                            <fb:control>
+                                <HBox alignItems="Center">
+                                    <Button
+                                        icon="sap-icon://clear-filter"
+                                        tooltip="{i18n>ttClearFilter}"
+                                        type="Transparent"
+                                        press=".onClear"/>
+                                </HBox>                                        
+                            </fb:control>
+                        </fb:FilterGroupItem>
                         
                     </fb:filterGroupItems>
                 </fb:FilterBar>
@@ -72,11 +75,13 @@
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- PHẦN 3: NỘI DUNG CHÍNH LÀ BẢNG -->
+        <!-- Main Content Area: Daily Timesheet Table -->
         <f:content>
             <Table id="dailyTimesheetTable"
                    items="{ path: '/Timesheet', sorter: { path: 'DeptId' } }"
                    growing="true" growingThreshold="20" class="sapUiElevationCore3">
+                
+                <!-- Table Columns Definition -->
                 <columns>
                     <Column><Text text="{i18n>colEmpShift}" /></Column>
                     <Column><Text text="{i18n>colDate}" /></Column>
@@ -88,6 +93,8 @@
                     <Column hAlign="Center"><Text text="{i18n>colOtHours}" /></Column>
                     <Column hAlign="Center"><Text text="{i18n>colAction}" /></Column>
                 </columns>
+
+                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem type="Active">
                         <cells>
@@ -101,6 +108,8 @@
                             <ObjectNumber number="{StdHours}" />
                             <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
+                            
+                            <!-- Row Edit Action Button -->
                             <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}"/>
                         </cells>
                     </ColumnListItem>

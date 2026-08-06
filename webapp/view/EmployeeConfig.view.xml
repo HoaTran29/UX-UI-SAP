@@ -8,9 +8,10 @@
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:core="sap.ui.core">
 
+    <!-- Employee Configuration Dynamic Page Layout -->
     <f:DynamicPage id="dynamicPageId">
         
-        <!-- PHẦN 1: TIÊU ĐỀ TRANG (SẼ GIỮ CỐ ĐỊNH HOẶC THU GỌN KHI CUỘN) -->
+        <!-- Page Title Header Section -->
         <f:title>
             <f:DynamicPageTitle id="pageTitleId">
                 <f:heading>
@@ -19,11 +20,11 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- PHẦN 2: HEADER CHỨA BỘ LỌC (SẼ BỊ ẨN ĐI KHI CUỘN BẢNG XUỐNG DƯỚI) -->
+        <!-- Filter Header Section -->
         <f:header>
             <f:DynamicPageHeader id="dynamicPageHeaderId">
                 
-                <!-- Sử dụng FilterBar chuẩn SAP thay vì HBox/VBox thủ công -->
+                <!-- SAP Standard FilterBar -->
                 <fb:FilterBar id="filterBar" 
                     search=".onSearch" 
                     showGoOnFB="false" 
@@ -33,7 +34,7 @@
                     
                     <fb:filterGroupItems>
                         
-                        <!-- Lọc theo Mã Nhân Viên -->
+                        <!-- Employee ID Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                             <fb:control>
                                 <Input id="filterPernr"
@@ -45,7 +46,7 @@
                             </fb:control>
                         </fb:FilterGroupItem>
 
-                        <!-- Lọc theo Phòng Ban -->
+                        <!-- Department Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
                             <fb:control>
                                 <Input id="filterDept"
@@ -57,7 +58,7 @@
                             </fb:control>
                         </fb:FilterGroupItem>
 
-                        <!-- Nút Xóa Lọc Custom (Dạng Icon) hiển thị ngang hàng -->
+                        <!-- Custom Clear Filters Action Button -->
                         <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
                             <fb:control>
                                 <HBox alignItems="Center">
@@ -76,13 +77,14 @@
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- PHẦN 3: NỘI DUNG CHÍNH LÀ BẢNG NHÂN VIÊN -->
+        <!-- Main Content Section: Employee Table -->
         <f:content>
             <Table id="employeeTable"
                    items="{path: '/Employee'}"
                    growing="true"
                    growingThreshold="20">
-                   
+                    
+                <!-- Table Header Toolbar -->
                 <headerToolbar>
                     <OverflowToolbar id="tableToolbarId">
                         <Title id="tableTitleId" text="{i18n>titleEmpList}" level="H2"/>
@@ -95,6 +97,7 @@
                     </OverflowToolbar>
                 </headerToolbar>
                 
+                <!-- Table Columns Definition -->
                 <columns>
                     <Column id="colPernr"><Text id="txtColPernr" text="{i18n>colEmpId}" /></Column>
                     <Column id="colEname"><Text id="txtColEname" text="{i18n>colEmpName}" /></Column>
@@ -106,6 +109,7 @@
                     </Column>
                 </columns>
                 
+                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem id="rowTemplateId" vAlign="Middle">
                         <cells>
@@ -115,6 +119,7 @@
                             <ObjectAttribute id="cellDept" text="{DeptName}" />
                             <ObjectAttribute id="cellRole" text="{RoleDesc}" />
                             
+                            <!-- Row Action Buttons: Edit & Delete -->
                             <HBox id="actionBoxId" alignItems="Center" justifyContent="Center">
                                 <Button id="btnEditRowId"
                                         icon="sap-icon://edit" 

@@ -1,54 +1,63 @@
-<mvc:View controllerName="com.app.zu26g13.app.controller.App"
+<mvc:View
+    controllerName="com.app.zu26g13.app.controller.App"
     xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
     xmlns="sap.m"
     xmlns:tnt="sap.tnt">
     
-   <Shell id="shellId" appWidthLimited="false"> 
+    <!-- Shell Container -->
+    <Shell id="shellId" appWidthLimited="false"> 
         <App id="appId">
-           
-        <tnt:ToolPage id="toolPage">
             
-            <tnt:header>
-                <tnt:ToolHeader id="toolHeader">
-                    <Button id="sideNavigationToggleButton" icon="sap-icon://menu2" type="Transparent" press=".onCollapseExpandPress" />
-                    <Title id="appTitle" text="Workforce Management Portal" />
-                    <ToolbarSpacer id="spacer" />
-                    <Button id="btnNotif" icon="sap-icon://bell" type="Transparent" tooltip="Notifications" />
-                    <Button id="btnUser" icon="sap-icon://account" type="Transparent" tooltip="User Profile" />
-                </tnt:ToolHeader>
-            </tnt:header>
+            <!-- Main ToolPage Layout (Header, Side Navigation, and Content Area) -->
+            <tnt:ToolPage id="toolPage">
+                
+                <!-- ToolPage Header Section -->
+                <tnt:header>
+                    <tnt:ToolHeader id="toolHeader">
+                        <!-- Sidebar Collapse/Expand Toggle Button -->
+                        <Button id="sideNavigationToggleButton" icon="sap-icon://menu2" type="Transparent" press=".onCollapseExpandPress" />
+                        <!-- Application Title -->
+                        <Title id="appTitle" text="{i18n>appTitle}" />
+                        <ToolbarSpacer id="spacer" />
+                        <!-- Utility Actions: Notifications and User Profile -->
+                        <Button id="btnNotif" icon="sap-icon://bell" type="Transparent" tooltip="{i18n>ttNotifications}" />
+                        <Button id="btnUser" icon="sap-icon://account" type="Transparent" tooltip="{i18n>ttUserProfile}" />
+                    </tnt:ToolHeader>
+                </tnt:header>
 
-            <tnt:sideContent>
-                <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
-                    <tnt:item>
-                        <tnt:NavigationList>
-                            <tnt:NavigationListItem text="Dashboard" key="dashboard" />
-                            <tnt:NavigationListItem text="Timesheet (In/Out)" key="timesheet" />
-                            <tnt:NavigationListItem text="Monthly Report" key="monthlyReport" />
-                            <tnt:NavigationListItem text="Dispute Reports" key="dispute" />
-                            
-                        </tnt:NavigationList>
-                    </tnt:item>
-                    <tnt:fixedItem>
-                        <tnt:NavigationList>
-                            <tnt:NavigationListItem text="Master Data" icon="sap-icon://action-settings" expanded="false">
-                                
-                                <tnt:NavigationListItem id="menuEmployeeConfigId" text="Employees" key="employeeConfig" />
-                                <tnt:NavigationListItem text="Schedules" key="schedule" />
-                                <tnt:NavigationListItem text="Holidays" key="holiday" />
-                                <tnt:NavigationListItem id="navShiftConfig" text="Shift Setup" icon="sap-icon://fob-watch" key="shiftConfig"/>
-                            </tnt:NavigationListItem>
-                        </tnt:NavigationList>
-                    </tnt:fixedItem>
-                </tnt:SideNavigation>
-            </tnt:sideContent>
+                <!-- ToolPage Side Navigation Menu -->
+                <tnt:sideContent>
+                    <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
+                        <tnt:item>
+                            <tnt:NavigationList>
+                                <tnt:NavigationListItem text="{i18n>menuDashboard}" key="dashboard" />
+                                <tnt:NavigationListItem text="{i18n>menuTimesheet}" key="timesheet" />
+                                <tnt:NavigationListItem text="{i18n>menuMonthlyReport}" key="monthlyReport" />
+                                <tnt:NavigationListItem text="{i18n>menuDispute}" key="dispute" />
+                            </tnt:NavigationList>
+                        </tnt:item>
+                        
+                        <!-- Fixed Footer Navigation Items (Master Data Setup) -->
+                        <tnt:fixedItem>
+                            <tnt:NavigationList>
+                                <tnt:NavigationListItem text="{i18n>menuMasterData}" icon="sap-icon://action-settings" expanded="false">
+                                    <tnt:NavigationListItem id="menuEmployeeConfigId" text="{i18n>menuEmployees}" key="employeeConfig" />
+                                    <tnt:NavigationListItem text="{i18n>menuSchedules}" key="schedule" />
+                                    <tnt:NavigationListItem text="{i18n>menuHolidays}" key="holiday" />
+                                    <tnt:NavigationListItem id="navShiftConfig" text="{i18n>menuShiftSetup}" icon="sap-icon://fob-watch" key="shiftConfig"/>
+                                </tnt:NavigationListItem>
+                            </tnt:NavigationList>
+                        </tnt:fixedItem>
+                    </tnt:SideNavigation>
+                </tnt:sideContent>
 
-            <tnt:mainContents>
-                <NavContainer id="pageContainer">
-                </NavContainer>
-            </tnt:mainContents>
+                <!-- Main Content Container Area -->
+                <tnt:mainContents>
+                    <NavContainer id="pageContainer">
+                    </NavContainer>
+                </tnt:mainContents>
 
-        </tnt:ToolPage>
-     </App>
+            </tnt:ToolPage>
+        </App>
     </Shell>
 </mvc:View>

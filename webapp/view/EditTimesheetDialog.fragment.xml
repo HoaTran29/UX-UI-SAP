@@ -3,29 +3,40 @@
     xmlns:core="sap.ui.core" 
     xmlns:f="sap.ui.layout.form">
     
+    <!-- Edit Timesheet & Confirm OT Dialog Fragment -->
     <Dialog id="editTimesheetDialog" title="{i18n>dialogTitleEditTimesheet}" contentWidth="450px" icon="sap-icon://time-entry-request">
+        
+        <!-- Dialog Content Section -->
         <content>
             <f:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanM="4" emptySpanM="0">
                 <f:content>
+                    <!-- Section Title: Time Information -->
                     <core:Title text="{i18n>titleTimeInfo}" />
                     
+                    <!-- Actual Check-In Time Field -->
                     <Label text="{i18n>lblActIn}" />
                     <TimePicker value="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' }" displayFormat="HH:mm:ss" />
                     
+                    <!-- Actual Check-Out Time Field -->
                     <Label text="{i18n>lblActOut}" />
                     <TimePicker value="{ path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" displayFormat="HH:mm:ss" />
 
+                    <!-- Section Title: Confirm Overtime -->
                     <core:Title text="{i18n>titleConfirmOt}" />
                     
+                    <!-- Status Display Label -->
                     <Label text="{i18n>colStatus}" />
                     <Text text="{i18n>msgOtApproved}" class="sapUiTinyMarginTop sapThemePositiveText" />
                     
+                    <!-- Overtime (OT) Hours Input Field -->
                     <Label text="{i18n>lblOtHours}" />
                     <StepInput value="{ path: 'OtHours', type: 'sap.ui.model.odata.type.Decimal', constraints: { precision: 4, scale: 2 } }" 
-           min="0" max="12" step="0.5" displayValuePrecision="1" description="{i18n>descHours}" />
+                    min="0" max="12" step="0.5" displayValuePrecision="1" description="{i18n>descHours}" />
                 </f:content>
             </f:SimpleForm>
         </content>
+
+        <!-- Dialog Footer Action Buttons: Save & Cancel -->
         <buttons>
             <Button text="{i18n>btnSaveChanges}" type="Emphasized" icon="sap-icon://save" press=".onSaveTimesheet" />
             <Button text="{i18n>btnCancel}" type="Transparent" icon="sap-icon://sys-cancel" press=".onCancelTimesheet" />

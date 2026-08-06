@@ -5,9 +5,12 @@
     xmlns:unified="sap.ui.unified"
     displayBlock="true">
 
+    <!-- Schedule & Overtime Management Page -->
     <Page id="page" title="{i18n>titleScheduleOt}">
 
+        <!-- Page Header Content: Search Inputs, Filter Clear, and Create Action -->
         <headerContent>
+            <!-- Employee Search Input Field -->
             <Input
                 id="HeaderEmployeeSearchInput"
                 value="{headerSearchModel>/employeeQuery}"
@@ -20,6 +23,7 @@
                 submit=".onHeaderEmployeeSubmit"
                 class="sapUiSmallMarginEnd"/>
 
+            <!-- Department Search Input Field -->
             <Input
                 id="HeaderDepartmentSearchInput"
                 value="{headerSearchModel>/deptQuery}"
@@ -32,6 +36,7 @@
                 submit=".onHeaderDepartmentSubmit"
                 class="sapUiSmallMarginEnd"/>
 
+            <!-- Clear Filters Button -->
             <Button
                 icon="sap-icon://clear-filter"
                 type="Transparent"
@@ -39,6 +44,7 @@
                 press=".onClearHeaderFilters"
                 class="sapUiSmallMarginEnd"/>
 
+            <!-- Create New Schedule Action Button -->
             <Button 
                 icon="sap-icon://add"
                 text="{i18n>btnAddSchedule}"
@@ -46,6 +52,7 @@
                 press="onOpenCreateDialog"/>
         </headerContent>
 
+        <!-- Main Page Content: Planning Calendar Component -->
         <content>
             <PlanningCalendar 
                 id="idPlanningCalendar"
@@ -53,12 +60,14 @@
                 rows="{calendarModel>/employees}"
                 appointmentSelect=".onAppointmentSelect">
 
+                <!-- Calendar Rows Binding Template -->
                 <rows>
                     <PlanningCalendarRow 
                         title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
                         text="{= ${calendarModel>DeptName} ? ${calendarModel>DeptName} + ' - ' + ${calendarModel>DeptId} : ${calendarModel>DeptId} }"
                         appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
 
+                        <!-- Calendar Appointments Binding Template -->
                         <appointments>
                             <unified:CalendarAppointment 
                                 startDate="{calendarModel>StartDate}"

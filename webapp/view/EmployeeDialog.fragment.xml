@@ -1,32 +1,43 @@
-<core:FragmentDefinition
-    xmlns="sap.m"
-    xmlns:core="sap.ui.core"
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core" 
     xmlns:f="sap.ui.layout.form">
+    
+    <!-- Employee Add/Edit Dialog Fragment -->
     <Dialog id="employeeDialog" title="{i18n>dialogTitleEmpInfo}" contentWidth="450px">
+        
+        <!-- Dialog Content Section -->
         <content>
             <f:SimpleForm id="employeeFormId" editable="true" layout="ResponsiveGridLayout">
                 <f:content>
+                    <!-- Employee ID Field -->
                     <Label id="lblPernr" text="{i18n>lblPernrFull}" required="true" />
                     <Input id="inputPernr" maxLength="8" type="Number" placeholder="{i18n>phEnterPernr}" />
 
+                    <!-- Employee Name Field -->
                     <Label id="lblEname" text="{i18n>lblEnameFull}" required="true" />
                     <Input id="inputEname" maxLength="40" placeholder="{i18n>phEnterName}" />
 
+                    <!-- Card ID Field -->
                     <Label id="lblCardId" text="{i18n>lblCardIdFull}" />
                     <Input id="inputCardId" maxLength="20" placeholder="{i18n>phEnterCardId}" />
 
+                    <!-- Department Selection Dropdown -->
                     <Label id="lblDept" text="{i18n>colDept}" required="true" />
-    <Select id="selectDept" items="{path: '/Department'}">
-        <core:Item id="deptItemFragTemplate" key="{DeptId}" text="{DeptName}" />
-    </Select>
+                    <Select id="selectDept" items="{path: '/Department'}">
+                        <core:Item id="deptItemFragTemplate" key="{DeptId}" text="{DeptName}" />
+                    </Select>
 
-    <Label id="lblRole" text="{i18n>colRole}" required="true" />
-    <Select id="selectRole" items="{path: '/Role'}">
-    <core:Item id="roleItemFragTemplate" key="{RoleId}" text="{RoleDesc}" />
-    </Select>
+                    <!-- Role Selection Dropdown -->
+                    <Label id="lblRole" text="{i18n>colRole}" required="true" />
+                    <Select id="selectRole" items="{path: '/Role'}">
+                        <core:Item id="roleItemFragTemplate" key="{RoleId}" text="{RoleDesc}" />
+                    </Select>
                 </f:content>
             </f:SimpleForm>
         </content>
+
+        <!-- Dialog Footer Action Buttons: Save & Cancel -->
         <beginButton>
             <Button id="btnSaveDialogId" text="{i18n>btnSave}" type="Emphasized" press=".onSaveEmployee" />
         </beginButton>

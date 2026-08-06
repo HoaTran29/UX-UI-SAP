@@ -1,14 +1,16 @@
-<mvc:View
+<mvc:View 
     controllerName="com.app.zu26g13.app.controller.ShiftConfig"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
     displayBlock="true">
 
+    <!-- Shift Configuration Management Page Container -->
     <Page id="pageShiftConfig" showHeader="false" class="shiftConfigPage">
         <content>
             <VBox class="shiftConfigWrapper">
 
+                <!-- Page Header Section with Title, Description, and Add Shift Action -->
                 <HBox class="shiftConfigHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
                         <Title text="{i18n>titleShiftConfig}" titleStyle="H2" class="shiftConfigTitle"/>
@@ -22,6 +24,7 @@
                         press="onOpenAddDialog"/>
                 </HBox>
 
+                <!-- Shift Configuration Data Table -->
                 <Table
                     id="shiftTable"
                     items="{/Schedule}"
@@ -30,6 +33,7 @@
                     class="shiftConfigTable sapUiResponsiveMargin"
                     width="auto">
 
+                    <!-- Table Columns Definition -->
                     <columns>
                         <Column width="130px">
                             <Text text="{i18n>lblShiftId}"/>
@@ -60,29 +64,37 @@
                         </Column>
                     </columns>
 
+                    <!-- Table Rows Binding Template -->
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
+                                <!-- Shift ID Identifier Cell -->
                                 <ObjectIdentifier
                                     title="{ShiftId}"
                                     text="{i18n>txtShift}"/>
 
+                                <!-- Standard Hours Number Cell -->
                                 <ObjectNumber
                                     number="{StdHours}"
                                     unit="{i18n>unitH}"/>
 
+                                <!-- Shift Start Time Cell -->
                                 <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}"/>
 
+                                <!-- Shift End Time Cell -->
                                 <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}"/>
 
+                                <!-- Next Day Indicator Status Cell -->
                                 <ObjectStatus
                                     text="{path: 'NextDay', formatter: '.formatNextDayText'}"
                                     state="{path: 'NextDay', formatter: '.formatNextDayState'}"/>
 
+                                <!-- Grace Minutes Number Cell -->
                                 <ObjectNumber
                                     number="{GraceMins}"
                                     unit="{i18n>unitMins}"/>
 
+                                <!-- Row Action Buttons: Edit & Delete -->
                                 <HBox justifyContent="Center">
                                     <Button
                                         icon="sap-icon://edit"

@@ -6,9 +6,10 @@
     xmlns:f="sap.f"
     xmlns:layout="sap.ui.layout">
 
+    <!-- Dispute Management Dynamic Page Layout -->
     <f:DynamicPage id="dynamicPageDispute" class="sapUiContentPadding">
 
-        <!-- PHẦN 1: TIÊU ĐỀ TRANG -->
+        <!-- Page Header Title Section -->
         <f:title>
             <f:DynamicPageTitle id="pageTitleDispute">
                 <f:heading>
@@ -17,7 +18,7 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- PHẦN 2: NỘI DUNG CHÍNH (BẢNG DISPUTE) -->
+        <!-- Page Main Content Area (Dispute Reports Table) -->
         <f:content>
             <Table id="disputeTable"
                    items="{
@@ -26,7 +27,8 @@
                    }"
                    growing="true"
                    class="sapUiElevationCore3">
-                   
+                
+                <!-- Table Columns Definition -->
                 <columns>
                     <Column id="colEmpId"><Text id="txtEmpId" text="{i18n>colEmpId}" /></Column>
                     <Column id="colReqType"><Text id="txtReqType" text="{i18n>colReqType}" /></Column>
@@ -36,6 +38,7 @@
                     <Column id="colAction" hAlign="Center"><Text id="txtAction" text="{i18n>colAction}" /></Column>
                 </columns>
                 
+                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem id="cliDisputeItem">
                         <cells>
@@ -45,6 +48,7 @@
                             <Text id="txtTimeEditVal" text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
                             <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
                             
+                            <!-- Row Action Buttons: Approve & Reject -->
                             <HBox id="hboxActions" justifyContent="Center">
                                 <Button id="btnReview" type="Accept" text="{i18n>btnApprove}" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
                                 <Button id="btnReject" type="Reject" text="{i18n>btnReject}" press=".onOpenRejectDialog"/>

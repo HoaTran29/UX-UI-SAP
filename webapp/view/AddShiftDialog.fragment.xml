@@ -2,13 +2,17 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
-    <Dialog
+    <!-- Shift Configuration Add/Edit Dialog Fragment -->
+    <Dialog 
         title="{= ${shiftModel>/isEdit} ? ${i18n>dialogTitleEditShift} : ${i18n>dialogTitleAddShift} }"
         contentWidth="520px"
         class="shiftConfigDialog">
 
+        <!-- Dialog Content Container -->
         <content>
             <VBox class="sapUiMediumMargin">
+                
+                <!-- Shift ID Field -->
                 <Label text="{i18n>lblShiftId}" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/ShiftId}"
@@ -16,12 +20,14 @@
                     maxLength="20"
                     editable="{= !${shiftModel>/isEdit} }"/>
 
+                <!-- Standard Working Hours Field -->
                 <Label text="{i18n>lblStdHours}" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/StdHours}"
                     type="Number"
                     placeholder="{i18n>phStdHours}"/>
 
+                <!-- Shift Start Time (Time In) -->
                 <Label text="{i18n>lblStartTime}" required="true" class="sapUiTopMarginSmall"/>
                 <TimePicker
                     value="{shiftModel>/TimeIn}"
@@ -30,6 +36,7 @@
                     width="100%"
                     placeholder="{i18n>phStartTime}"/>
 
+                <!-- Shift End Time (Time Out) -->
                 <Label text="{i18n>lblEndTime}" required="true" class="sapUiTopMarginSmall"/>
                 <TimePicker
                     value="{shiftModel>/TimeOut}"
@@ -38,12 +45,14 @@
                     width="100%"
                     placeholder="{i18n>phEndTime}"/>
 
+                <!-- Next Day Indicator Switch -->
                 <Label text="{i18n>lblNextDay}" class="sapUiTopMarginSmall"/>
                 <Switch
                     state="{shiftModel>/NextDayBool}"
                     customTextOn="{i18n>switchYes}"
                     customTextOff="{i18n>switchNo}"/>
 
+                <!-- Grace Period Minutes Field -->
                 <Label text="{i18n>lblGraceMins}" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{shiftModel>/GraceMins}"
@@ -53,6 +62,7 @@
             </VBox>
         </content>
 
+        <!-- Dialog Action Buttons: Save & Cancel -->
         <beginButton>
             <Button
                 text="{i18n>btnSave}"

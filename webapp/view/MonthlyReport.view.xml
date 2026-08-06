@@ -5,9 +5,10 @@
     xmlns:f="sap.f"
     xmlns:fb="sap.ui.comp.filterbar">
     
+    <!-- Monthly Report Dynamic Page Layout -->
     <f:DynamicPage id="dynamicPageMonthlyReport">
         
-        <!-- PHẦN 1: Tiêu đề và nút Back -->
+        <!-- Page Title & Navigation Back Action Section -->
         <f:title>
             <f:DynamicPageTitle id="pageTitleMonthly">
                 <f:heading>
@@ -19,35 +20,35 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- PHẦN 2: Header chứa bộ lọc -->
+        <!-- Page Header Section Containing Filter Bar -->
         <f:header>
             <f:DynamicPageHeader id="headerMonthly">
                 
-                <!-- Ẩn hết nút mặc định để dùng nút Clear tự chế -->
+                <!-- Standard FilterBar with Custom Clear Filter Action -->
                 <fb:FilterBar id="monthlyFilter" 
-                              search=".onSearch" 
-                              showGoOnFB="false" 
-                              showClearOnFB="false" 
-                              showFilterConfiguration="false" 
-                              useToolbar="false" 
-                              class="sapUiBottomMargin">
+                             search=".onSearch" 
+                             showGoOnFB="false" 
+                             showClearOnFB="false" 
+                             showFilterConfiguration="false" 
+                             useToolbar="false" 
+                             class="sapUiBottomMargin">
                     <fb:filterGroupItems>
                         
-                        <!-- Lọc Tháng/Năm -->
+                        <!-- Month/Year Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Month" label="{i18n>filterMonthYear}" visibleInFilterBar="true">
                             <fb:control>
                                 <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="{i18n>phSelectMonthYear}" change=".onSearch" />
                             </fb:control>
                         </fb:FilterGroupItem>
                         
-                        <!-- Lọc Mã NV -->
+                        <!-- Employee ID Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                             <fb:control>
                                 <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" showValueHelp="true" valueHelpRequest=".onEmployeeValueHelpRequest" change=".onSearch" valueHelpOnly="true"/>
                             </fb:control>
                         </fb:FilterGroupItem>
 
-                        <!-- Nút Clear đúng theo ý mày -->
+                        <!-- Custom Clear Filters Action Button -->
                         <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
                             <fb:control>
                                 <HBox alignItems="Center">
@@ -66,7 +67,7 @@
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- PHẦN 3: Bảng hiển thị (Tích hợp sẵn PHÂN TRANG growing=true) -->
+        <!-- Main Content Area: Monthly Summary Table -->
         <f:content>
             <Table id="monthlyTable"
                    items="{ path: '/MonthlyTimesheet', sorter: { path: 'Pernr' } }"
@@ -74,6 +75,7 @@
                    growingThreshold="20" 
                    class="sapUiElevationCore3">
                 
+                <!-- Table Header Toolbar -->
                 <headerToolbar>
                     <OverflowToolbar>
                         <Title text="{i18n>titleMonthlyDetails}" level="H4"/>
@@ -82,6 +84,7 @@
                     </OverflowToolbar>
                 </headerToolbar>
 
+                <!-- Table Columns Definition -->
                 <columns>
                     <Column><Text text="{i18n>colEmpId}" /></Column>
                     <Column><Text text="{i18n>colMonthYear}" /></Column>
@@ -90,6 +93,7 @@
                     <Column hAlign="Center"><Text text="{i18n>colTotalOtHours}" /></Column>
                 </columns>
                 
+                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem type="Active">
                         <cells>
@@ -98,7 +102,7 @@
                             
                             <ObjectNumber number="{TotalStdHours}" unit="{i18n>unitHours}" />
                             <ObjectNumber number="{TotalActHours}" unit="{i18n>unitHours}" 
-                                          state="{= parseFloat(${TotalActHours}) >= parseFloat(${TotalStdHours}) ? 'Success' : 'Error' }"/>
+                                         state="{= parseFloat(${TotalActHours}) >= parseFloat(${TotalStdHours}) ? 'Success' : 'Error' }"/>
                             <ObjectNumber number="{TotalOtHours}" unit="{i18n>unitHours}" state="Warning"/>
                         </cells>
                     </ColumnListItem>

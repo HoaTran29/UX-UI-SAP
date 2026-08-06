@@ -7,21 +7,27 @@
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:core="sap.ui.core">
 
+    <!-- Main Dynamic Page Layout -->
     <f:DynamicPage id="dynamicPageDashboard">
 
+        <!-- Page Title Header Section -->
         <f:title>
             <f:DynamicPageTitle id="pageTitleDashboardId">
                 <f:heading>
-                    <Title id="mainTitleDashboardId" text="Dashboard" level="H1" />
+                    <Title id="mainTitleDashboardId" text="{i18n>appTitle}" level="H1" />
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
 
+        <!-- Page Header Area (KPI Tiles & Filter Bar) -->
         <f:header>
             <f:DynamicPageHeader id="dynamicPageHeaderDashboardId">
                 
                 <VBox>
+                    <!-- KPI Summary Cards Grid -->
                     <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
+                        
+                        <!-- Total Employees KPI Tile -->
                         <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalEmp}" subheader="{i18n>tileTotalEmpSub}" 
                         frameType="OneByOne" press=".onNavToEmployee">
                             <TileContent id="tcEmp">
@@ -29,6 +35,7 @@
                             </TileContent>
                         </GenericTile>
 
+                        <!-- Total Overtime (OT) KPI Tile -->
                         <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalOt}" subheader="{i18n>tileTotalOtSub}" 
                         frameType="OneByOne" press=".onNavToMonthlyReport">
                             <TileContent id="tcOT">
@@ -36,12 +43,14 @@
                             </TileContent>
                         </GenericTile>
 
+                        <!-- Pending Dispute Reports KPI Tile -->
                         <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileReport}" subheader="{i18n>tileReportSub}" frameType="OneByOne" press=".onGoToDispute">
                             <TileContent id="tcReport">
                                 <NumericContent id="ncReport" value="{kpi>/pendingDisputes}" icon="sap-icon://alert" valueColor="Error"/>
                             </TileContent>
                         </GenericTile>
 
+                        <!-- Shift Schedule Management Tile -->
                         <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileSchedule}" subheader="{i18n>tileScheduleSub}" frameType="OneByOne" press=".onNavToSchedule">
                             <TileContent id="tcSchedule">
                                 <ImageContent src="sap-icon://calendar" />
@@ -49,8 +58,10 @@
                         </GenericTile>
                     </layout:Grid>
 
+                    <!-- Section Title: Timesheet Tracker -->
                     <Title id="titleTimesheet" text="{i18n>titleTimesheet}" titleStyle="H3" class="sapUiSmallMarginBottom sapUiMediumMarginTop"/>
                     
+                    <!-- Filter Bar Section -->
                     <fb:FilterBar id="filterBar" 
                         search=".onSearch" 
                         showGoOnFB="false" 
@@ -60,6 +71,7 @@
                         class="sapUiBottomMargin">
                         
                         <fb:filterGroupItems>
+                            <!-- Employee ID Filter Item -->
                             <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                                 <fb:control>
                                     <Input id="fltEmp" 
@@ -71,6 +83,7 @@
                                 </fb:control>
                             </fb:FilterGroupItem>
 
+                            <!-- Department Filter Item -->
                             <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
                                 <fb:control>
                                     <Input id="fltDept" 
@@ -82,12 +95,14 @@
                                 </fb:control>
                             </fb:FilterGroupItem>
 
+                            <!-- Work Date Filter Item -->
                             <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
                                 <fb:control>
                                     <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch"/>
                                 </fb:control>
                             </fb:FilterGroupItem>
 
+                            <!-- Clear Filters Action Button -->
                             <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
                                 <fb:control>
                                     <HBox alignItems="Center">
@@ -106,6 +121,7 @@
             </f:DynamicPageHeader>
         </f:header>
 
+        <!-- Main Page Content Area (Timesheet Data Table) -->
         <f:content>
             <Table id="timesheetTable"
                    items="{
@@ -118,7 +134,8 @@
                    growing="true"
                    growingThreshold="10"
                    class="sapUiElevationCore3">
-                
+            
+                <!-- Table Toolbar Header -->
                 <headerToolbar>
                     <OverflowToolbar>
                         <Title text="{i18n>titleWorkDetails}" level="H4"/>
@@ -127,6 +144,7 @@
                     </OverflowToolbar>
                 </headerToolbar>
                 
+                <!-- Table Columns Definition -->
                 <columns>
                     <Column id="colEmp"><Text id="txtColEmp" text="{i18n>colEmpShift}" /></Column>
                     <Column id="colDept"><Text id="txtColDept" text="{i18n>colDept}" /></Column>
@@ -138,6 +156,7 @@
                     <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="{i18n>colStatus}" /></Column>
                 </columns>
 
+                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem id="cliTimesheet" type="Active">
                         <cells>
@@ -157,9 +176,9 @@
                                 text="{Status}" 
                                 inverted="true"
                                 state="{= ${Status} === 'APPROVED' ? 'Success' : 
-                                         (${Status} === 'PENDING' ? 'Warning' : 
-                                         (${Status} === 'LATE_IN' || ${Status} === 'EARLY_OUT' ? 'Error' : 
-                                         (${Status} === 'ON_TIME' ? 'Indication05' : 'None'))) }" />
+                                        (${Status} === 'PENDING' ? 'Warning' : 
+                                        (${Status} === 'LATE_IN' || ${Status} === 'EARLY_OUT' ? 'Error' : 
+                                        (${Status} === 'ON_TIME' ? 'Indication05' : 'None'))) }" />
                         </cells>
                     </ColumnListItem>
                 </items>

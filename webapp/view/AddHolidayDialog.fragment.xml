@@ -2,14 +2,17 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
+    <!-- Holiday Add/Edit Dialog Fragment -->
     <Dialog
         title="{= ${holidayModel>/isEdit} ? ${i18n>dialogTitleEditHoliday} : ${i18n>dialogTitleAddHoliday} }"
         contentWidth="460px"
         class="holidayDialog">
 
+        <!-- Dialog Content Section -->
         <content>
             <VBox class="sapUiMediumMargin">
 
+                <!-- Holiday Date Field -->
                 <Label text="{i18n>lblHolidayDate}" required="true" class="sapUiTopMarginSmall"/>
                 <DatePicker
                     dateValue="{holidayModel>/HolDate}"
@@ -17,6 +20,7 @@
                     width="100%"
                     editable="{= !${holidayModel>/isEdit} }"/>
 
+                <!-- Holiday Description Field -->
                 <Label text="{i18n>lblHolidayDesc}" required="true" class="sapUiTopMarginSmall"/>
                 <Input
                     value="{holidayModel>/HolDesc}"
@@ -25,6 +29,7 @@
             </VBox>
         </content>
 
+        <!-- Dialog Actions: Save & Cancel Buttons -->
         <beginButton>
             <Button
                 text="{i18n>btnSave}"

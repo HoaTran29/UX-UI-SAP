@@ -4,10 +4,12 @@
     xmlns="sap.m"
     displayBlock="true">
 
+    <!-- Holiday Configuration Page Container -->
     <Page id="pageHoliday" showHeader="false" class="holidayPage">
         <content>
             <VBox class="holidayWrapper">
 
+                <!-- Page Header Section with Title, Description, and Add Button -->
                 <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
                         <Title text="{i18n>titleHolidayConfig}" titleStyle="H2" class="holidayTitle"/>
@@ -21,12 +23,14 @@
                         press="onOpenAddDialog"/>
                 </HBox>
 
+                <!-- Information Message Strip (Sunday Auto-detection Notice) -->
                 <MessageStrip
                     text="{i18n>msgSundayAutoDetect}"
                     type="Information"
                     showIcon="true"
                     class="sapUiSmallMarginBottom"/>
 
+                <!-- Holiday Management Data Table -->
                 <Table
                     id="holidayTable"
                     items="{/Holiday}"
@@ -35,6 +39,7 @@
                     class="holidayTable sapUiResponsiveMargin"
                     width="auto">
 
+                    <!-- Table Columns Definition -->
                     <columns>
                         <Column width="180px">
                             <Text text="{i18n>colHolidayDate}"/>
@@ -49,14 +54,17 @@
                         </Column>
                     </columns>
 
+                    <!-- Table Rows Binding Template -->
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
-
+                                <!-- Holiday Date Cell -->
                                 <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
 
+                                <!-- Holiday Description Cell -->
                                 <Text text="{HolDesc}"/>
 
+                                <!-- Row Action Buttons: Edit & Delete -->
                                 <HBox justifyContent="Center">
                                     <Button
                                         icon="sap-icon://edit"

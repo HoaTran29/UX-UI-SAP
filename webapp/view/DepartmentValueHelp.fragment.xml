@@ -1,7 +1,6 @@
-<core:FragmentDefinition
-    xmlns="sap.m"
-    xmlns:core="sap.ui.core">
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     
+    <!-- Department Value Help Responsive Popover Fragment -->
     <ResponsivePopover
         id="deptValueHelpDialog"
         title="{i18n>dialogTitleSelectDept}"
@@ -9,16 +8,19 @@
         contentWidth="350px"
         contentHeight="400px">
         
+        <!-- Popover Footer Action Button -->
         <endButton>
-            <Button text="Close" press=".onDeptValueHelpCancel" />
+            <Button text="{i18n>btnClose}" press=".onDeptValueHelpCancel" />
         </endButton>
         
+        <!-- Search SubHeader Section -->
         <subHeader>
             <Toolbar>
-                <SearchField placeholder="Tìm kiếm..." search=".onDeptValueHelpSearch" liveChange=".onDeptValueHelpSearch" width="100%" />
+                <SearchField placeholder="{i18n>phSearchSelectDept}" search=".onDeptValueHelpSearch" liveChange=".onDeptValueHelpSearch" width="100%" />
             </Toolbar>
         </subHeader>
         
+        <!-- Popover Content Area: Department List Selection -->
         <content>
             <List
                 id="deptValueHelpList"
@@ -27,6 +29,7 @@
                 selectionChange=".onDeptValueHelpConfirm"
                 noDataText="{i18n>noDataDept}">
                 
+                <!-- Department Item Template -->
                 <StandardListItem
                     title="{DeptName}"
                     description="{DeptId}"

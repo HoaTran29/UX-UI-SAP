@@ -2,19 +2,23 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
+    <!-- Add/Edit OT Schedule Dialog Fragment -->
     <Dialog 
         id="addOtDialog"
         title="{i18n>dialogTitleScheduleOt}"
         contentWidth="520px">
 
+        <!-- Dialog Content Section -->
         <content>
             <VBox class="sapUiSmallMargin">
 
+                <!-- Assignment Mode Selection Label -->
                 <Label
                     text="{i18n>lblAssignBy}"
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
 
+                <!-- Segmented Button to switch between Employee and Department mode -->
                 <SegmentedButton
                     selectedKey="{dialogModel>/AssignMode}"
                     selectionChange=".onAssignModeChange"
@@ -27,6 +31,7 @@
                     </items>
                 </SegmentedButton>
 
+                <!-- Employee Selection Field -->
                 <Label
                     text="{i18n>filterEmpId}"
                     required="true"
@@ -49,6 +54,7 @@
                     visible="{= ${dialogModel>/AssignMode} === 'EMP' &amp;&amp; !!${dialogModel>/EmployeeName} }"
                     class="sapUiTinyMarginTop"/>
 
+                <!-- Department Selection Field -->
                 <Label
                     text="{i18n>filterDept}"
                     required="true"
@@ -71,6 +77,7 @@
                     visible="{= ${dialogModel>/AssignMode} === 'DEPT' &amp;&amp; !!${dialogModel>/DeptName} }"
                     class="sapUiTinyMarginTop"/>
 
+                <!-- Schedule Date Range (For Create Mode) -->
                 <Label 
                     text="{i18n>lblSchedulePeriod}"
                     required="true"
@@ -83,6 +90,7 @@
                     displayFormat="dd/MM/yyyy"
                     visible="{= !${dialogModel>/isEdit} }"/>
 
+                <!-- Work Date (For Edit Mode) -->
                 <Label 
                     text="{i18n>lblWorkDate}"
                     required="true"
@@ -95,6 +103,7 @@
                     editable="false"
                     visible="{dialogModel>/isEdit}"/>
 
+                <!-- Work Shift Selection -->
                 <Label text="{i18n>lblShift}" required="true" class="sapUiTopMarginSmall"/>
 
                 <Select 
@@ -108,6 +117,7 @@
                         text="{shiftLookupModel>ShiftText}" />
                 </Select>
 
+                <!-- OT Hours Input -->
                 <Label text="{i18n>lblOtHours}" class="sapUiTopMarginSmall"/>
 
                 <Input 
@@ -118,6 +128,7 @@
             </VBox>
         </content>
 
+        <!-- Dialog Action Buttons: Save & Close -->
         <beginButton>
             <Button 
                 text="{i18n>btnSaveData}"

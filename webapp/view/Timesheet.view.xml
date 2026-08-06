@@ -105,7 +105,7 @@
                                           icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
                             <Text text="{ parts: ['ActIn', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
                             <Text text="{ parts: ['ActOut', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
-                            <ObjectNumber number="{StdHours}" />
+                            <ObjectNumber number="{WorkHours}" />
                             <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
                             

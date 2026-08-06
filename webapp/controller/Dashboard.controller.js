@@ -4,7 +4,9 @@ sap.ui.define([
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/ui/export/Spreadsheet",
-    "sap/ui/core/Fragment"
+    "sap/ui/core/Fragment",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator"
 ], function (Controller, JSONModel, Filter, FilterOperator, Spreadsheet, Fragment) {
     "use strict";
 
@@ -131,7 +133,7 @@ sap.ui.define([
             } else {
                 // Apply combined filter for search value
                 var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
-                var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
+                var oFilterId = new Filter("Pernr", FilterOperator.EQ, sValue);
                 var oCombinedFilter = new Filter({ filters: [oFilterName, oFilterId], and: false });
 
                 oListBinding.filter([oCombinedFilter]);
@@ -256,7 +258,7 @@ sap.ui.define([
             var oDate = this.byId("fltDate").getDateValue();
 
             if (sEmp) {
-                aFilters.push(new Filter("Pernr", FilterOperator.Contains, sEmp));
+                aFilters.push(new Filter("Pernr", FilterOperator.EQ, sEmp));
             }
             if (sDept) {
                 aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));

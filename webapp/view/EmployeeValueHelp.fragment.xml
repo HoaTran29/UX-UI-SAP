@@ -39,7 +39,7 @@
         <!-- Search SubHeader Section -->
         <subHeader>
             <Toolbar>
-                <SearchField placeholder="{i18n>phSearch}" search=".onEmployeeValueHelpSearch" liveChange=".onEmployeeValueHelpSearch" width="100%" />
+                <SearchField placeholder="{i18n>phSearchSelectEmp}" search=".onEmployeeValueHelpSearch" liveChange=".onEmployeeValueHelpSearch" width="100%" />
             </Toolbar>
         </subHeader>
         

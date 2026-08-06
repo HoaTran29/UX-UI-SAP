@@ -431,6 +431,25 @@ sap.ui.define([
                             ""
                     };
                 });
+            }
+            this._pEmpValueHelpDialog.then(function (oPopover) {
+                var oList = this.byId("empValueHelpList");
+                if (oList) {
+                    oList.getBinding("items").filter([]);
+                    oList.removeSelections(true);
+                }
+                oPopover.openBy(this._oCurrentInput);
+            }.bind(this));
+        },
+
+        onEmployeeValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
+            var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("Pernr", FilterOperator.EQ, sValue);
+            this.byId("empValueHelpList").getBinding("items").filter([
+                new Filter({ filters: [oFilterName, oFilterId], and: false })
+            ]);
+        },
 
                 aEmployees.sort(function (a, b) {
                     return String(a.EmployeeName || "").localeCompare(
@@ -554,9 +573,8 @@ sap.ui.define([
                 aFilters.push(new Filter({
                     filters: [
                         new Filter("EmployeeName", FilterOperator.Contains, sEmployee),
-                        new Filter("Pernr", FilterOperator.Contains, sEmployee)
-                    ],
-                    and: false
+                        new Filter("Pernr", FilterOperator.EQ, sEmployee)
+                    ], and: false
                 }));
             }
 

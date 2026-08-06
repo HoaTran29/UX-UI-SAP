@@ -47,7 +47,7 @@ sap.ui.define([
             }
 
             if (sEmp) {
-                aFilters.push(new Filter("Pernr", FilterOperator.Contains, sEmp));
+                aFilters.push(new Filter("Pernr", FilterOperator.EQ, sEmp));
             }
 
             var oTable = this.byId("monthlyTable");
@@ -148,7 +148,7 @@ sap.ui.define([
             var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
             
             var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
-            var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("Pernr", FilterOperator.EQ, sValue);
             
             var oCombinedFilter = new Filter({
                 filters: [oFilterName, oFilterId],

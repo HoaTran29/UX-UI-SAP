@@ -11,22 +11,13 @@
 
                 <HBox class="shiftConfigHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
-<<<<<<< HEAD
                         <Title text="Shift Configuration" titleStyle="H2" class="shiftConfigTitle"/>
                         <Text text="Maintain start time, end time, overnight flag, and allowed late minutes"/>
-=======
-                        <Title text="{i18n>titleShiftConfig}" titleStyle="H2" class="shiftConfigTitle"/>
-                        <Text text="{i18n>descShiftConfig}"/>
->>>>>>> origin/main
                     </VBox>
 
                     <Button
                         icon="sap-icon://add"
-<<<<<<< HEAD
                         text="Add Shift"
-=======
-                        text="{i18n>btnAddShift}"
->>>>>>> origin/main
                         type="Emphasized"
                         press="onOpenAddDialog"/>
                 </HBox>
@@ -41,7 +32,6 @@
 
                     <columns>
                         <Column width="130px">
-<<<<<<< HEAD
                             <Text text="Shift ID"/>
                         </Column>
 
@@ -59,37 +49,14 @@
 
                         <Column width="130px" hAlign="Center">
                             <Text text="Overnight"/>
-=======
-                            <Text text="{i18n>lblShiftId}"/>
-                        </Column>
-
-                        <Column width="120px" hAlign="End">
-                            <Text text="{i18n>lblStdHours}"/>
-                        </Column>
-
-                        <Column width="150px">
-                            <Text text="{i18n>colStartTime}"/>
-                        </Column>
-
-                        <Column width="150px">
-                            <Text text="{i18n>colEndTime}"/>
-                        </Column>
-
-                        <Column width="130px" hAlign="Center">
-                            <Text text="{i18n>colNextDay}"/>
->>>>>>> origin/main
                         </Column>
 
                         <Column width="130px" hAlign="End">
-                            <Text text="{i18n>colGraceMins}"/>
+                            <Text text="Grace mins"/>
                         </Column>
 
                         <Column width="140px" hAlign="Center">
-<<<<<<< HEAD
                             <Text text="Actions"/>
-=======
-                            <Text text="{i18n>colAction}"/>
->>>>>>> origin/main
                         </Column>
                     </columns>
 
@@ -98,15 +65,11 @@
                             <cells>
                                 <ObjectIdentifier
                                     title="{ShiftId}"
-<<<<<<< HEAD
                                     text="Work Shift"/>
-=======
-                                    text="{i18n>txtShift}"/>
->>>>>>> origin/main
 
                                 <ObjectNumber
                                     number="{StdHours}"
-                                    unit="{i18n>unitH}"/>
+                                    unit="h"/>
 
                                 <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}"/>
 
@@ -118,32 +81,20 @@
 
                                 <ObjectNumber
                                     number="{GraceMins}"
-<<<<<<< HEAD
                                     unit="min"/>
-=======
-                                    unit="{i18n>unitMins}"/>
->>>>>>> origin/main
 
                                 <HBox justifyContent="Center">
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
-<<<<<<< HEAD
                                         tooltip="Edit shift"
-=======
-                                        tooltip="{i18n>ttEditShift}"
->>>>>>> origin/main
                                         press="onEditShift"
                                         class="sapUiTinyMarginEnd"/>
 
                                     <Button
                                         icon="sap-icon://delete"
                                         type="Reject"
-<<<<<<< HEAD
                                         tooltip="Delete shift"
-=======
-                                        tooltip="{i18n>ttDeleteShift}"
->>>>>>> origin/main
                                         press="onDeleteShift"/>
                                 </HBox>
                             </cells>

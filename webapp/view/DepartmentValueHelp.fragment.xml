@@ -4,11 +4,7 @@
 
     <SelectDialog
         id="departmentValueHelpDialog"
-<<<<<<< HEAD
         title="Select Department"
-=======
-        title="{i18n>dialogTitleSelectDept}"
->>>>>>> origin/main
         search=".onDepartmentValueHelpSearch"
         liveChange=".onDepartmentValueHelpSearch"
         confirm=".onDepartmentValueHelpConfirm"
@@ -16,11 +12,7 @@
         items="{departmentLookupModel>/departments}"
         growing="true"
         growingThreshold="30"
-<<<<<<< HEAD
         noDataText="No departments found">
-=======
-        noDataText="{i18n>noDataDept}">
->>>>>>> origin/main
 
         <StandardListItem
             title="{departmentLookupModel>DeptName}"

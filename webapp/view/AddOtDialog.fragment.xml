@@ -4,22 +4,14 @@
 
     <Dialog 
         id="addOtDialog"
-<<<<<<< HEAD
         title="Work Schedule &amp; OT"
-=======
-        title="{i18n>dialogTitleScheduleOt}"
->>>>>>> origin/main
         contentWidth="520px">
 
         <content>
             <VBox class="sapUiSmallMargin">
 
                 <Label
-<<<<<<< HEAD
                     text="Assign schedule by"
-=======
-                    text="{i18n>lblAssignBy}"
->>>>>>> origin/main
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
 
@@ -30,22 +22,13 @@
                     width="100%">
 
                     <items>
-<<<<<<< HEAD
                         <SegmentedButtonItem key="EMP" text="Employee"/>
                         <SegmentedButtonItem key="DEPT" text="Department"/>
-=======
-                        <SegmentedButtonItem key="EMP" text="{i18n>segBtnEmployee}"/>
-                        <SegmentedButtonItem key="DEPT" text="{i18n>segBtnDept}"/>
->>>>>>> origin/main
                     </items>
                 </SegmentedButton>
 
                 <Label
-<<<<<<< HEAD
                     text="Employee ID"
-=======
-                    text="{i18n>filterEmpId}"
->>>>>>> origin/main
                     required="true"
                     visible="{= ${dialogModel>/AssignMode} === 'EMP' }"
                     class="sapUiTopMarginSmall"/>
@@ -53,11 +36,7 @@
                 <Input
                     id="PernrInput"
                     value="{dialogModel>/Pernr}"
-<<<<<<< HEAD
                     placeholder="Select an employee from value help..."
-=======
-                    placeholder="{i18n>phSelectEmpHelp}"
->>>>>>> origin/main
                     editable="{= !${dialogModel>/isEdit} }"
                     showValueHelp="true"
                     valueHelpRequest=".onPernrInputValueHelpRequest"
@@ -70,11 +49,7 @@
                     class="sapUiTinyMarginTop"/>
 
                 <Label
-<<<<<<< HEAD
                     text="Department"
-=======
-                    text="{i18n>filterDept}"
->>>>>>> origin/main
                     required="true"
                     visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"
                     class="sapUiTopMarginSmall"/>
@@ -82,11 +57,7 @@
                 <Input
                     id="DeptInput"
                     value="{dialogModel>/DeptId}"
-<<<<<<< HEAD
                     placeholder="Select a department from value help..."
-=======
-                    placeholder="{i18n>phSelectDeptHelp}"
->>>>>>> origin/main
                     editable="{= !${dialogModel>/isEdit} }"
                     showValueHelp="true"
                     valueHelpRequest=".onDeptInputValueHelpRequest"
@@ -99,11 +70,7 @@
                     class="sapUiTinyMarginTop"/>
 
                 <Label 
-<<<<<<< HEAD
                     text="Schedule Date Range"
-=======
-                    text="{i18n>lblSchedulePeriod}"
->>>>>>> origin/main
                     required="true"
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
@@ -115,11 +82,7 @@
                     visible="{= !${dialogModel>/isEdit} }"/>
 
                 <Label 
-<<<<<<< HEAD
                     text="Work Date"
-=======
-                    text="{i18n>lblWorkDate}"
->>>>>>> origin/main
                     required="true"
                     class="sapUiTopMarginSmall"
                     visible="{dialogModel>/isEdit}"/>
@@ -130,11 +93,7 @@
                     editable="false"
                     visible="{dialogModel>/isEdit}"/>
 
-<<<<<<< HEAD
                 <Label text="Work Shift" required="true" class="sapUiTopMarginSmall"/>
-=======
-                <Label text="{i18n>lblShift}" required="true" class="sapUiTopMarginSmall"/>
->>>>>>> origin/main
 
                 <Select 
                     id="shiftSelect"
@@ -147,42 +106,26 @@
                         text="{shiftLookupModel>ShiftText}" />
                 </Select>
 
-<<<<<<< HEAD
                 <Label text="OT Hours" class="sapUiTopMarginSmall"/>
-=======
-                <Label text="{i18n>lblOtHours}" class="sapUiTopMarginSmall"/>
->>>>>>> origin/main
 
                 <Input 
                     value="{dialogModel>/OtHours}"
                     type="Number"
-<<<<<<< HEAD
                     placeholder="Enter OT hours..." />
-=======
-                    placeholder="{i18n>phEnterOtHours}" />
->>>>>>> origin/main
 
             </VBox>
         </content>
 
         <beginButton>
             <Button 
-<<<<<<< HEAD
                 text="Save"
-=======
-                text="{i18n>btnSaveData}"
->>>>>>> origin/main
                 type="Emphasized"
                 press=".onSaveOtPlan" />
         </beginButton>
 
         <endButton>
             <Button 
-<<<<<<< HEAD
                 text="Close"
-=======
-                text="{i18n>btnClose}"
->>>>>>> origin/main
                 press=".onCloseAddDialog" />
         </endButton>
 

@@ -20,6 +20,8 @@ sap.ui.define([
                 new JSONModel(this._getDefaultShiftData()),
                 "shiftModel"
             );
+
+            this._attachAutoReloadHandlers();
         },
 
         _getDefaultShiftData: function () {
@@ -34,6 +36,25 @@ sap.ui.define([
                 isEdit: false,
                 sPath: ""
             };
+        },
+
+
+        _attachAutoReloadHandlers: function () {
+            var oRouter = this.getOwnerComponent().getRouter();
+            var oRoute = oRouter && oRouter.getRoute("shiftConfig");
+
+            if (oRoute && !this._bRouteAttached) {
+                oRoute.attachPatternMatched(this._reloadViewData, this);
+                this._bRouteAttached = true;
+            }
+        },
+
+        _publishDataChanged: function (sAction) {
+            sap.ui.getCore().getEventBus().publish("codesap", "DataChanged", {
+                source: "Shift",
+                action: sAction || "refresh",
+                timestamp: Date.now()
+            });
         },
 
         onOpenAddDialog: function () {
@@ -256,6 +277,7 @@ sap.ui.define([
                         sap.ui.core.BusyIndicator.hide();
                         MessageToast.show("Work shift created successfully.");
                         this.onCloseDialog();
+                        this._publishDataChanged("create");
                         this._reloadViewData();
                     }.bind(this),
                     error: function (oError) {
@@ -293,6 +315,7 @@ sap.ui.define([
                     sap.ui.core.BusyIndicator.hide();
                     MessageToast.show("Work shift updated successfully.");
                     this.onCloseDialog();
+                    this._publishDataChanged("update");
                     this._reloadViewData();
                 }.bind(this),
                 error: function (oError) {
@@ -337,6 +360,7 @@ sap.ui.define([
                             success: function () {
                                 sap.ui.core.BusyIndicator.hide();
                                 MessageToast.show("Work shift deleted successfully.");
+                                this._publishDataChanged("delete");
                                 this._reloadViewData();
                             },
                             error: function (oError) {
@@ -363,6 +387,9 @@ sap.ui.define([
 
             if (oODataModel) {
                 oODataModel.refresh(true);
+                if (oODataModel.updateBindings) {
+                    oODataModel.updateBindings(true);
+                }
             }
 
             if (oBinding) {

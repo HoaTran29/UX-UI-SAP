@@ -281,7 +281,7 @@ sap.ui.define([
         onClear: function () {
             this.byId("fltEmp").setValue("");
             this.byId("fltDept").setValue("");
-            this.byId("fltDate").setDateValue(new Date());
+            this.byId("fltDate").setDateValue(null);
             this.byId("timesheetTable").getBinding("items").filter([]);
         },
 

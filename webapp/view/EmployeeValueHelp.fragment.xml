@@ -5,7 +5,7 @@
     <SelectDialog
         id="employeeValueHelpDialog"
         title="Select Employee"
-        search=".onEmployeeValueHelpSearch"
+        search=".onEmployeeValueHelpSearch"https://github.com/HoaTran29/UX-UI-SAP/pull/14/conflict?name=webapp%252Fview%252FEmployeeValueHelp.fragment.xml&ancestor_oid=1f00cbee7bae432ce7d1c66ff4ede3f5f6ad4400&base_oid=ffda749e14d1f6e98e5db3766a621e2919e3f92b&head_oid=2c3306d032f5f46188c69590bfa8c912d8e5b393
         liveChange=".onEmployeeValueHelpSearch"
         confirm=".onEmployeeValueHelpConfirm"
         cancel=".onEmployeeValueHelpCancel"
@@ -22,4 +22,44 @@
 
     </SelectDialog>
 
+    
+    <!-- Employee Value Help Responsive Popover Fragment -->
+    <ResponsivePopover
+        id="empValueHelpDialog"
+        title="{i18n>dialogTitleSelectEmp}"
+        placement="Bottom"
+        contentWidth="350px"
+        contentHeight="400px">
+        
+        <!-- Popover Footer Action Button -->
+        <endButton>
+            <Button text="{i18n>btnClose}" press=".onEmployeeValueHelpCancel" />
+        </endButton>
+        
+        <!-- Search SubHeader Section -->
+        <subHeader>
+            <Toolbar>
+                <SearchField placeholder="{i18n>phSearch}" search=".onEmployeeValueHelpSearch" liveChange=".onEmployeeValueHelpSearch" width="100%" />
+            </Toolbar>
+        </subHeader>
+        
+        <!-- Popover Content Area: Employee List Selection -->
+        <content>
+            <List
+                id="empValueHelpList"
+                items="{/Employee}"
+                mode="SingleSelectMaster"
+                selectionChange=".onEmployeeValueHelpConfirm"
+                noDataText="{i18n>noDataEmp}">
+                
+                <!-- Employee Item Template -->
+                <StandardListItem
+                    title="{Ename}"
+                    description="{Pernr}"
+                    info="{DeptId}"
+                    type="Active" />
+            </List>
+        </content>
+        
+    </ResponsivePopover>
 </core:FragmentDefinition>

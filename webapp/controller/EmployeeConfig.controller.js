@@ -1,5 +1,4 @@
-sap.ui.define(
-  [
+sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
     "sap/ui/model/Filter",
@@ -7,618 +6,326 @@ sap.ui.define(
     "sap/m/MessageToast",
     "sap/m/MessageBox",
     "sap/ui/model/json/JSONModel",
-    "sap/ui/core/BusyIndicator",
-  ],
-  function (
-    Controller,
-    Fragment,
-    Filter,
-    FilterOperator,
-    MessageToast,
-    MessageBox,
-    JSONModel,
-    BusyIndicator,
-  ) {
+    "sap/ui/core/BusyIndicator"
+], function (Controller, Fragment, Filter, FilterOperator, MessageToast, MessageBox, JSONModel, BusyIndicator) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.EmployeeConfig", {
-      onInit: function () {
-        this.getView().setModel(
-          new JSONModel({
-            employees: [],
-            allEmployees: [],
-          }),
-          "employeeLookupModel",
-        );
-
-        // Model cho Department Value Help
-        this.getView().setModel(
-          new JSONModel({
-            departments: [],
-            allDepartments: [],
-          }),
-          "departmentLookupModel",
-        );
-
-        // Lưu DeptId đã chọn để filter
-        this._sFilterDeptId = "";
-      },
-
-      // Hàm bổ trợ: Tự động chèn dòng "Tất cả" vào vị trí đầu tiên sau khi Backend load xong dữ liệu
-      _onDeptDataReceived: function (oEvent) {
-        var oComboBox = this.byId("filterDept");
-        var aItems = oComboBox.getItems();
-
-        // Kiểm tra xem dòng Tất cả đã tồn tại chưa để không bị chèn trùng lặp
-        var bHasAll = aItems.some(function (oItem) {
-          return oItem.getKey() === "ALL";
-        });
-
-        if (!bHasAll) {
-          var oAllItem = new sap.ui.core.Item({
-            key: "ALL",
-            text: "Tất cả phòng ban",
-          });
-          oComboBox.insertItem(oAllItem, 0); // Đẩy lên vị trí trên cùng danh sách
-        }
-      },
-      _loadEmployeeLookup: function () {
-        var oODataModel = this.getView().getModel();
-        var oEmployeeModel = this.getView().getModel("employeeLookupModel");
-
-        if (!oODataModel) {
-          return Promise.resolve([]);
-        }
-
-        return new Promise(function (resolve, reject) {
-          oODataModel.read("/Employee", {
-            success: function (oData) {
-              var aEmployees = (oData.results || []).map(function (item) {
-                return {
-                  Pernr: item.Pernr || item.pernr || "",
-                  EmployeeName:
-                    item.EmployeeName ||
-                    item.Ename ||
-                    item.ename ||
-                    item.Name ||
-                    item.name ||
-                    "Nhân viên chưa có tên",
-                  DeptId:
-                    item.DeptId ||
-                    item.dept_id ||
-                    item.Department ||
-                    item.department ||
-                    "",
-                  DeptName: item.DeptName || item.dept_name || "",
-                };
-              });
-
-              aEmployees.sort(function (a, b) {
-                return String(a.EmployeeName || "").localeCompare(
-                  String(b.EmployeeName || ""),
-                  "vi",
-                );
-              });
-
-              oEmployeeModel.setProperty("/employees", aEmployees);
-              oEmployeeModel.setProperty("/allEmployees", aEmployees);
-
-              resolve(aEmployees);
-            },
-            error: function (oError) {
-              console.error("Lỗi đọc /Employee:", oError);
-              reject(oError);
-            },
-          });
-        });
-      },
-      _loadDepartmentLookup: function () {
-        var oODataModel = this.getView().getModel();
-        var oDepartmentModel = this.getView().getModel("departmentLookupModel");
-
-        if (!oODataModel) {
-          return Promise.resolve([]);
-        }
-
-        return new Promise(function (resolve, reject) {
-          oODataModel.read("/Department", {
-            success: function (oData) {
-              var aDepartments = (oData.results || []).map(function (item) {
-                return {
-                  DeptId: item.DeptId || item.dept_id || "",
-                  DeptName: item.DeptName || item.dept_name || "",
-                };
-              });
-
-              aDepartments.sort(function (a, b) {
-                return String(a.DeptName || "").localeCompare(
-                  String(b.DeptName || ""),
-                  "vi",
-                );
-              });
-
-              oDepartmentModel.setProperty("/departments", aDepartments);
-              oDepartmentModel.setProperty("/allDepartments", aDepartments);
-
-              resolve(aDepartments);
-            },
-            error: function (oError) {
-              console.error("Lỗi đọc /Department:", oError);
-              reject(oError);
-            },
-          });
-        });
-      },
-
-      // 1. Xử lý tìm kiếm và lọc dữ liệu (FilterBar)
-      onSearch: function () {
-        var sPernr = this.byId("filterPernr").getValue();
-        var sDept = this._sFilterDeptId;
-        var aFilters = [];
-
-        if (sPernr) {
-          aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
-        }
-
-        if (sDept) {
-          aFilters.push(new Filter("DeptId", FilterOperator.EQ, sDept));
-        }
-
-        var oTable = this.byId("employeeTable");
-        var oBinding = oTable.getBinding("items");
-
-        if (oBinding) {
-          oBinding.filter(aFilters);
-        }
-      },
-      onClearFilters: function () {
-        this.byId("filterPernr").setValue("");
-        this.byId("filterDept").setValue("");
-
-        this._sFilterDeptId = "";
-
-        var oBinding = this.byId("employeeTable").getBinding("items");
-        if (oBinding) {
-          oBinding.filter([]);
-        }
-      },
-      onPernrInputValueHelpRequest: function () {
-        this._openEmployeeValueHelp();
-      },
-      onDeptInputValueHelpRequest: function () {
-        this._openDepartmentValueHelp();
-      },
-      _openEmployeeValueHelp: function (sMode) {
-        var oView = this.getView();
-        var oEmployeeModel = oView.getModel("employeeLookupModel");
-        var aEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-
-        this._sEmployeeValueHelpMode = sMode || "dialog";
-
-        var fnOpenDialog = function () {
-          var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-          oEmployeeModel.setProperty("/employees", aAllEmployees);
-
-          if (!this.pEmployeeDialog) {
-            this.pEmployeeDialog = Fragment.load({
-              id: oView.getId(),
-              name: "com.app.zu26g13.app.view.EmployeeValueHelp",
-              controller: this,
-            }).then(function (oDialog) {
-              oView.addDependent(oDialog);
-              return oDialog;
-            });
-          }
-
-          this.pEmployeeDialog.then(function (oDialog) {
-            oDialog.open();
-          });
-        }.bind(this);
-
-        if (aEmployees.length > 0) {
-          fnOpenDialog();
-          return;
-        }
-
-        BusyIndicator.show(0);
-
-        this._loadEmployeeLookup()
-          .then(function () {
-            BusyIndicator.hide();
-            fnOpenDialog();
-          })
-          .catch(function () {
-            BusyIndicator.hide();
-            MessageBox.error("Không thể lấy danh sách nhân viên.", {
-              title: "Lỗi dữ liệu nhân viên",
-            });
-          });
-      },
-
-      onEmployeeValueHelpSearch: function (oEvent) {
-        var sValue = oEvent.getParameter("value") || "";
-        var oEmployeeModel = this.getView().getModel("employeeLookupModel");
-        var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-        var sSearch = sValue.toLowerCase().trim();
-
-        if (!sSearch) {
-          oEmployeeModel.setProperty("/employees", aAllEmployees);
-          return;
-        }
-
-        var aFiltered = aAllEmployees.filter(function (item) {
-          return (
-            String(item.Pernr || "")
-              .toLowerCase()
-              .indexOf(sSearch) !== -1 ||
-            String(item.EmployeeName || "")
-              .toLowerCase()
-              .indexOf(sSearch) !== -1 ||
-            String(item.DeptId || "")
-              .toLowerCase()
-              .indexOf(sSearch) !== -1 ||
-            String(item.DeptName || "")
-              .toLowerCase()
-              .indexOf(sSearch) !== -1
-          );
-        });
-
-        oEmployeeModel.setProperty("/employees", aFiltered);
-      },
-
-      onEmployeeValueHelpConfirm: function (oEvent) {
-        var oSelectedItem = oEvent.getParameter("selectedItem");
-
-        if (!oSelectedItem) {
-          this._resetEmployeeValueHelpList();
-          return;
-        }
-
-        var oEmployee = oSelectedItem
-          .getBindingContext("employeeLookupModel")
-          .getObject();
-
-        this.byId("filterPernr").setValue(oEmployee.Pernr);
-
-        this._resetEmployeeValueHelpList();
-
-        // nếu muốn tự tìm kiếm luôn
-        this.onSearch();
-      },
-
-      onEmployeeValueHelpCancel: function () {
-        this._sEmployeeValueHelpMode = "dialog";
-        this._resetEmployeeValueHelpList();
-      },
-
-      _resetEmployeeValueHelpList: function () {
-        var oEmployeeModel = this.getView().getModel("employeeLookupModel");
-
-        if (!oEmployeeModel) {
-          return;
-        }
-
-        var aAllEmployees = oEmployeeModel.getProperty("/allEmployees") || [];
-        oEmployeeModel.setProperty("/employees", aAllEmployees);
-      },
-
-      _openDepartmentValueHelp: function (sMode) {
-        var oView = this.getView();
-        var oDepartmentModel = oView.getModel("departmentLookupModel");
-        var aDepartments =
-          oDepartmentModel.getProperty("/allDepartments") || [];
-
-        this._sDepartmentValueHelpMode = sMode || "dialog";
-
-        var fnOpenDialog = function () {
-          var aAllDepartments =
-            oDepartmentModel.getProperty("/allDepartments") || [];
-          oDepartmentModel.setProperty("/departments", aAllDepartments);
-
-          if (!this.pDepartmentDialog) {
-            this.pDepartmentDialog = Fragment.load({
-              id: oView.getId(),
-              name: "com.app.zu26g13.app.view.DepartmentValueHelp",
-              controller: this,
-            }).then(function (oDialog) {
-              oView.addDependent(oDialog);
-              return oDialog;
-            });
-          }
-
-          this.pDepartmentDialog.then(function (oDialog) {
-            oDialog.open();
-          });
-        }.bind(this);
-
-        if (aDepartments.length > 0) {
-          fnOpenDialog();
-          return;
-        }
-
-        BusyIndicator.show(0);
-
-        this._loadDepartmentLookup()
-          .then(function () {
-            BusyIndicator.hide();
-            fnOpenDialog();
-          })
-          .catch(function () {
-            BusyIndicator.hide();
-            MessageBox.error("Không thể lấy danh sách phòng ban.", {
-              title: "Lỗi dữ liệu phòng ban",
-            });
-          });
-      },
-
-      onDepartmentValueHelpSearch: function (oEvent) {
-        var sValue = oEvent.getParameter("value") || "";
-        var oDepartmentModel = this.getView().getModel("departmentLookupModel");
-        var aAllDepartments =
-          oDepartmentModel.getProperty("/allDepartments") || [];
-        var sSearch = sValue.toLowerCase().trim();
-
-        if (!sSearch) {
-          oDepartmentModel.setProperty("/departments", aAllDepartments);
-          return;
-        }
-
-        var aFiltered = aAllDepartments.filter(function (item) {
-          return (
-            String(item.DeptId || "")
-              .toLowerCase()
-              .indexOf(sSearch) !== -1 ||
-            String(item.DeptName || "")
-              .toLowerCase()
-              .indexOf(sSearch) !== -1
-          );
-        });
-
-        oDepartmentModel.setProperty("/departments", aFiltered);
-      },
-
-      onDepartmentValueHelpConfirm: function (oEvent) {
-        var oSelectedItem = oEvent.getParameter("selectedItem");
-
-        if (!oSelectedItem) {
-          this._resetDepartmentValueHelpList();
-          return;
-        }
-
-        var oDepartment = oSelectedItem
-          .getBindingContext("departmentLookupModel")
-          .getObject();
-
-        this.byId("filterDept").setValue(oDepartment.DeptName);
-
-        this._sFilterDeptId = oDepartment.DeptId;
-        this._resetDepartmentValueHelpList();
-
-        this.onSearch();
-      },
-
-      onDepartmentValueHelpCancel: function () {
-        this._sDepartmentValueHelpMode = "dialog";
-        this._resetDepartmentValueHelpList();
-      },
-
-      _resetDepartmentValueHelpList: function () {
-        var oDepartmentModel = this.getView().getModel("departmentLookupModel");
-
-        if (!oDepartmentModel) {
-          return;
-        }
-
-        var aAllDepartments =
-          oDepartmentModel.getProperty("/allDepartments") || [];
-        oDepartmentModel.setProperty("/departments", aAllDepartments);
-      },
-
-      // 2. Mở Popup Dialog để TẠO MỚI nhân viên
-      onOpenCreateDialog: function () {
-        var oView = this.getView();
-        this._sAction = "CREATE"; // Đánh dấu hành động tạo mới
-
-        if (!this._pDialog) {
-          this._pDialog = Fragment.load({
-            id: oView.getId(),
-            name: "com.app.zu26g13.app.view.EmployeeDialog", // Sửa namespace ở đây
-            controller: this,
-          }).then(function (oDialog) {
-            oView.addDependent(oDialog);
-            return oDialog;
-          });
-        }
-
-        this._pDialog.then(function (oDialog) {
-          // Xóa trống các ô nhập liệu cho HR điền mới
-          oView.byId("inputPernr").setValue("").setEditable(true);
-          oView.byId("inputEname").setValue("");
-          oView.byId("inputCardId").setValue("").setEditable(true);
-          oView.byId("selectDept").setSelectedKey("");
-          oView.byId("selectRole").setSelectedKey("");
-
-          oDialog.setTitle("Tạo mới nhân viên");
-          oDialog.open();
-        });
-      },
-
-      // 3. Mở Popup Dialog để CHỈNH SỬA nhân viên đã chọn
-      onOpenEditDialog: function (oEvent) {
-        var oView = this.getView();
-        this._sAction = "EDIT"; // Đánh dấu hành động chỉnh sửa
-
-        // Lấy dòng dữ liệu đang được click từ Table
-        var oContext = oEvent.getSource().getBindingContext();
-        var oRowData = oContext.getObject();
-
-        if (!this._pDialog) {
-          this._pDialog = Fragment.load({
-            id: oView.getId(),
-            name: "com.app.zu26g13.app.view.EmployeeDialog",
-            controller: this,
-          }).then(function (oDialog) {
-            oView.addDependent(oDialog);
-            return oDialog;
-          });
-        }
-
-        this._pDialog.then(function (oDialog) {
-          // 1. ĐỔ DỮ LIỆU CŨ LÊN POPUP (Đổi từ CHỮ HOA về chuẩn CamelCase để khớp OData)
-          oView.byId("inputPernr").setValue(oRowData.Pernr).setEditable(false); // Khóa mã nhân viên
-          oView.byId("inputEname").setValue(oRowData.Ename);
-
-          // 2. KHÓA CHÍNH XÁC TRƯỜNG MÃ SỐ THẺ (Đổi từ true thành false)
-          oView
-            .byId("inputCardId")
-            .setValue(oRowData.CardId)
-            .setEditable(false);
-
-          // Đổ dữ liệu cho các Select combobox
-          oView.byId("selectDept").setSelectedKey(oRowData.DeptId);
-          oView.byId("selectRole").setSelectedKey(oRowData.RoleId);
-
-          oDialog.setTitle("Chỉnh sửa thông tin nhân viên");
-          oDialog.open();
-        });
-      },
-      onDeleteEmployee: function (oEvent) {
-        var oModel = this.getView().getModel(); // Lấy OData Model
-        var oContext = oEvent.getSource().getBindingContext();
-        var oRowData = oContext.getObject();
-        var sPath = oContext.getPath(); // Đường dẫn OData của dòng (Ví dụ: /Employee('00002125'))
-
-        // Hiển thị hộp thoại xác nhận trước khi xóa
-        MessageBox.confirm(
-          "Bạn có chắc chắn muốn xóa nhân viên " +
-            oRowData.Ename +
-            " (Mã: " +
-            oRowData.Pernr +
-            ") không?",
-          {
-            title: "Xác nhận xóa",
-            actions: [MessageBox.Action.YES, MessageBox.Action.NO],
-            emphasizedAction: MessageBox.Action.YES,
-            onClose: function (oAction) {
-              if (oAction === MessageBox.Action.YES) {
-                // Bật trạng thái bận (Busy) cho toàn bộ View để tránh người dùng bấm lung tung khi đang xóa
-                this.getView().setBusy(true);
-
-                // Gọi API Remove (DELETE) xuống Backend SAP RAP
-                oModel.remove(sPath, {
-                  success: function () {
-                    this.getView().setBusy(false);
-
-                    // Refresh OData
-                    oModel.refresh(true);
-
-                    // Reload dữ liệu Search Help
-                    this._loadEmployeeLookup();
-
-                    MessageToast.show("Đã xóa nhân viên thành công!");
-
-                    var oTable = this.byId("employeeTable");
-                    if (oTable && oTable.getBinding("items")) {
-                      oTable.getBinding("items").refresh(true);
-                    }
-                  }.bind(this),
-                  error: function (oError) {
-                    this.getView().setBusy(false);
-                    MessageBox.error(
-                      "Lỗi hệ thống SAP, không thể xóa nhân viên này.",
-                    );
-                  }.bind(this),
+        
+        onInit: function () {
+            // Auto-reload data when routing to this view
+            var oRouter = this.getOwnerComponent().getRouter();
+            oRouter.getRoute("employeeConfig").attachPatternMatched(this._onRouteMatched, this);
+        },
+
+        _onRouteMatched: function () {
+            var oTable = this.byId("employeeTable");
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").refresh();
+            }
+        },
+
+        // =========================================================
+        // HELPER FUNCTIONS
+        // =========================================================
+        
+        // Retrieve text from i18n, supports dynamic parameters array (e.g., [param1, param2])
+        _getI18nText: function (sKey, aArgs) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
+        },
+
+        // =========================================================
+        // FILTER BAR LOGIC
+        // =========================================================
+        onSearch: function () {
+            var sPernr = this.byId("filterPernr").getValue();
+            var sDept = this.byId("filterDept").getValue();
+            var aFilters = [];
+
+            if (sPernr) {
+                aFilters.push(new Filter("Pernr", FilterOperator.Contains, sPernr));
+            }
+            if (sDept) {
+                aFilters.push(new Filter("DeptId", FilterOperator.Contains, sDept));
+            }
+
+            var oTable = this.byId("employeeTable");
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter(aFilters);
+            }
+        },
+
+        onClearFilters: function () {
+            this.byId("filterPernr").setValue("");
+            this.byId("filterDept").setValue("");
+            
+            var oTable = this.byId("employeeTable");
+            if (oTable && oTable.getBinding("items")) {
+                oTable.getBinding("items").filter([]);
+            }
+        },
+
+        // =========================================================
+        // EMPLOYEE VALUE HELP (POPOVER)
+        // =========================================================
+        onPernrInputValueHelpRequest: function (oEvent) {
+            var oView = this.getView();
+            this._oInputEmp = oEvent.getSource();
+
+            if (!this._pEmpValueHelpDialog) {
+                this._pEmpValueHelpDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.EmployeeValueHelp",
+                    controller: this
+                }).then(function (oPopover) {
+                    oView.addDependent(oPopover);
+                    return oPopover;
                 });
-              }
-            }.bind(this),
-          },
-        );
-      },
-      // 4. Đóng Popup khi bấm nút Hủy
-      onCloseDialog: function () {
-        this.byId("employeeDialog").close();
-      },
+            }
+            this._pEmpValueHelpDialog.then(function (oPopover) {
+                var oList = this.byId("empValueHelpList");
+                if (oList) {
+                    oList.getBinding("items").filter([]); 
+                    oList.removeSelections(true);         
+                }
+                oPopover.openBy(this._oInputEmp);
+            }.bind(this));
+        },
 
-      // 5. Gửi dữ liệu xuống SAP Backend khi bấm nút Lưu
-      onSaveEmployee: function () {
-        var oModel = this.getView().getModel(); // Lấy OData Model mặc định
+        onEmployeeValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
+            var oFilterName = new Filter("Ename", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("Pernr", FilterOperator.Contains, sValue);
+            var oCombinedFilter = new Filter({ filters: [oFilterName, oFilterId], and: false });
 
-        /* SỬA LẠI TÊN TRƯỜNG CHO ĐÚNG CHUẨN CDS VIEW (CAMELCASE) */
-        var oPayload = {
-          Pernr: this.byId("inputPernr").getValue(), // Sửa từ PERNR thành Pernr
-          Ename: this.byId("inputEname").getValue(), // Sửa từ ENAME thành Ename
-          CardId: this.byId("inputCardId").getValue(), // Sửa từ CARD_ID thành CardId
-          DeptId: this.byId("selectDept").getSelectedKey(), // Sửa từ DEPT_ID thành DeptId
-          RoleId: this.byId("selectRole").getSelectedKey(), // Sửa từ ROLE_ID thành RoleId
-        };
+            this.byId("empValueHelpList").getBinding("items").filter([oCombinedFilter]);
+        },
 
-        // Kiểm tra các trường bắt buộc nhập
-        if (
-          !oPayload.Pernr ||
-          !oPayload.Ename ||
-          !oPayload.CardId ||
-          !oPayload.DeptId ||
-          !oPayload.RoleId
-        ) {
-          MessageBox.error("Vui lòng điền đầy đủ thông tin bắt buộc (*)");
-          return;
+        onEmployeeValueHelpConfirm: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("listItem");
+            if (oSelectedItem && this._oInputEmp) {
+                this._oInputEmp.setValue(oSelectedItem.getDescription());
+                if (this.onSearch) { this.onSearch(); }
+                this._pEmpValueHelpDialog.then(function (oPopover) { oPopover.close(); });
+            }
+        },
+
+        onEmployeeValueHelpCancel: function () {
+            if (this._pEmpValueHelpDialog) {
+                this._pEmpValueHelpDialog.then(function (oPopover) { oPopover.close(); });
+            }
+        },
+
+        // =========================================================
+        // DEPARTMENT VALUE HELP (POPOVER)
+        // =========================================================
+        onDeptInputValueHelpRequest: function (oEvent) {
+            var oView = this.getView();
+            this._oInputDept = oEvent.getSource();
+
+            if (!this._pDeptValueHelpDialog) {
+                this._pDeptValueHelpDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.DepartmentValueHelp",
+                    controller: this
+                }).then(function (oPopover) {
+                    oView.addDependent(oPopover);
+                    return oPopover;
+                });
+            }
+            this._pDeptValueHelpDialog.then(function (oPopover) {
+                var oList = this.byId("deptValueHelpList");
+                if (oList) {
+                    oList.getBinding("items").filter([]); 
+                    oList.removeSelections(true);         
+                }
+                oPopover.openBy(this._oInputDept);
+            }.bind(this));
+        },
+
+        onDeptValueHelpSearch: function (oEvent) {
+            var sValue = oEvent.getParameter("value") || oEvent.getParameter("newValue");
+            var oFilterName = new Filter("DeptName", FilterOperator.Contains, sValue);
+            var oFilterId = new Filter("DeptId", FilterOperator.Contains, sValue);
+            var oCombinedFilter = new Filter({ filters: [oFilterName, oFilterId], and: false });
+
+            this.byId("deptValueHelpList").getBinding("items").filter([oCombinedFilter]);
+        },
+
+        onDeptValueHelpConfirm: function (oEvent) {
+            var oSelectedItem = oEvent.getParameter("listItem");
+            if (oSelectedItem && this._oInputDept) {
+                this._oInputDept.setValue(oSelectedItem.getDescription()); 
+                if (this.onSearch) { this.onSearch(); }
+                this._pDeptValueHelpDialog.then(function (oPopover) { oPopover.close(); });
+            }
+        },
+
+        onDeptValueHelpCancel: function () {
+            if (this._pDeptValueHelpDialog) {
+                this._pDeptValueHelpDialog.then(function (oPopover) { oPopover.close(); });
+            }
+        },
+
+        // =========================================================
+        // CRUD OPERATIONS (CREATE, EDIT, DELETE)
+        // =========================================================
+        
+        onOpenCreateDialog: function () {
+            var oView = this.getView();
+            this._sAction = "CREATE";
+
+            if (!this._pDialog) {
+                this._pDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.EmployeeDialog",
+                    controller: this
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    return oDialog;
+                });
+            }
+
+            this._pDialog.then(function (oDialog) {
+                // Clear input fields for Create mode
+                oView.byId("inputPernr").setValue("").setEditable(true);
+                oView.byId("inputEname").setValue("");
+                oView.byId("inputCardId").setValue("").setEditable(true);
+                oView.byId("selectDept").setSelectedKey("");
+                oView.byId("selectRole").setSelectedKey("");
+
+                oDialog.setTitle(this._getI18nText("titleCreateEmp"));
+                oDialog.open();
+            }.bind(this));
+        },
+
+        onOpenEditDialog: function (oEvent) {
+            var oView = this.getView();
+            this._sAction = "EDIT"; 
+
+            // Get selected row data
+            var oContext = oEvent.getSource().getBindingContext();
+            var oRowData = oContext.getObject();
+
+            if (!this._pDialog) {
+                this._pDialog = Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.EmployeeDialog",
+                    controller: this
+                }).then(function (oDialog) {
+                    oView.addDependent(oDialog);
+                    return oDialog;
+                });
+            }
+
+            this._pDialog.then(function (oDialog) {
+                // Bind existing data to fields (Disable key fields)
+                oView.byId("inputPernr").setValue(oRowData.Pernr).setEditable(false); 
+                oView.byId("inputEname").setValue(oRowData.Ename);
+                oView.byId("inputCardId").setValue(oRowData.CardId).setEditable(false);
+                oView.byId("selectDept").setSelectedKey(oRowData.DeptId);
+                oView.byId("selectRole").setSelectedKey(oRowData.RoleId);
+
+                oDialog.setTitle(this._getI18nText("titleEditEmp"));
+                oDialog.open();
+            }.bind(this));
+        },
+
+        onDeleteEmployee: function (oEvent) {
+            var oModel = this.getView().getModel(); 
+            var oContext = oEvent.getSource().getBindingContext();
+            var oRowData = oContext.getObject();
+            var sPath = oContext.getPath(); 
+
+            var sConfirmMsg = this._getI18nText("msgConfirmDeleteEmp", [oRowData.Ename, oRowData.Pernr]);
+
+            MessageBox.confirm(
+                sConfirmMsg,
+                {
+                    title: this._getI18nText("titleConfirmDelete"),
+                    actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+                    emphasizedAction: MessageBox.Action.YES,
+                    onClose: function (oAction) {
+                        if (oAction === MessageBox.Action.YES) {
+                            this.getView().setBusy(true);
+
+                            // Trigger DELETE to SAP Backend
+                            oModel.remove(sPath, {
+                                success: function () {
+                                    this.getView().setBusy(false);
+                                    oModel.refresh(true); 
+                                    MessageToast.show(this._getI18nText("msgDeleteEmpSuccess"));
+                                }.bind(this),
+                                error: function (oError) {
+                                    this.getView().setBusy(false);
+                                    MessageBox.error(this._getI18nText("msgDeleteEmpError"));
+                                }.bind(this)
+                            });
+                        }
+                    }.bind(this)
+                }
+            );
+        },
+
+        onCloseDialog: function () {
+            this.byId("employeeDialog").close();
+        },
+
+        onSaveEmployee: function () {
+            var oModel = this.getView().getModel(); 
+            var oDialog = this.byId("employeeDialog");
+
+            var oPayload = {
+                Pernr: this.byId("inputPernr").getValue(), 
+                Ename: this.byId("inputEname").getValue(), 
+                CardId: this.byId("inputCardId").getValue(), 
+                DeptId: this.byId("selectDept").getSelectedKey(), 
+                RoleId: this.byId("selectRole").getSelectedKey()
+            };
+
+            // Validate mandatory fields
+            if (!oPayload.Pernr || !oPayload.Ename || !oPayload.CardId || !oPayload.DeptId || !oPayload.RoleId) {
+                MessageBox.error(this._getI18nText("msgFillMandatoryFields"));
+                return;
+            }
+
+            oDialog.setBusy(true);
+
+            if (this._sAction === "CREATE") {
+                // Trigger POST request
+                oModel.create("/Employee", oPayload, {
+                    success: function () {
+                        oModel.refresh(true); 
+                        oDialog.setBusy(false);
+                        this.onCloseDialog();
+                        MessageToast.show(this._getI18nText("msgCreateEmpSuccess"));
+                    }.bind(this),
+                    error: function (oError) {
+                        oDialog.setBusy(false);
+                        try {
+                            var oResponse = JSON.parse(oError.responseText);
+                            MessageBox.error(oResponse.error.message.value);
+                        } catch (e) {
+                            MessageBox.error(this._getI18nText("msgCreateEmpError"));
+                        }
+                    }.bind(this)
+                });
+
+            } else if (this._sAction === "EDIT") {
+                // Trigger PUT request
+                var sPath = oModel.createKey("/Employee", { Pernr: oPayload.Pernr });
+                oModel.update(sPath, oPayload, {
+                    success: function () {
+                        oDialog.setBusy(false);
+                        this.onCloseDialog();
+                        MessageToast.show(this._getI18nText("msgUpdateEmpSuccess"));
+                    }.bind(this),
+                    error: function (oError) {
+                        oDialog.setBusy(false);
+                        MessageBox.error(this._getI18nText("msgUpdateEmpError"));
+                    }.bind(this)
+                });
+            }
         }
-
-        var oDialog = this.byId("employeeDialog");
-        oDialog.setBusy(true);
-
-        if (this._sAction === "CREATE") {
-          // Gọi API Create (POST) của OData xuống EntitySet /Employee
-
-          oModel.create("/Employee", oPayload, {
-            success: function () {
-              // Refresh OData Model
-              oModel.refresh(true);
-
-              // Reload lại dữ liệu Search Help
-              this._loadEmployeeLookup().then(
-                function () {
-                  oDialog.setBusy(false);
-                  this.onCloseDialog();
-
-                  MessageToast.show("Đã thêm nhân viên mới thành công!");
-
-                  var oTable = this.byId("employeeTable");
-                  if (oTable && oTable.getBinding("items")) {
-                    oTable.getBinding("items").refresh(true);
-                  }
-                }.bind(this),
-              );
-            }.bind(this),
-            error: function (oError) {
-              oDialog.setBusy(false);
-
-              try {
-                var oResponse = JSON.parse(oError.responseText);
-                MessageBox.error(oResponse.error.message.value);
-              } catch (e) {
-                MessageBox.error("Lỗi tạo mới từ hệ thống SAP.");
-              }
-            }.bind(this),
-          });
-        } else if (this._sAction === "EDIT") {
-          // Tạo đường dẫn khóa chính (Ví dụ: /Employee('00002125'))
-          var sPath = oModel.createKey("/Employee", { Pernr: oPayload.Pernr });
-
-          // Gọi API Update (PUT) của OData
-          oModel.update(sPath, oPayload, {
-            success: function () {
-              oDialog.setBusy(false);
-              this.onCloseDialog();
-              MessageToast.show("Cập nhật thông tin thành công!");
-            }.bind(this),
-            error: function (oError) {
-              oDialog.setBusy(false);
-              MessageBox.error("Lỗi cập nhật thông tin.");
-            }.bind(this),
-          });
-        }
-      },
     });
-  },
-);
+});

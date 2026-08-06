@@ -11,7 +11,16 @@ sap.ui.define([
         onInit: function () {
         },
 
-        // 1. MỞ POPUP XỬ LÝ (DUYỆT)
+        // Helper to get text from i18n properties
+        _getI18nText: function (sKey) {
+            return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
+        },
+
+        // ==============================================================
+        // APPROVAL LOGIC
+        // ==============================================================
+
+        // 1. Open Approval Dialog
         onOpenDialog: function (oEvent) {
             var oView = this.getView();
             var oContext = oEvent.getSource().getBindingContext();
@@ -19,7 +28,7 @@ sap.ui.define([
             if (!this._pApproveDialog) {
                 this._pApproveDialog = Fragment.load({
                     id: oView.getId(),
-                    name: "com.app.zu26g13.app.view.ApproveDialog", // Trỏ tới file mới
+                    name: "com.app.zu26g13.app.view.ApproveDialog",
                     controller: this
                 }).then(function (oDialog) {
                     oView.addDependent(oDialog);
@@ -32,13 +41,13 @@ sap.ui.define([
             });
         },
 
-        // 2. HỦY & ĐÓNG POPUP (DUYỆT)
+        // 2. Cancel & Close Approval Dialog
         onCancelDialog: function () {
             this.getView().getModel().resetChanges();
             this.byId("approveDialog").close();
         },
 
-        // 3. XÁC NHẬN DUYỆT
+        // 3. Confirm Approval
         onConfirmApprove: function () {
             var oView = this.getView();
             var oDialog = this.byId("approveDialog");
@@ -46,13 +55,14 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
 
-            var oTextArea = this.byId("approveNote");
+            var oTextArea = this.byId("approveNoteInput");
             if (oTextArea) {
                 var sNote = oTextArea.getValue().trim();
 
-                // 2. LOGIC MẶC ĐỊNH: Nếu không nhập gì thì tự gán chữ "ĐÃ DUYỆT"
+                // Default logic: Auto-fill "APPROVED" if note is empty
                 if (!sNote) {
-                    sNote = "ĐÃ DUYỆT";
+                    sNote = "APPROVED";
+                    oTextArea.setValue(sNote);
                 }
                 oModel.setProperty(oContext.getPath() + "/ApproverComment", sNote); 
             }
@@ -66,37 +76,37 @@ sap.ui.define([
                     }.bind(this),
                     error: function () {
                         BusyIndicator.hide();
-                        sap.m.MessageToast.show("Lỗi mạng khi lưu dữ liệu trước khi duyệt!");
-                    }
+                        MessageToast.show(this._getI18nText("msgSaveError"));
+                    }.bind(this)
                 });
             } else {
                 this._callApproveAction(sDisputeId, oModel, oDialog);
             }
         },
 
-        // 4. HÀM CHUYÊN GỌI ACTION DUYỆT XUỐNG BACKEND (Đã sửa /ApproveDispute thành /Approve)
+        // 4. Call Backend Approve Action
         _callApproveAction: function (sDisputeId, oModel, oDialog) {
-            oModel.callFunction("/Approve", {  // <--- ĐỔI TÊN Ở ĐÂY CHO KHỚP BDEF
+            oModel.callFunction("/Approve", { 
                 method: "POST",
                 urlParameters: { DisputeId: sDisputeId },
                 success: function () {
                     BusyIndicator.hide();
-                    MessageToast.show("Đã DUYỆT đơn và tự động cập nhật Timesheet!");
-                    if (oDialog) oDialog.close(); // Đóng popup
+                    MessageToast.show(this._getI18nText("msgApproveSuccess"));
+                    if (oDialog) oDialog.close();
                     oModel.refresh();
-                },
+                }.bind(this),
                 error: function (oError) {
                     BusyIndicator.hide();
-                    MessageToast.show("Lỗi xử lý duyệt từ Backend SAP!");
-                }
+                    MessageToast.show(this._getI18nText("msgApproveError"));
+                }.bind(this)
             });
         },
 
         // ==============================================================
-        // KHU VỰC TỪ CHỐI
+        // REJECTION LOGIC
         // ==============================================================
 
-        // 1. MỞ POPUP TỪ CHỐI
+        // 1. Open Reject Dialog
         onOpenRejectDialog: function (oEvent) {
             var oView = this.getView();
             var oContext = oEvent.getSource().getBindingContext();
@@ -104,7 +114,7 @@ sap.ui.define([
             if (!this._pRejectDialog) {
                 this._pRejectDialog = Fragment.load({
                     id: oView.getId(),
-                    name: "com.app.zu26g13.app.view.RejectDialog", // Trỏ tới file mới
+                    name: "com.app.zu26g13.app.view.RejectDialog",
                     controller: this
                 }).then(function (oDialog) {
                     oView.addDependent(oDialog);
@@ -117,13 +127,13 @@ sap.ui.define([
             });
         },
 
-        // 2. HỦY & ĐÓNG POPUP TỪ CHỐI
+        // 2. Cancel & Close Reject Dialog
         onCancelReject: function () {
             this.getView().getModel().resetChanges();
             this.byId("rejectDialog").close();
         },
 
-        // 3. XÁC NHẬN TỪ CHỐI BÊN TRONG POPUP
+        // 3. Confirm Rejection
         onConfirmReject: function () {
             var oView = this.getView();
             var oDialog = this.byId("rejectDialog");
@@ -131,11 +141,11 @@ sap.ui.define([
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
 
-            var oTextArea = this.byId("rejectNote");
+            var oTextArea = this.byId("rejectReasonInput");
             var sReason = oTextArea.getValue().trim();
 
             if (!sReason) {
-                sap.m.MessageToast.show("Vui lòng nhập lý do từ chối!");
+                MessageToast.show(this._getI18nText("msgRejectEmptyReason"));
                 oTextArea.setValueState("Error");
                 return;
             } else {
@@ -156,31 +166,31 @@ sap.ui.define([
                     }.bind(this),
                     error: function () {
                         BusyIndicator.hide();
-                        sap.m.MessageToast.show("Lỗi mạng: Không thể lưu lý do từ chối!");
-                    }
+                        MessageToast.show(this._getI18nText("msgRejectSaveError"));
+                    }.bind(this)
                 });
             } else {
                 this._callRejectAction(sDisputeId, oModel, oDialog);
             }
         },
 
-        // 4. HÀM CHUYÊN GỌI ACTION TỪ CHỐI (Đã gom 2 hàm trùng lại làm 1, sửa thành /Reject)
+        // 4. Call Backend Reject Action
         _callRejectAction: function (sDisputeId, oModel, oDialog) {
             oModel.callFunction("/Reject", {
                 method: "POST",
                 urlParameters: { DisputeId: sDisputeId },
                 success: function () {
                     BusyIndicator.hide();
-                    MessageToast.show("Đã TỪ CHỐI đơn report!");
+                    MessageToast.show(this._getI18nText("msgRejectSuccess"));
                     if (oDialog) {
                         oDialog.close();
                     }
                     oModel.refresh();
-                },
+                }.bind(this),
                 error: function (oError) {
                     BusyIndicator.hide();
-                    MessageToast.show("Lỗi từ hệ thống khi từ chối!");
-                }
+                    MessageToast.show(this._getI18nText("msgRejectError"));
+                }.bind(this)
             });
         }
     });

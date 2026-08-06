@@ -1,55 +1,121 @@
 <mvc:View controllerName="com.app.zu26g13.app.controller.Timesheet"
-    xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:fb="sap.ui.comp.filterbar">
+    xmlns:mvc="sap.ui.core.mvc" 
+    xmlns="sap.m" 
+    xmlns:f="sap.f"
+    xmlns:core="sap.ui.core" 
+    xmlns:fb="sap.ui.comp.filterbar">
     
-    <Page title="{i18n>titleDailyTimesheet}" showNavButton="true" navButtonPress=".onNavBack" class="sapUiContentPadding">
+    <!-- Daily Timesheet Management Dynamic Page Layout -->
+    <f:DynamicPage id="dynamicPageTimesheet">
         
-        <fb:FilterBar id="timesheetFilter" search=".onSearch" clear=".onClear" showClearOnFB="true" class="sapUiBottomMargin">
-            <fb:filterGroupItems>
-                <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
-                    <fb:control>
-                        <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" />
-                    </fb:control>
-                </fb:FilterGroupItem>
+        <!-- Page Title & Navigation Back Action Section -->
+        <f:title>
+            <f:DynamicPageTitle id="pageTitleTimesheet">
+                <f:heading>
+                    <Title text="{i18n>titleDailyTimesheet}" level="H1"/>
+                </f:heading>
                 
-                <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
-                    <fb:control>
-                        <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" />
-                    </fb:control>
-                </fb:FilterGroupItem>
-            </fb:filterGroupItems>
-        </fb:FilterBar>
+                <!-- Navigation Back Action Button -->
+                <f:navigationActions>
+                    <Button icon="sap-icon://nav-back" type="Transparent" press=".onNavBack" tooltip="{i18n>btnBack}"/>
+                </f:navigationActions>
+            </f:DynamicPageTitle>
+        </f:title>
 
-        <Table id="dailyTimesheetTable"
-               items="{ path: '/Timesheet', sorter: { path: 'DeptId' } }"
-               growing="true" growingThreshold="20" class="sapUiElevationCore3">
-            <columns>
-                <Column><Text text="{i18n>colEmpShift}" /></Column>
-                <Column><Text text="{i18n>colDate}" /></Column>
-                <Column hAlign="Center"><Text text="{i18n>colStatus}" /></Column> 
-                <Column hAlign="Center"><Text text="{i18n>colTimeIn}" /></Column>
-                <Column hAlign="Center"><Text text="{i18n>colTimeOut}" /></Column>
-                <Column hAlign="Center"><Text text="{i18n>colStdHours}" /></Column>
-                <Column hAlign="Center"><Text text="{i18n>colActHours}" /></Column>
-                <Column hAlign="Center"><Text text="{i18n>colOtHours}" /></Column>
-                <Column hAlign="Center"><Text text="{i18n>colAction}" /></Column>
-            </columns>
-            <items>
-                <ColumnListItem type="Active">
-                    <cells>
-                        <ObjectIdentifier title="{Pernr}" text="{i18n>txtShiftPrefix}{ShiftId}"/>
-                        <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                        <ObjectStatus text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
-                                      state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" 
-                                      icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
-                        <Text text="{ parts: ['ActIn', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
-                        <Text text="{ parts: ['ActOut', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
-                        <ObjectNumber number="{StdHours}" />
-                        <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
-                        <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
-                        <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}"/>
-                    </cells>
-                </ColumnListItem>
-            </items>
-        </Table>
-    </Page>
+        <!-- Page Header Section Containing Filter Bar -->
+        <f:header>
+            <f:DynamicPageHeader id="dynamicHeaderTimesheet">
+                
+                <!-- Standard FilterBar with Custom Filter Items -->
+                <fb:FilterBar id="timesheetFilter" 
+                             search=".onSearch" 
+                             showGoOnFB="false" 
+                             showClearOnFB="false" 
+                             showFilterConfiguration="false" 
+                             useToolbar="false" 
+                             class="sapUiBottomMargin">
+                    
+                    <fb:filterGroupItems>
+                        <!-- Work Date Filter Item -->
+                        <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
+                            <fb:control>
+                                <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch" />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                        
+                        <!-- Employee ID Filter Item -->
+                        <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
+                            <fb:control>
+                                <Input id="fltEmp" 
+                                       placeholder="{i18n>phEnterEmpId}" 
+                                       showValueHelp="true" 
+                                       valueHelpRequest=".onEmployeeValueHelpRequest" 
+                                       change=".onSearch" 
+                                       valueHelpOnly="true">
+                                </Input>
+                            </fb:control>
+                        </fb:FilterGroupItem>
+
+                        <!-- Custom Clear Filters Action Button -->
+                        <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
+                            <fb:control>
+                                <HBox alignItems="Center">
+                                    <Button
+                                        icon="sap-icon://clear-filter"
+                                        tooltip="{i18n>ttClearFilter}"
+                                        type="Transparent"
+                                        press=".onClear"/>
+                                </HBox>                                        
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                        
+                    </fb:filterGroupItems>
+                </fb:FilterBar>
+                
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <!-- Main Content Area: Daily Timesheet Table -->
+        <f:content>
+            <Table id="dailyTimesheetTable"
+                   items="{ path: '/Timesheet', sorter: { path: 'DeptId' } }"
+                   growing="true" growingThreshold="20" class="sapUiElevationCore3">
+                
+                <!-- Table Columns Definition -->
+                <columns>
+                    <Column><Text text="{i18n>colEmpShift}" /></Column>
+                    <Column><Text text="{i18n>colDate}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colStatus}" /></Column> 
+                    <Column hAlign="Center"><Text text="{i18n>colTimeIn}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colTimeOut}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colStdHours}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colActHours}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colOtHours}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colAction}" /></Column>
+                </columns>
+
+                <!-- Table Rows Binding Template -->
+                <items>
+                    <ColumnListItem type="Active">
+                        <cells>
+                            <ObjectIdentifier title="{Pernr}" text="{i18n>txtShiftPrefix}{ShiftId}"/>
+                            <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                            <ObjectStatus text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
+                                          state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" 
+                                          icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
+                            <Text text="{ parts: ['ActIn', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
+                            <Text text="{ parts: ['ActOut', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
+                            <ObjectNumber number="{StdHours}" />
+                            <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
+                            <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
+                            
+                            <!-- Row Edit Action Button -->
+                            <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}"/>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+        
+    </f:DynamicPage>
 </mvc:View>

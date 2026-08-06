@@ -8,13 +8,12 @@
     <!-- Shift Configuration Management Page Container -->
     <Page id="pageShiftConfig" showHeader="false" class="shiftConfigPage">
         <content>
-            <VBox class="shiftConfigWrapper">
+            <VBox class="shiftConfigWrapper sapUiResponsiveMargin">
 
                 <!-- Page Header Section with Title, Description, and Add Shift Action -->
-                <HBox class="shiftConfigHeader" alignItems="Center" justifyContent="SpaceBetween">
+                <HBox class="shiftConfigHeader sapUiMediumMarginBottom" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
                         <Title text="{i18n>titleShiftConfig}" titleStyle="H2" class="shiftConfigTitle"/>
-                        <Text text="{i18n>descShiftConfig}"/>
                     </VBox>
 
                     <Button
@@ -30,7 +29,7 @@
                     items="{/Schedule}"
                     growing="true"
                     growingScrollToLoad="true"
-                    class="shiftConfigTable sapUiResponsiveMargin"
+                    class="shiftConfigTable"
                     width="auto">
 
                     <!-- Table Columns Definition -->
@@ -39,15 +38,18 @@
                             <Text text="{i18n>lblShiftId}"/>
                         </Column>
 
-                        <Column width="120px" hAlign="End">
+                        <!-- Centered Standard Hours Column -->
+                        <Column width="140px" hAlign="Center">
                             <Text text="{i18n>lblStdHours}"/>
                         </Column>
 
-                        <Column width="150px">
+                        <!-- Centered Start Time Column -->
+                        <Column width="150px" hAlign="Center">
                             <Text text="{i18n>colStartTime}"/>
                         </Column>
 
-                        <Column width="150px">
+                        <!-- Centered End Time Column -->
+                        <Column width="150px" hAlign="Center">
                             <Text text="{i18n>colEndTime}"/>
                         </Column>
 
@@ -79,10 +81,10 @@
                                     unit="{i18n>unitH}"/>
 
                                 <!-- Shift Start Time Cell -->
-                                <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}"/>
+                                <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}" textAlign="Center"/>
 
                                 <!-- Shift End Time Cell -->
-                                <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}"/>
+                                <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}" textAlign="Center"/>
 
                                 <!-- Next Day Indicator Status Cell -->
                                 <ObjectStatus

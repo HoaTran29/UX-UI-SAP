@@ -1,19 +1,19 @@
 <mvc:View
     controllerName="com.app.zu26g13.app.controller.Holiday"
     xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
     xmlns="sap.m"
     displayBlock="true">
 
     <!-- Holiday Configuration Page Container -->
     <Page id="pageHoliday" showHeader="false" class="holidayPage">
         <content>
-            <VBox class="holidayWrapper">
+            <VBox class="holidayWrapper sapUiResponsiveMargin">
 
                 <!-- Page Header Section with Title, Description, and Add Button -->
                 <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
                         <Title text="{i18n>titleHolidayConfig}" titleStyle="H2" class="holidayTitle"/>
-                        <Text text="{i18n>descHolidayConfig}"/>
                     </VBox>
 
                     <Button

@@ -12,25 +12,16 @@ sap.ui.define([
         onInit: function () {
             var oODataModel = this.getOwnerComponent().getModel();
 
-            // Disable batch processing for direct updates
             if (oODataModel && oODataModel.setUseBatch) {
                 oODataModel.setUseBatch(false);
             }
 
-            // Init local JSON model for the Holiday Dialog
             this.getView().setModel(
                 new JSONModel(this._getDefaultHolidayData()),
                 "holidayModel"
             );
-        },
 
-        // =========================================================
-        // HELPER FUNCTIONS
-        // =========================================================
-
-        // Retrieve text from i18n, supports dynamic parameters
-        _getI18nText: function (sKey, aArgs) {
-            return this.getView().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
+            this._attachAutoReloadHandlers();
         },
 
         _getDefaultHolidayData: function () {
@@ -42,13 +33,30 @@ sap.ui.define([
             };
         },
 
-        // =========================================================
-        // DIALOG OPERATIONS (OPEN, CLOSE)
-        // =========================================================
+
+        _attachAutoReloadHandlers: function () {
+            var oRouter = this.getOwnerComponent().getRouter();
+            var oRoute = oRouter && oRouter.getRoute("holiday");
+
+            if (oRoute && !this._bRouteAttached) {
+                oRoute.attachPatternMatched(this._reloadViewData, this);
+                this._bRouteAttached = true;
+            }
+        },
+
+        _publishDataChanged: function (sAction) {
+            sap.ui.getCore().getEventBus().publish("codesap", "DataChanged", {
+                source: "Holiday",
+                action: sAction || "refresh",
+                timestamp: Date.now()
+            });
+        },
 
         onOpenAddDialog: function () {
             var oHolidayModel = this.getView().getModel("holidayModel");
+
             oHolidayModel.setData(this._getDefaultHolidayData());
+
             this._openDialog();
         },
 
@@ -56,14 +64,13 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error(this._getI18nText("msgErrorGetHolidayData"));
+                MessageBox.error("Unable to get holiday data.");
                 return;
             }
 
             var oData = oContext.getObject();
             var oODataModel = this.getView().getModel();
 
-            // Bind existing data for editing
             this.getView().getModel("holidayModel").setData({
                 HolDate: this._toDate(oData.HolDate),
                 HolDesc: oData.HolDesc || "",
@@ -101,10 +108,6 @@ sap.ui.define([
             }
         },
 
-        // =========================================================
-        // CRUD OPERATIONS (SAVE, DELETE)
-        // =========================================================
-
         onSaveHoliday: function () {
             var oODataModel = this.getView().getModel();
             var oHolidayModel = this.getView().getModel("holidayModel");
@@ -113,17 +116,16 @@ sap.ui.define([
             var dHolDate = this._toDate(oHolidayData.HolDate);
             var sHolDesc = String(oHolidayData.HolDesc || "").trim();
 
-            // Validations
             if (!dHolDate) {
-                MessageBox.error(this._getI18nText("msgSelectHolidayDate"), {
-                    title: this._getI18nText("titleMissingDate")
+                MessageBox.error("Please select a holiday date.", {
+                    title: "Missing Holiday Date"
                 });
                 return;
             }
 
             if (!sHolDesc) {
-                MessageBox.error(this._getI18nText("msgMissingDesc"), {
-                    title: this._getI18nText("titleMissingDesc")
+                MessageBox.error("Holiday description cannot be empty or spaces only.", {
+                    title: "Missing Description"
                 });
                 return;
             }
@@ -141,43 +143,54 @@ sap.ui.define([
 
             sap.ui.core.BusyIndicator.show(0);
 
-            // Handle Update (PUT/MERGE)
             if (oHolidayData.isEdit) {
-                var sUpdatePath = oHolidayData.sPath || this._buildHolidayPath(oODataModel, dHolDate);
+                var sUpdatePath = oHolidayData.sPath || this._buildHolidayPath(
+                    oODataModel,
+                    dHolDate
+                );
 
                 oODataModel.update(sUpdatePath, oPayloadUpdate, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
-                        MessageToast.show(this._getI18nText("msgHolidayUpdated"));
+                        MessageToast.show("Holiday updated successfully.");
                         this.onCloseDialog();
+                        this._publishDataChanged("update");
                         this._reloadViewData();
                     }.bind(this),
                     error: function (oError) {
                         sap.ui.core.BusyIndicator.hide();
                         console.error("Error updating /Holiday:", oError);
                         MessageBox.error(
-                            this._getODataErrorMessage(oError, this._getI18nText("msgUpdateHolidayError")),
-                            { title: this._getI18nText("titleUpdateError") }
+                            this._getODataErrorMessage(oError, "Unable to update holiday."),
+                            {
+                                title: "Unable to Update Holiday"
+                            }
                         );
                     }.bind(this)
                 });
+
                 return;
             }
 
-            // Handle Create (POST)
             oODataModel.create("/Holiday", oPayloadCreate, {
                 success: function () {
                     sap.ui.core.BusyIndicator.hide();
-                    MessageToast.show(this._getI18nText("msgHolidayCreated"));
+                    MessageToast.show("Holiday created successfully.");
                     this.onCloseDialog();
+                    this._publishDataChanged("create");
                     this._reloadViewData();
                 }.bind(this),
                 error: function (oError) {
                     sap.ui.core.BusyIndicator.hide();
                     console.error("Error creating /Holiday:", oError);
                     MessageBox.error(
-                        this._getODataErrorMessage(oError, this._getI18nText("msgCreateHolidayError")),
-                        { title: this._getI18nText("titleCreateError") }
+                        this._getODataErrorMessage(
+                            oError,
+                            "Unable to create holiday. Please check whether the holiday date already exists."
+                        ),
+                        {
+                            title: "Unable to Create Holiday"
+                        }
                     );
                 }.bind(this)
             });
@@ -187,61 +200,78 @@ sap.ui.define([
             var oContext = oEvent.getSource().getBindingContext();
 
             if (!oContext) {
-                MessageBox.error(this._getI18nText("msgErrorGetDeleteRow"));
+                MessageBox.error("Unable to get the selected row for deletion.");
                 return;
             }
 
             var oData = oContext.getObject();
             var oODataModel = this.getView().getModel();
-            var sPath = this._buildHolidayPath(oODataModel, oData.HolDate);
-            var sConfirmMsg = this._getI18nText("msgConfirmDeleteHoliday", [this.formatDate(oData.HolDate)]);
 
-            MessageBox.confirm(sConfirmMsg, {
-                title: this._getI18nText("titleConfirmDeleteHoliday"),
-                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
-                emphasizedAction: MessageBox.Action.OK,
-                onClose: function (sAction) {
-                    if (sAction !== MessageBox.Action.OK) {
-                        return;
-                    }
+            var sPath = this._buildHolidayPath(
+                oODataModel,
+                oData.HolDate
+            );
 
-                    sap.ui.core.BusyIndicator.show(0);
+            MessageBox.confirm(
+                "Are you sure you want to delete holiday " + this.formatDate(oData.HolDate) + "?",
+                {
+                    title: "Confirm Deletion",
+                    actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                    emphasizedAction: MessageBox.Action.OK,
+                    onClose: function (sAction) {
+                        if (sAction !== MessageBox.Action.OK) {
+                            return;
+                        }
 
-                    oODataModel.remove(sPath, {
-                        success: function () {
-                            sap.ui.core.BusyIndicator.hide();
-                            MessageToast.show(this._getI18nText("msgHolidayDeleted"));
-                            this._reloadViewData();
-                        }.bind(this),
-                        error: function (oError) {
-                            sap.ui.core.BusyIndicator.hide();
-                            console.error("Error deleting /Holiday:", oError);
-                            MessageBox.error(
-                                this._getODataErrorMessage(oError, this._getI18nText("msgDeleteHolidayError")),
-                                { title: this._getI18nText("titleDeleteError") }
-                            );
-                        }.bind(this)
-                    });
-                }.bind(this)
-            });
+                        sap.ui.core.BusyIndicator.show(0);
+
+                        oODataModel.remove(sPath, {
+                            success: function () {
+                                sap.ui.core.BusyIndicator.hide();
+                                MessageToast.show("Holiday deleted successfully.");
+                                this._publishDataChanged("delete");
+                                this._reloadViewData();
+                            },
+                            error: function (oError) {
+                                sap.ui.core.BusyIndicator.hide();
+                                console.error("Error deleting /Holiday:", oError);
+                                MessageBox.error(
+                                    this._getODataErrorMessage(oError, "Unable to delete holiday."),
+                                    {
+                                        title: "Unable to Delete Holiday"
+                                    }
+                                );
+                            }.bind(this)
+                        });
+                    }.bind(this)
+                }
+            );
         },
 
-        // =========================================================
-        // DATA RELOAD & DATE FORMATTING
-        // =========================================================
 
         _reloadViewData: function () {
             var oODataModel = this.getView().getModel();
             var oTable = this.byId("holidayTable");
             var oBinding = oTable && oTable.getBinding("items");
 
-            if (oODataModel) { oODataModel.refresh(true); }
-            if (oBinding) { oBinding.refresh(true); }
+            if (oODataModel) {
+                oODataModel.refresh(true);
+                if (oODataModel.updateBindings) {
+                    oODataModel.updateBindings(true);
+                }
+            }
+
+            if (oBinding) {
+                oBinding.refresh(true);
+            }
         },
 
         formatDate: function (vDate) {
             var dDate = this._toDate(vDate);
-            if (!dDate) { return ""; }
+
+            if (!dDate) {
+                return "";
+            }
 
             return dDate.toLocaleDateString("en-GB", {
                 timeZone: "Asia/Ho_Chi_Minh",
@@ -252,39 +282,54 @@ sap.ui.define([
         },
 
         _toDate: function (vDate) {
-            if (!vDate) { return null; }
-            if (vDate instanceof Date) { return vDate; }
+            if (!vDate) {
+                return null;
+            }
 
-            // Handle OData "/Date(1234567890)/" format
+            if (vDate instanceof Date) {
+                return vDate;
+            }
+
             if (typeof vDate === "string" && vDate.indexOf("/Date(") === 0) {
                 var iTime = parseInt(vDate.replace(/\D/g, ""), 10);
                 return new Date(iTime);
             }
+
             return new Date(vDate);
         },
 
         _normalizeDate: function (vDate) {
             var dDate = this._toDate(vDate);
-            if (!dDate) { return null; }
+
+            if (!dDate) {
+                return null;
+            }
 
             dDate = new Date(dDate);
             dDate.setHours(0, 0, 0, 0);
+
             return dDate;
         },
 
         /*
-         * Important: Send date as UTC 00:00 so OData does not shift the date back in GMT+7.
+         * Important:
+         * Send date as UTC 00:00 so OData does not shift the date back in GMT+7.
          * Example: selecting 21/07/2026 sends datetime'2026-07-21T00:00:00'.
          */
         _toODataDate: function (vDate) {
             var dDate = this._normalizeDate(vDate);
-            if (!dDate) { return null; }
+
+            if (!dDate) {
+                return null;
+            }
 
             return new Date(Date.UTC(
                 dDate.getFullYear(),
                 dDate.getMonth(),
                 dDate.getDate(),
-                0, 0, 0
+                0,
+                0,
+                0
             ));
         },
 
@@ -294,19 +339,24 @@ sap.ui.define([
             });
         },
 
-        // =========================================================
-        // ERROR HANDLING
-        // =========================================================
-
         _getODataErrorMessage: function (oError, sDefaultMessage) {
             var aMessages = [];
 
             var fnAddMessage = function (sMessage) {
-                if (!sMessage) { return; }
+                if (!sMessage) {
+                    return;
+                }
+
                 sMessage = String(sMessage).trim();
-                
-                if (!sMessage || sMessage === "HTTP request failed") { return; }
-                
+
+                if (!sMessage) {
+                    return;
+                }
+
+                if (sMessage === "HTTP request failed") {
+                    return;
+                }
+
                 if (aMessages.indexOf(sMessage) === -1) {
                     aMessages.push(sMessage);
                 }
@@ -316,15 +366,24 @@ sap.ui.define([
                 if (oError && oError.responseText) {
                     var oBody = JSON.parse(oError.responseText);
 
-                    // Extract detailed backend messages
-                    if (oBody?.error?.innererror?.errordetails?.length) {
+                    if (
+                        oBody &&
+                        oBody.error &&
+                        oBody.error.innererror &&
+                        oBody.error.innererror.errordetails &&
+                        oBody.error.innererror.errordetails.length
+                    ) {
                         oBody.error.innererror.errordetails.forEach(function (item) {
                             fnAddMessage(item.message);
                         });
                     }
 
-                    // Extract main backend message
-                    if (oBody?.error?.message?.value) {
+                    if (
+                        oBody &&
+                        oBody.error &&
+                        oBody.error.message &&
+                        oBody.error.message.value
+                    ) {
                         fnAddMessage(oBody.error.message.value);
                     }
                 }
@@ -333,7 +392,7 @@ sap.ui.define([
                     fnAddMessage(oError.responseText);
                 }
             }
-            
+
             if (oError && oError.message) {
                 fnAddMessage(oError.message);
             }
@@ -342,7 +401,8 @@ sap.ui.define([
                 return aMessages.join("\n");
             }
 
-            return sDefaultMessage || this._getI18nText("msgUnexpectedError");
+            return sDefaultMessage || "An unexpected error occurred.";
         }
+
     });
 });

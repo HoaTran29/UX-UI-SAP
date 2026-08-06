@@ -1,3 +1,26 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <SelectDialog
+        id="departmentValueHelpDialog"
+        title="Select Department"
+        search=".onDepartmentValueHelpSearch"
+        liveChange=".onDepartmentValueHelpSearch"
+        confirm=".onDepartmentValueHelpConfirm"
+        cancel=".onDepartmentValueHelpCancel"
+        items="{departmentLookupModel>/departments}"
+        growing="true"
+        growingThreshold="30"
+        noDataText="No departments found">
+
+        <StandardListItem
+            title="{departmentLookupModel>DeptName}"
+            description="{departmentLookupModel>DeptId}"
+            type="Active"/>
+
+    </SelectDialog>
+
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     
     <!-- Department Value Help Responsive Popover Fragment -->

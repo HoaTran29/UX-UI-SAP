@@ -2,19 +2,23 @@
     xmlns="sap.m"
     xmlns:core="sap.ui.core">
 
+    <!-- Add/Edit OT Schedule Dialog Fragment -->
     <Dialog 
         id="addOtDialog"
-        title="Work Schedule &amp; OT"
+        title="{i18n>dialogTitleScheduleOt}"
         contentWidth="520px">
 
+        <!-- Dialog Content Section -->
         <content>
             <VBox class="sapUiSmallMargin">
 
+                <!-- Assignment Mode Selection Label -->
                 <Label
-                    text="Assign schedule by"
+                    text="{i18n>lblAssignBy}"
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
 
+                <!-- Segmented Button to switch between Employee and Department mode -->
                 <SegmentedButton
                     selectedKey="{dialogModel>/AssignMode}"
                     selectionChange=".onAssignModeChange"
@@ -22,13 +26,14 @@
                     width="100%">
 
                     <items>
-                        <SegmentedButtonItem key="EMP" text="Employee"/>
-                        <SegmentedButtonItem key="DEPT" text="Department"/>
+                        <SegmentedButtonItem key="EMP" text="{i18n>segBtnEmployee}"/>
+                        <SegmentedButtonItem key="DEPT" text="{i18n>segBtnDept}"/>
                     </items>
                 </SegmentedButton>
 
+                <!-- Employee Selection Field -->
                 <Label
-                    text="Employee ID"
+                    text="{i18n>filterEmpId}"
                     required="true"
                     visible="{= ${dialogModel>/AssignMode} === 'EMP' }"
                     class="sapUiTopMarginSmall"/>
@@ -36,9 +41,10 @@
                 <Input
                     id="PernrInput"
                     value="{dialogModel>/Pernr}"
-                    placeholder="Select an employee from value help..."
+                    placeholder="{i18n>phSelectEmpHelp}"
                     editable="{= !${dialogModel>/isEdit} }"
                     showValueHelp="true"
+                    valueHelpOnly="true"
                     valueHelpRequest=".onPernrInputValueHelpRequest"
                     liveChange=".onPernrInputLiveChange"
                     visible="{= ${dialogModel>/AssignMode} === 'EMP' }"/>
@@ -48,8 +54,9 @@
                     visible="{= ${dialogModel>/AssignMode} === 'EMP' &amp;&amp; !!${dialogModel>/EmployeeName} }"
                     class="sapUiTinyMarginTop"/>
 
+                <!-- Department Selection Field -->
                 <Label
-                    text="Department"
+                    text="{i18n>filterDept}"
                     required="true"
                     visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"
                     class="sapUiTopMarginSmall"/>
@@ -57,9 +64,10 @@
                 <Input
                     id="DeptInput"
                     value="{dialogModel>/DeptId}"
-                    placeholder="Select a department from value help..."
+                    placeholder="{i18n>phSelectDeptHelp}"
                     editable="{= !${dialogModel>/isEdit} }"
                     showValueHelp="true"
+                    valueHelpOnly="true"
                     valueHelpRequest=".onDeptInputValueHelpRequest"
                     liveChange=".onDeptInputLiveChange"
                     visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"/>
@@ -69,8 +77,9 @@
                     visible="{= ${dialogModel>/AssignMode} === 'DEPT' &amp;&amp; !!${dialogModel>/DeptName} }"
                     class="sapUiTinyMarginTop"/>
 
+                <!-- Schedule Date Range (For Create Mode) -->
                 <Label 
-                    text="Schedule Date Range"
+                    text="{i18n>lblSchedulePeriod}"
                     required="true"
                     class="sapUiTopMarginSmall"
                     visible="{= !${dialogModel>/isEdit} }"/>
@@ -81,8 +90,9 @@
                     displayFormat="dd/MM/yyyy"
                     visible="{= !${dialogModel>/isEdit} }"/>
 
+                <!-- Work Date (For Edit Mode) -->
                 <Label 
-                    text="Work Date"
+                    text="{i18n>lblWorkDate}"
                     required="true"
                     class="sapUiTopMarginSmall"
                     visible="{dialogModel>/isEdit}"/>
@@ -93,7 +103,8 @@
                     editable="false"
                     visible="{dialogModel>/isEdit}"/>
 
-                <Label text="Work Shift" required="true" class="sapUiTopMarginSmall"/>
+                <!-- Work Shift Selection -->
+                <Label text="{i18n>lblShift}" required="true" class="sapUiTopMarginSmall"/>
 
                 <Select 
                     id="shiftSelect"
@@ -106,26 +117,28 @@
                         text="{shiftLookupModel>ShiftText}" />
                 </Select>
 
-                <Label text="OT Hours" class="sapUiTopMarginSmall"/>
+                <!-- OT Hours Input -->
+                <Label text="{i18n>lblOtHours}" class="sapUiTopMarginSmall"/>
 
                 <Input 
                     value="{dialogModel>/OtHours}"
                     type="Number"
-                    placeholder="Enter OT hours..." />
+                    placeholder="{i18n>phEnterOtHours}" />
 
             </VBox>
         </content>
 
+        <!-- Dialog Action Buttons: Save & Close -->
         <beginButton>
             <Button 
-                text="Save"
+                text="{i18n>btnSaveData}"
                 type="Emphasized"
                 press=".onSaveOtPlan" />
         </beginButton>
 
         <endButton>
             <Button 
-                text="Close"
+                text="{i18n>btnClose}"
                 press=".onCloseAddDialog" />
         </endButton>
 

@@ -5,45 +5,54 @@
     xmlns:unified="sap.ui.unified"
     displayBlock="true">
 
-    <Page id="page" title="Employee Schedule &amp; OT">
+    <!-- Schedule & Overtime Management Page -->
+    <Page id="page" title="{i18n>titleScheduleOt}">
 
+        <!-- Page Header Content: Search Inputs, Filter Clear, and Create Action -->
         <headerContent>
+            <!-- Employee Search Input Field -->
             <Input
                 id="HeaderEmployeeSearchInput"
                 value="{headerSearchModel>/employeeQuery}"
-                placeholder="Search or select an employee..."
+                placeholder="{i18n>phSearchSelectEmp}"
                 width="260px"
                 showValueHelp="true"
+                valueHelpOnly="true"
                 valueHelpRequest=".onHeaderEmployeeValueHelpRequest"
                 liveChange=".onHeaderEmployeeLiveChange"
                 submit=".onHeaderEmployeeSubmit"
                 class="sapUiSmallMarginEnd"/>
 
+            <!-- Department Search Input Field -->
             <Input
                 id="HeaderDepartmentSearchInput"
                 value="{headerSearchModel>/deptQuery}"
-                placeholder="Search or select a department..."
+                placeholder="{i18n>phSearchSelectDept}"
                 width="260px"
                 showValueHelp="true"
+                valueHelpOnly="true"
                 valueHelpRequest=".onHeaderDepartmentValueHelpRequest"
                 liveChange=".onHeaderDepartmentLiveChange"
                 submit=".onHeaderDepartmentSubmit"
                 class="sapUiSmallMarginEnd"/>
 
+            <!-- Clear Filters Button -->
             <Button
                 icon="sap-icon://clear-filter"
                 type="Transparent"
-                tooltip="Clear filters"
+                tooltip="{i18n>ttClearFilter}"
                 press=".onClearHeaderFilters"
                 class="sapUiSmallMarginEnd"/>
 
+            <!-- Create New Schedule Action Button -->
             <Button 
                 icon="sap-icon://add"
-                text="Add OT Schedule"
+                text="{i18n>btnAddSchedule}"
                 type="Emphasized"
                 press="onOpenCreateDialog"/>
         </headerContent>
 
+        <!-- Main Page Content: Planning Calendar Component -->
         <content>
             <PlanningCalendar 
                 id="idPlanningCalendar"
@@ -51,12 +60,14 @@
                 rows="{calendarModel>/employees}"
                 appointmentSelect=".onAppointmentSelect">
 
+                <!-- Calendar Rows Binding Template -->
                 <rows>
                     <PlanningCalendarRow 
                         title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
                         text="{= ${calendarModel>DeptName} ? ${calendarModel>DeptName} + ' - ' + ${calendarModel>DeptId} : ${calendarModel>DeptId} }"
                         appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
 
+                        <!-- Calendar Appointments Binding Template -->
                         <appointments>
                             <unified:CalendarAppointment 
                                 startDate="{calendarModel>StartDate}"

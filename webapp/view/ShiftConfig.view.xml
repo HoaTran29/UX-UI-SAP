@@ -1,100 +1,115 @@
-<mvc:View
+<mvc:View 
     controllerName="com.app.zu26g13.app.controller.ShiftConfig"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
     xmlns:core="sap.ui.core"
     displayBlock="true">
 
+    <!-- Shift Configuration Management Page Container -->
     <Page id="pageShiftConfig" showHeader="false" class="shiftConfigPage">
         <content>
-            <VBox class="shiftConfigWrapper">
+            <!-- Added sapUiResponsiveMargin to align header content nicely inside -->
+            <VBox class="shiftConfigWrapper sapUiResponsiveMargin">
 
-                <HBox class="shiftConfigHeader" alignItems="Center" justifyContent="SpaceBetween">
+                <!-- Page Header Section with Title, Description, and Add Shift Action -->
+                <HBox class="shiftConfigHeader sapUiMediumMarginBottom" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
-                        <Title text="Shift Configuration" titleStyle="H2" class="shiftConfigTitle"/>
-                        <Text text="Maintain start time, end time, overnight flag, and allowed late minutes"/>
+                        <Title text="{i18n>titleShiftConfig}" titleStyle="H2" class="shiftConfigTitle"/>
                     </VBox>
 
                     <Button
                         icon="sap-icon://add"
-                        text="Add Shift"
+                        text="{i18n>btnAddShift}"
                         type="Emphasized"
                         press="onOpenAddDialog"/>
                 </HBox>
 
+                <!-- Shift Configuration Data Table -->
                 <Table
                     id="shiftTable"
                     items="{/Schedule}"
                     growing="true"
                     growingScrollToLoad="true"
-                    class="shiftConfigTable sapUiResponsiveMargin"
+                    class="shiftConfigTable"
                     width="auto">
 
+                    <!-- Table Columns Definition -->
                     <columns>
                         <Column width="130px">
-                            <Text text="Shift ID"/>
+                            <Text text="{i18n>lblShiftId}"/>
                         </Column>
 
-                        <Column width="120px" hAlign="End">
-                            <Text text="Standard Hours"/>
+                        <!-- Centered Standard Hours Column -->
+                        <Column width="140px" hAlign="Center">
+                            <Text text="{i18n>lblStdHours}"/>
                         </Column>
 
-                        <Column width="150px">
-                            <Text text="Start Time"/>
+                        <!-- Centered Start Time Column -->
+                        <Column width="150px" hAlign="Center">
+                            <Text text="{i18n>colStartTime}"/>
                         </Column>
 
-                        <Column width="150px">
-                            <Text text="End Time"/>
+                        <!-- Centered End Time Column -->
+                        <Column width="150px" hAlign="Center">
+                            <Text text="{i18n>colEndTime}"/>
                         </Column>
 
                         <Column width="130px" hAlign="Center">
-                            <Text text="Overnight"/>
+                            <Text text="{i18n>colNextDay}"/>
                         </Column>
 
                         <Column width="130px" hAlign="End">
-                            <Text text="Grace mins"/>
+                            <Text text="{i18n>colGraceMins}"/>
                         </Column>
 
                         <Column width="140px" hAlign="Center">
-                            <Text text="Actions"/>
+                            <Text text="{i18n>colAction}"/>
                         </Column>
                     </columns>
 
+                    <!-- Table Rows Binding Template -->
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
+                                <!-- Shift ID Identifier Cell -->
                                 <ObjectIdentifier
                                     title="{ShiftId}"
-                                    text="Work Shift"/>
+                                    text="{i18n>txtShift}"/>
 
+                                <!-- Standard Hours Number Cell (Centered) -->
                                 <ObjectNumber
                                     number="{StdHours}"
-                                    unit="h"/>
+                                    unit="{i18n>unitH}"/>
 
-                                <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}"/>
+                                <!-- Shift Start Time Cell (Centered) -->
+                                <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}" textAlign="Center"/>
 
-                                <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}"/>
+                                <!-- Shift End Time Cell (Centered) -->
+                                <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}" textAlign="Center"/>
 
+                                <!-- Next Day Indicator Status Cell -->
                                 <ObjectStatus
                                     text="{path: 'NextDay', formatter: '.formatNextDayText'}"
                                     state="{path: 'NextDay', formatter: '.formatNextDayState'}"/>
 
+                                <!-- Grace Minutes Number Cell -->
                                 <ObjectNumber
                                     number="{GraceMins}"
-                                    unit="min"/>
+                                    unit="{i18n>unitMins}"/>
 
+                                <!-- Row Action Buttons: Edit & Delete -->
                                 <HBox justifyContent="Center">
                                     <Button
                                         icon="sap-icon://edit"
                                         type="Transparent"
-                                        tooltip="Edit shift"
+                                        tooltip="{i18n>ttEditShift}"
                                         press="onEditShift"
                                         class="sapUiTinyMarginEnd"/>
 
                                     <Button
                                         icon="sap-icon://delete"
                                         type="Reject"
-                                        tooltip="Delete shift"
+                                        tooltip="{i18n>ttDeleteShift}"
                                         press="onDeleteShift"/>
                                 </HBox>
                             </cells>

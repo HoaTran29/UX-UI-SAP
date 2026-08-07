@@ -2,81 +2,94 @@
     controllerName="com.app.zu26g13.app.controller.Holiday"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns="sap.m"
+    xmlns:f="sap.f"
     displayBlock="true">
 
-    <Page id="pageHoliday" showHeader="false" class="holidayPage">
-        <content>
-            <VBox class="holidayWrapper">
-
-                <HBox class="holidayHeader" alignItems="Center" justifyContent="SpaceBetween">
-                    <VBox>
-                        <Title text="Holiday Configuration" titleStyle="H2" class="holidayTitle"/>
-                        <Text text="Maintain holidays used by the scheduling system"/>
-                    </VBox>
-
+    <!-- Fiori 3 Dynamic Page Layout for Holiday Configuration -->
+    <f:DynamicPage id="dynamicPageHoliday" class="sapUiContentPadding">
+        
+        <!-- Header Section: Title and Actions -->
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="{i18n>titleHolidayConfig}" level="H1"/>
+                </f:heading>
+                
+                <f:actions>
                     <Button
+                        id="btnAddHoliday"
                         icon="sap-icon://add"
-                        text="Add Holiday"
+                        text="{i18n>btnAddHoliday}"
                         type="Emphasized"
                         press="onOpenAddDialog"/>
-                </HBox>
+                </f:actions>
+            </f:DynamicPageTitle>
+        </f:title>
 
+        <!-- Header Content: Information Message Strip -->
+        <f:header>
+            <f:DynamicPageHeader pinnable="false">
                 <MessageStrip
-                    text="Sundays are detected automatically; they do not need to be maintained as holidays."
+                    text="{i18n>msgSundayAutoDetect}"
                     type="Information"
-                    showIcon="true"
-                    class="sapUiSmallMarginBottom"/>
+                    showIcon="true"/>
+            </f:DynamicPageHeader>
+        </f:header>
 
-                <Table
-                    id="holidayTable"
-                    items="{/Holiday}"
-                    growing="true"
-                    growingScrollToLoad="true"
-                    class="holidayTable sapUiResponsiveMargin"
-                    width="auto">
+        <!-- Main Content: Holiday Configuration Table -->
+        <f:content>
+            <Table
+                id="holidayTable"
+                items="{/Holiday}"
+                growing="true"
+                growingScrollToLoad="true"
+                class="sapUiElevationCore3">
 
-                    <columns>
-                        <Column width="180px">
-                            <Text text="Holiday Date"/>
-                        </Column>
+                <!-- Table Columns Definition -->
+                <columns>
+                    <Column width="180px">
+                        <Text text="{i18n>colHolidayDate}"/>
+                    </Column>
 
-                        <Column>
-                            <Text text="Description"/>
-                        </Column>
+                    <Column>
+                        <Text text="{i18n>colHolidayDesc}"/>
+                    </Column>
 
-                        <Column width="140px" hAlign="Center">
-                            <Text text="Actions"/>
-                        </Column>
-                    </columns>
+                    <Column width="140px" hAlign="Center">
+                        <Text text="{i18n>colAction}"/>
+                    </Column>
+                </columns>
 
-                    <items>
-                        <ColumnListItem vAlign="Middle">
-                            <cells>
+                <!-- Table Rows Binding Template -->
+                <items>
+                    <ColumnListItem vAlign="Middle">
+                        <cells>
+                            <!-- Holiday Date Cell -->
+                            <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
 
-                                <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
+                            <!-- Holiday Description Cell -->
+                            <Text text="{HolDesc}"/>
 
-                                <Text text="{HolDesc}"/>
+                            <!-- Row Action Buttons: Edit & Delete -->
+                            <HBox justifyContent="Center">
+                                <Button
+                                    icon="sap-icon://edit"
+                                    type="Transparent"
+                                    tooltip="{i18n>ttEditHoliday}"
+                                    press="onEditHoliday"
+                                    class="sapUiTinyMarginEnd"/>
 
-                                <HBox justifyContent="Center">
-                                    <Button
-                                        icon="sap-icon://edit"
-                                        type="Transparent"
-                                        tooltip="Edit holiday"
-                                        press="onEditHoliday"
-                                        class="sapUiTinyMarginEnd"/>
-
-                                    <Button
-                                        icon="sap-icon://delete"
-                                        type="Reject"
-                                        tooltip="Delete holiday"
-                                        press="onDeleteHoliday"/>
-                                </HBox>
-                            </cells>
-                        </ColumnListItem>
-                    </items>
-                </Table>
-
-            </VBox>
-        </content>
-    </Page>
+                                <Button
+                                    icon="sap-icon://delete"
+                                    type="Reject"
+                                    tooltip="{i18n>ttDeleteHoliday}"
+                                    press="onDeleteHoliday"/>
+                            </HBox>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+        
+    </f:DynamicPage>
 </mvc:View>

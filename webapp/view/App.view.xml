@@ -41,10 +41,10 @@
                         <tnt:fixedItem>
                             <tnt:NavigationList>
                                 <tnt:NavigationListItem text="{i18n>menuMasterData}" icon="sap-icon://action-settings" expanded="false">
-                                    <tnt:NavigationListItem id="menuEmployeeConfig" text="{i18n>menuEmployees}" key="employeeConfig" />
-                                    <tnt:NavigationListItem id="menuSchedule" text="{i18n>menuSchedules}" key="schedule" />
-                                    <tnt:NavigationListItem id="menuHolidays" text="{i18n>menuHolidays}" key="holiday" />
-                                    <tnt:NavigationListItem id="navShiftConfig" text="{i18n>menuShifts}"  key="shiftConfig"/>
+                                    <tnt:NavigationListItem id="menuEmployeeConfigId" text="{i18n>menuEmployees}" key="employeeConfig" />
+                                    <tnt:NavigationListItem text="{i18n>menuSchedules}" key="schedule" />
+                                    <tnt:NavigationListItem text="{i18n>menuHolidays}" key="holiday" />
+                                    <tnt:NavigationListItem id="navShiftConfig" text="{i18n>menuShifts}" icon="sap-icon://fob-watch" key="shiftConfig"/>
                                 </tnt:NavigationListItem>
                             </tnt:NavigationList>
                         </tnt:fixedItem>

@@ -102,7 +102,7 @@
                             <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
                             <ObjectStatus text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
                                           state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" 
-                                          icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : 'sap-icon://sys-enter-2' }" />
+                                          icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : (${Status} === 'LEAVE' ? 'sap-icon://away' : 'sap-icon://sys-enter-2') }" />
                             <Text text="{ parts: ['ActIn', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
                             <Text text="{ parts: ['ActOut', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
                             <ObjectNumber number="{WorkHours}" />
@@ -110,7 +110,7 @@
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
                             
                             <!-- Row Edit Action Button -->
-                            <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}"/>
+                            <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}" visible="{= ${Status} !== 'ABSENT' &amp;&amp; ${Status} !== 'LEAVE' }"/>
                         </cells>
                     </ColumnListItem>
                 </items>

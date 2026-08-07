@@ -352,6 +352,7 @@ sap.ui.define(
         if (sStatus === "ABSENT") return "Error"; // Red
         if (sStatus === "COMPLETED") return "Success"; // Green
         if (sStatus === "COMPENSATE") return "Warning"; // Yellow
+        if (sStatus === "LEAVE") return "Information"; // Blue
         return "None";
       },
 

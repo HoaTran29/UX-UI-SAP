@@ -36,6 +36,9 @@ sap.ui.define([
             var oDate = this.byId("fltMonth").getDateValue();
             var sEmp = this.byId("fltEmp").getValue();
 
+            aFilters.push(new Filter("EmployeeName", FilterOperator.NE, null));
+            aFilters.push(new Filter("EmployeeName", FilterOperator.NE, ""));
+
             // If user selects a month (e.g., 07/2026)
             if (oDate) {
                 var y = oDate.getFullYear();

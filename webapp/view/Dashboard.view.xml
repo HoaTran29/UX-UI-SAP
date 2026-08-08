@@ -163,7 +163,7 @@
                             <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Shift {ShiftId}"/>
                             <Text id="txtCellDept" text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                            <Text id="txtCellTime" text="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                            <Text id="txtCellTime" text="{ path: 'ActIn', formatter: '.formatTimeDisplay' } - { path: 'ActOut', formatter: '.formatTimeDisplay' }" />
                             <ObjectNumber id="objNumStd" number="{WorkHours}" />
                             <ObjectNumber id="objNumAct"
                                 number="{TotHours}" 

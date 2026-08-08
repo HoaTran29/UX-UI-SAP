@@ -369,7 +369,7 @@ sap.ui.define(
           oTime.ms === 0 ||
           oTime === "PT00H00M00S"
         ) {
-          return "00:00";
+          return "00:00:00";
         }
 
         // Format actual time to 24-hour layout (HH:mm:ss)

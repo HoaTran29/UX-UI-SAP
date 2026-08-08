@@ -15,11 +15,15 @@
                     
                     <!-- Actual Check-In Time Field -->
                     <Label text="{i18n>lblActIn}" />
-                    <TimePicker value="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time' }" displayFormat="HH:mm:ss" />
+                    <TimePicker 
+                        value="{ path: 'ActIn', type: 'sap.ui.model.odata.type.Time', formatOptions: { pattern: 'HH:mm:ss' } }" 
+                        displayFormat="HH:mm:ss" />
                     
                     <!-- Actual Check-Out Time Field -->
                     <Label text="{i18n>lblActOut}" />
-                    <TimePicker value="{ path: 'ActOut', type: 'sap.ui.model.odata.type.Time' }" displayFormat="HH:mm:ss" />
+                    <TimePicker 
+                        value="{ path: 'ActOut', type: 'sap.ui.model.odata.type.Time', formatOptions: { pattern: 'HH:mm:ss' } }" 
+                        displayFormat="HH:mm:ss" />
 
                     <!-- Section Title: Confirm Overtime -->
                     <core:Title text="{i18n>titleConfirmOt}" />

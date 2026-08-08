@@ -336,6 +336,23 @@ sap.ui.define([
             oSheet.build().finally(function () {
                 oSheet.destroy();
             });
+        },
+        
+        // =========================================================
+        // FORMATTERS
+        // =========================================================
+        formatTimeDisplay: function (oTime) {
+            // Nếu giờ bằng 0 hoặc trống thì trả về 00:00:00 cho gọn
+            if (!oTime || oTime.ms === 0 || oTime === "PT00H00M00S") {
+                return "00:00:00"; 
+            }
+
+            // Ép định dạng 24h
+            var timeFormat = sap.ui.core.format.DateFormat.getTimeInstance({
+                pattern: "HH:mm:ss",
+                UTC: true
+            });
+            return timeFormat.format(new Date(oTime.ms));
         }
     });
 });

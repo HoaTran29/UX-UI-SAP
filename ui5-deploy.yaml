@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "4.0"
+metadata:
+  name: com.app.zu26g13.app
+type: application
+builder:
+  resources:
+    excludes:
+      - /test/**
+      - /localService/**
+  customTasks:
+    - name: deploy-to-abap
+      afterTask: generateCachebusterInfo
+      configuration:
+        target:
+          url: https://s40lp1.ucc.cit.tum.de
+          client: '324'
+        app:
+          name: ZHR_PORTAL_APP
+          description: HR Portal Application
+          package: ZSU26G13
+          transport: S40K918393
+        exclude:
+          - /test/

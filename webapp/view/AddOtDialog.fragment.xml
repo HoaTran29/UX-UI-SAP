@@ -131,7 +131,7 @@
         <!-- Dialog Action Buttons: Save & Close -->
         <beginButton>
             <Button 
-                text="{i18n>btnSaveData}"
+                text="{i18n>btnSave}"
                 type="Emphasized"
                 press=".onSaveOtPlan" />
         </beginButton>

@@ -10,7 +10,7 @@ sap.ui.define([
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.Schedule", {
-        
+
         onInit: function () {
             var oODataModel = this.getOwnerComponent().getModel();
             if (oODataModel && oODataModel.setUseBatch) {
@@ -131,7 +131,7 @@ sap.ui.define([
                 var aEmpShift = aResult[0] || [];
                 var aOtPlan = aResult[1] || [];
                 var aEmployees = aResult[2] || [];
-                
+
                 var mEmployeeByPernr = this._buildEmployeeMap(aEmployees);
                 var aCalendarEmployees = this._buildCalendarEmployees(aEmpShift, aOtPlan, oODataModel, mEmployeeByPernr);
 
@@ -178,7 +178,7 @@ sap.ui.define([
                 var sPernrKey = this._normalizePernrForCompare(item.Pernr);
 
                 if (mEmployeeByPernr && !mEmployeeByPernr[sPernrKey]) {
-                    return; 
+                    return;
                 }
 
                 var oEmployeeMaster = mEmployeeByPernr ? mEmployeeByPernr[sPernrKey] : null;
@@ -238,7 +238,7 @@ sap.ui.define([
                     AppointmentTitle: this._getI18nText("txtShiftTitle", [item.ShiftId]),
                     AppointmentText: this._getI18nText("txtAppointmentText", [sShiftTimeText, sOtHours]),
                     AppointmentTooltip: this._getI18nText("txtAppointmentTooltip", [
-                        sEmployeeName, sDisplayPernr, (sDeptName || sDeptId || this._getI18nText("txtNA")), 
+                        sEmployeeName, sDisplayPernr, (sDeptName || sDeptId || this._getI18nText("txtNA")),
                         item.ShiftId, sShiftTimeText, sOtHours
                     ]),
 
@@ -282,7 +282,7 @@ sap.ui.define([
         // =========================================================
         // UNIFIED SEARCH HELP (POPOVER) FOR EMPLOYEE & DEPARTMENT
         // =========================================================
-        
+
         onHeaderEmployeeValueHelpRequest: function (oEvent) {
             this._sValueHelpContext = "HEADER";
             this._oCurrentInput = oEvent.getSource();
@@ -440,7 +440,7 @@ sap.ui.define([
                 employeeQuery: "", employeeFilter: "",
                 deptQuery: "", deptFilter: ""
             });
-            
+
             // Clear inputs visually if bound
             var oEmpInput = this.byId("HeaderEmployeeSearchInput");
             if (oEmpInput) oEmpInput.setValue("");
@@ -512,7 +512,7 @@ sap.ui.define([
         onOpenCreateDialog: function () {
             this.getView().getModel("dialogModel").setData(this._getDefaultDialogData());
             this._loadShiftLookup();
-            
+
             if (!this.pDialog) {
                 this.pDialog = Fragment.load({
                     id: this.getView().getId(),
@@ -659,6 +659,13 @@ sap.ui.define([
                 return;
             }
 
+            // Check if shift already started today before allowing edit
+            if (this._isShiftAlreadyStarted(oDialogData.PlanDate, oDialogData.ShiftId)) {
+                sap.ui.core.BusyIndicator.hide();
+                MessageBox.error(this._getI18nText("msgShiftAlreadyStarted", [oDialogData.ShiftId]), { title: this._getI18nText("titleShiftStartedError") });
+                return;
+            }
+
             this._saveEditSchedule(oODataModel, oDialogData, fOtHours);
         },
 
@@ -732,8 +739,8 @@ sap.ui.define([
 
             if (this._isPastDate(dStart)) {
                 sap.ui.core.BusyIndicator.hide();
-                MessageBox.error(this._getI18nText("msgContainsPastDates", [dStart.toLocaleDateString("en-GB")]), { 
-                    title: this._getI18nText("titleCreateScheduleError") 
+                MessageBox.error(this._getI18nText("msgContainsPastDates", [dStart.toLocaleDateString("en-GB")]), {
+                    title: this._getI18nText("titleCreateScheduleError")
                 });
                 return;
             }
@@ -815,6 +822,12 @@ sap.ui.define([
                         if (this._isPastDate(dWorkDate)) {
                             return Promise.reject({ message: this._getPastDateMessage(dWorkDate) });
                         }
+                        
+                        // Check if shift already started today
+                        if (this._isShiftAlreadyStarted(dWorkDate, oDialogData.ShiftId)) {
+                            return Promise.reject({ message: this._getI18nText("msgShiftAlreadyStarted", [oDialogData.ShiftId]) });
+                        }
+
                         return this._createEmpShiftIfNotExists(oODataModel, oEmployee.Pernr, dWorkDate, oDialogData.ShiftId);
                     }.bind(this)).then(function () {
                         if (fOtHours > 0) {
@@ -824,7 +837,13 @@ sap.ui.define([
                                 ShiftId: oDialogData.ShiftId,
                                 OtHours: fOtHours.toFixed(2),
                                 IsOt: true
-                            });
+                            }).catch(function (oError) {
+                                // Rollback EmpShift if OT creation fails
+                                var sRollbackPath = this._buildEmpShiftPath(oODataModel, oEmployee.Pernr, dWorkDate, oDialogData.ShiftId);
+                                return this._deletePath(oODataModel, sRollbackPath, true).then(function () {
+                                    return Promise.reject(oError); 
+                                });
+                            }.bind(this));
                         }
                         return Promise.resolve();
                     }.bind(this));
@@ -835,6 +854,9 @@ sap.ui.define([
                 sap.ui.core.BusyIndicator.hide();
                 MessageBox.success(this._getI18nText("msgScheduleCreated"));
                 this.onCloseAddDialog();
+                
+                // Clear UI5 cache to ensure fresh data is fetched
+                oODataModel.refresh(true, true);
                 this._loadCalendarData();
             }.bind(this)).catch(function (oError) {
                 sap.ui.core.BusyIndicator.hide();
@@ -1159,6 +1181,32 @@ sap.ui.define([
             }
             if (oError && oError.message) fnAddMessage(oError.message);
             return aMessages.length > 0 ? aMessages.join("\n") : sDefaultMessage || this._getI18nText("msgUnexpectedError");
+        },
+
+        // =========================================================
+        // CHECK IF SHIFT ALREADY STARTED TODAY
+        // =========================================================
+        _isShiftAlreadyStarted: function (vDate, sShiftId) {
+            var dToday = this._getTodayDateOnly();
+            var dDateToCheck = this._normalizeDate(vDate);
+
+            // Pass if not today
+            if (dDateToCheck.getTime() !== dToday.getTime()) {
+                return false;
+            }
+
+            var aShifts = this.getView().getModel("shiftLookupModel").getProperty("/shifts") || [];
+            var oShift = aShifts.find(function(s) { return s.ShiftId === sShiftId; });
+
+            if (oShift && oShift.TimeIn) {
+                var oTimeIn = this._getHoursMinutes(oShift.TimeIn);
+                var dShiftStart = new Date();
+                dShiftStart.setHours(oTimeIn.hours, oTimeIn.minutes, 0, 0);
+
+                var dNow = new Date();
+                return dNow > dShiftStart;
+            }
+            return false;
         }
     });
 });

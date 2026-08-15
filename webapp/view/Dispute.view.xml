@@ -23,7 +23,7 @@
             <Table id="disputeTable"
                    items="{
                        path: '/Dispute',
-                       filters: [{ path: 'Status', operator: 'EQ', value1: 'PENDING' }]
+                       sorter: { path: 'WorkDate', descending: true }
                    }"
                    growing="true"
                    class="sapUiElevationCore3">
@@ -37,6 +37,8 @@
                     <Column id="colTimeEdit"><Text id="txtTimeEdit" text="{i18n>colTimeEdit}" /></Column>
                     <Column id="colOtHours" width="150px"><Text id="txtOtHours" text="{i18n>colOtHoursEdit}" /></Column>
                     <Column id="colReason" width="15%"><Text id="txtReason" text="{i18n>colReason}" /></Column>
+                    <Column id="colStatus" width="120px"><Text id="txtStatus" text="{i18n>colStatus}" /></Column>
+                    
                     <Column id="colAction"><Text id="txtAction" text="{i18n>colAction}" /></Column>
                 </columns>
                 
@@ -51,9 +53,9 @@
                             <Text id="txtTimeEditVal" text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }" />
                             <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
-                            
-                            <!-- Row Action Buttons: Approve & Reject -->
-                            <HBox id="hboxActions" justifyContent="Center">
+                            <ObjectStatus id="objStatusVal" text="{Status}" state="{= ${Status} === 'APPROVED' ? 'Success' : (${Status} === 'REJECTED' ? 'Error' : 'Warning') }" />
+
+                            <HBox id="hboxActions" justifyContent="Center" visible="{= ${Status} === 'PENDING' }">
                                 <Button id="btnReview" type="Accept" text="{i18n>btnApprove}" class="sapUiTinyMarginEnd" press=".onOpenDialog"/>
                                 <Button id="btnReject" type="Reject" text="{i18n>btnReject}" press=".onOpenRejectDialog"/>
                             </HBox>

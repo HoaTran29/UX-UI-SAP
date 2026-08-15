@@ -85,6 +85,7 @@
                 <columns>
                     <Column><Text text="{i18n>colEmpShift}" /></Column>
                     <Column><Text text="{i18n>colDate}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colPunches}" /></Column>
                     <Column hAlign="Center"><Text text="{i18n>colStatus}" /></Column> 
                     <Column hAlign="Center"><Text text="{i18n>colTimeIn}" /></Column>
                     <Column hAlign="Center"><Text text="{i18n>colTimeOut}" /></Column>
@@ -100,6 +101,7 @@
                         <cells>
                             <ObjectIdentifier title="{Pernr}" text="{i18n>txtShiftPrefix}{ShiftId}"/>
                             <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                            <Text text="{TotalPunches}" />
                             <ObjectStatus text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
                                           state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" 
                                           icon="{= ${Status} === 'ABSENT' ? 'sap-icon://alert' : (${Status} === 'LEAVE' ? 'sap-icon://away' : 'sap-icon://sys-enter-2') }" />
@@ -110,7 +112,9 @@
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
                             
                             <!-- Row Edit Action Button -->
+                            <HBox justifyContent="Center"><Button icon="sap-icon://show" type="Transparent" tooltip="View Punch Logs" press=".onOpenPunchLog" visible="{= ${TotalPunches} > 0 }" />
                             <Button icon="sap-icon://edit" type="Transparent" press=".onEditTimesheet" tooltip="{i18n>ttEditTimesheet}" visible="{= ${Status} !== 'ABSENT' &amp;&amp; ${Status} !== 'LEAVE' }"/>
+                            </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>

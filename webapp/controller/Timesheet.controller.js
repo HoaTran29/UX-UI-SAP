@@ -308,7 +308,7 @@ sap.ui.define(
               ) {
                 sErrorMsg = oResponseBody.error.message.value;
               }
-            } catch (e) {}
+            } catch (e) { }
 
             MessageBox.error(sErrorMsg);
           }.bind(this),
@@ -454,6 +454,56 @@ sap.ui.define(
           });
         }
       },
+      // =========================================================
+      // PUNCH LOG DIALOG LOGIC
+      // =========================================================
+      onOpenPunchLog: function (oEvent) {
+        var oButton = oEvent.getSource();
+        var oContext = oButton.getBindingContext();
+        var oRowData = oContext.getObject();
+
+        var oView = this.getView();
+
+        if (!this._pPunchLogDialog) {
+          this._pPunchLogDialog = sap.ui.core.Fragment.load({
+            id: oView.getId(),
+            name: "com.app.zu26g13.app.view.PunchLogDialog",
+            controller: this
+          }).then(function (oDialog) {
+            oView.addDependent(oDialog);
+            return oDialog;
+          });
+        }
+
+        this._pPunchLogDialog.then(function (oDialog) {
+          oDialog.setBindingContext(oContext);
+
+          var oTable = this.byId("punchLogTable");
+          var oBinding = oTable.getBinding("items");
+
+          var aFilters = [
+            new sap.ui.model.Filter("Pernr", sap.ui.model.FilterOperator.EQ, oRowData.Pernr),
+            new sap.ui.model.Filter("ShiftId", sap.ui.model.FilterOperator.EQ, oRowData.ShiftId)
+          ];
+
+          if (oRowData.WorkDate) {
+            var dDate = new Date(oRowData.WorkDate);
+            var dODataDate = new Date(Date.UTC(dDate.getFullYear(), dDate.getMonth(), dDate.getDate(), 0, 0, 0));
+            aFilters.push(new sap.ui.model.Filter("PunchDate", sap.ui.model.FilterOperator.EQ, dODataDate));
+          }
+
+          oBinding.filter(aFilters);
+          oDialog.open();
+        }.bind(this));
+      },
+
+      onClosePunchLogDialog: function () {
+        if (this._pPunchLogDialog) {
+          this._pPunchLogDialog.then(function (oDialog) {
+            oDialog.close();
+          });
+        }
+      }
     });
   },
 );

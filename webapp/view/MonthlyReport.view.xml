@@ -86,8 +86,12 @@
 
                 <!-- Table Columns Definition -->
                 <columns>
-                    <Column><Text text="{i18n>colEmpId}" /></Column>
+                    <Column mergeDuplicates="true"><Text text="{i18n>colEmpId}" /></Column>
                     <Column><Text text="{i18n>colMonthYear}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colStdPayCode}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colStdRateFactor}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colOtPayCode}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colOtRateFactor}" /></Column>
                     <Column hAlign="Center"><Text text="{i18n>colTotalStdHours}" /></Column>
                     <Column hAlign="Center"><Text text="{i18n>colTotalActHours}" /></Column>
                     <Column hAlign="Center"><Text text="{i18n>colTotalOtHours}" /></Column>
@@ -99,7 +103,10 @@
                         <cells>
                             <ObjectIdentifier title="{Pernr}" text="{EmployeeName}"/>
                             <Text text="{MonthYear}" />
-                            
+                            <ObjectStatus text="{Standard_PayCode}" state="Information"/>
+                            <ObjectNumber number="{Standard_RateFactor}" />
+                            <ObjectStatus text="{OT_PayCode}" state="Warning"/>
+                            <ObjectNumber number="{OT_RateFactor}" />
                             <ObjectNumber number="{TotalStdHours}" unit="{i18n>unitHours}" />
                             <ObjectNumber number="{TotalActHours}" unit="{i18n>unitHours}" 
                                          state="{= parseFloat(${TotalActHours}) >= parseFloat(${TotalStdHours}) ? 'Success' : 'Error' }"/>

@@ -95,6 +95,28 @@ sap.ui.define(
             type: "String",
           },
           {
+            label: this._getI18nText("colStdPayCode"),
+            property: "Standard_PayCode",
+            type: "String",
+          },
+          {
+            label: this._getI18nText("colStdRateFactor"),
+            property: "Standard_RateFactor",
+            type: "Number",
+            scale: 2,
+          },
+          {
+            label: this._getI18nText("colOtPayCode"),
+            property: "OT_PayCode",
+            type: "String",
+          },
+          {
+            label: this._getI18nText("colOtRateFactor"),
+            property: "OT_RateFactor",
+            type: "Number",
+            scale: 2,
+          },
+          {
             label: this._getI18nText("colTotalStdHours"),
             property: "TotalStdHours",
             type: "Number",

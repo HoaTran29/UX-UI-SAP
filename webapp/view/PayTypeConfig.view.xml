@@ -1,0 +1,90 @@
+<mvc:View controllerName="com.app.zu26g13.app.controller.PayTypeConfig"
+    xmlns:mvc="sap.ui.core.mvc" 
+    xmlns="sap.m" 
+    xmlns:f="sap.f"
+    xmlns:fb="sap.ui.comp.filterbar">
+    
+    <f:DynamicPage id="pagePayType">
+        <!-- HEADER: Page Title -->
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="{i18n>titlePayRateConfig}" level="H1"/>
+                </f:heading>
+            </f:DynamicPageTitle>
+        </f:title>
+
+        <!-- HEADER: FilterBar -->
+        <f:header>
+            <f:DynamicPageHeader>
+                <fb:FilterBar id="payTypeFilter" search=".onSearch" showClearOnFB="false" useToolbar="false">
+                    <fb:filterGroupItems>
+                        <fb:FilterGroupItem groupName="G1" name="PayCode" label="{i18n>lblPayCode}" visibleInFilterBar="true">
+                            <fb:control>
+                                <Input id="fltPayCode" placeholder="{i18n>phPayCode}" change=".onSearch" />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                        <fb:FilterGroupItem groupName="G1" name="Category" label="{i18n>lblCategory}" visibleInFilterBar="true">
+                            <fb:control>
+                                <Input id="fltCategory" placeholder="{i18n>phCategory}" change=".onSearch" />
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                        <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>lblClearFilters}" visibleInFilterBar="true">
+                            <fb:control>
+                                <Button icon="sap-icon://clear-filter" type="Transparent" press=".onClear"/>
+                            </fb:control>
+                        </fb:FilterGroupItem>
+                    </fb:filterGroupItems>
+                </fb:FilterBar>
+            </f:DynamicPageHeader>
+        </f:header>
+
+        <!-- CONTENT: Data Table -->
+        <f:content>
+            <Table id="payTypeTable"
+                   items="{ path: '/PayTypeConfig', sorter: { path: 'PayCode' } }"
+                   growing="true" 
+                   growingThreshold="20" 
+                   class="sapUiElevationCore3">
+                
+                <headerToolbar>
+                    <OverflowToolbar>
+                        <Title text="{i18n>titlePayRateList}" level="H4"/>
+                        <ToolbarSpacer/>
+                        <!-- Emphasized Create Button -->
+                        <Button icon="sap-icon://add" text="{i18n>btnCreatePayRate}" type="Emphasized" press=".onCreatePress"/>
+                    </OverflowToolbar>
+                </headerToolbar>
+
+                <columns>
+                    <Column><Text text="{i18n>colPayCode}" /></Column>
+                    <Column><Text text="{i18n>colCategory}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colRateFactor}" /></Column>
+                    <Column><Text text="{i18n>colDescription}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colNightShift}" /></Column>
+                    <Column hAlign="Center"><Text text="{i18n>colDayType}" /></Column>
+                    <Column hAlign="End"><Text text="{i18n>colAction}" /></Column>
+                </columns>
+                
+                <items>
+                    <ColumnListItem type="Inactive">
+                        <cells>
+                            <ObjectIdentifier title="{PayCode}"/>
+                            <Text text="{PayCategory}" />
+                            <ObjectNumber number="{RateFactor}" />
+                            <Text text="{PayDesc}" />
+                            <ObjectStatus text="{ path: 'IsNight', formatter: '.formatNightShiftText' }" state="{ path: 'IsNight', formatter: '.formatNightShiftState' }"/>
+                            
+                            <Text text="{DayType}" />
+                            <!-- Action column with Edit and Delete buttons -->
+                            <HBox justifyContent="End">
+                                <Button icon="sap-icon://edit" text="{i18n>btnEdit}" type="Transparent" press=".onEditPress" class="sapUiTinyMarginEnd"/>
+                                <Button icon="sap-icon://delete" text="{i18n>btnDelete}" type="Reject" press=".onDeletePress"/>
+                            </HBox>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </f:content>
+    </f:DynamicPage>
+</mvc:View>

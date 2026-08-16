@@ -106,7 +106,8 @@
         { "name": "employeeConfig", "pattern": "employee-config", "target": [ "TargetEmployeeConfig" ] },
         { "name": "timesheet", "pattern": "timesheet", "target": [ "TargetTimesheet" ] },
         { "name": "shiftConfig", "pattern": "shift-config", "target": [ "TargetShiftConfig" ] },
-        { "name": "monthlyReport", "pattern": "monthly-report", "target": [ "TargetMonthlyReport" ] }
+        { "name": "monthlyReport", "pattern": "monthly-report", "target": [ "TargetMonthlyReport" ] },
+        { "name": "payTypeConfig", "pattern": "pay-rate-config", "target": [ "TargetPayTypeConfig" ] }
       ],
       "targets": {
         "TargetDashboard": { "viewType": "XML", "viewId": "Dashboard", "viewName": "Dashboard" },
@@ -116,7 +117,8 @@
         "TargetEmployeeConfig": { "viewType": "XML", "viewId": "EmployeeConfig", "viewName": "EmployeeConfig" },
         "TargetTimesheet": { "viewType": "XML", "viewId": "Timesheet", "viewName": "Timesheet" },
         "TargetShiftConfig": {"viewType": "XML", "viewId": "ShiftConfig", "viewName": "ShiftConfig"},
-        "TargetMonthlyReport": { "viewType": "XML", "viewId": "MonthlyReport", "viewName": "MonthlyReport" }
+        "TargetMonthlyReport": { "viewType": "XML", "viewId": "MonthlyReport", "viewName": "MonthlyReport" },
+        "TargetPayTypeConfig": { "viewType": "XML", "viewId": "PayTypeConfig", "viewName": "PayTypeConfig" }
       }
     },
     "rootView": {

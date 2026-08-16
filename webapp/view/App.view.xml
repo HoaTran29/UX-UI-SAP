@@ -45,6 +45,7 @@
                                     <tnt:NavigationListItem text="{i18n>menuSchedules}" key="schedule" />
                                     <tnt:NavigationListItem text="{i18n>menuHolidays}" key="holiday" />
                                     <tnt:NavigationListItem id="navShiftConfig" text="{i18n>menuShifts}" icon="sap-icon://fob-watch" key="shiftConfig"/>
+                                    <tnt:NavigationListItem text="{i18n>configPayRate}" key="payTypeConfig" />
                                 </tnt:NavigationListItem>
                             </tnt:NavigationList>
                         </tnt:fixedItem>

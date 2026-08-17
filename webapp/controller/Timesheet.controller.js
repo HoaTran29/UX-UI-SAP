@@ -351,7 +351,7 @@ sap.ui.define(
         // Map backend status to UI color states
         if (sStatus === "ABSENT") return "Error"; // Red
         if (sStatus === "COMPLETED") return "Success"; // Green
-        if (sStatus === "COMPENSATE") return "Warning"; // Yellow
+        if (sStatus === "WARNING") return "Warning"; // Yellow
         if (sStatus === "LEAVE") return "Information"; // Blue
         return "None";
       },
@@ -488,8 +488,9 @@ sap.ui.define(
 
           if (oRowData.WorkDate) {
             var dDate = new Date(oRowData.WorkDate);
-            var dODataDate = new Date(Date.UTC(dDate.getFullYear(), dDate.getMonth(), dDate.getDate(), 0, 0, 0));
-            aFilters.push(new sap.ui.model.Filter("PunchDate", sap.ui.model.FilterOperator.EQ, dODataDate));
+            var dODataDateStart = new Date(Date.UTC(dDate.getFullYear(), dDate.getMonth(), dDate.getDate(), 0, 0, 0));
+            var dODataDateEnd = new Date(Date.UTC(dDate.getFullYear(), dDate.getMonth(), dDate.getDate() + 1, 23, 59, 59));
+            aFilters.push(new sap.ui.model.Filter("PunchDate", sap.ui.model.FilterOperator.BT, dODataDateStart, dODataDateEnd));
           }
 
           oBinding.filter(aFilters);

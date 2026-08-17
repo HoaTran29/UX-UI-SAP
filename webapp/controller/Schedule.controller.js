@@ -46,7 +46,11 @@ sap.ui.define([
         },
 
         _initModels: function () {
+            var oCalendarModel = new JSONModel({ employees: [] });
+            oCalendarModel.setSizeLimit(5000);
             this.getView().setModel(new JSONModel({ employees: [] }), "calendarModel");
+            var oShiftLookupModel = new JSONModel({ shifts: [] });
+            oShiftLookupModel.setSizeLimit(1000);
             this.getView().setModel(new JSONModel({ shifts: [] }), "shiftLookupModel");
             this.getView().setModel(new JSONModel({
                 employeeQuery: "", employeeFilter: "",
@@ -124,9 +128,9 @@ sap.ui.define([
 
             // Fetch EmpShift, OtPlan and Employee Master concurrently
             Promise.all([
-                this._readSet("/EmpShift"),
-                this._readSet("/OtPlan").catch(function () { return []; }),
-                this._readSet("/Employee").catch(function () { return []; })
+                this._readSet("/EmpShift", { urlParameters: { "$top": 5000 } }),
+                this._readSet("/OtPlan", { urlParameters: { "$top": 5000 } }).catch(function () { return []; }),
+                this._readSet("/Employee", { urlParameters: { "$top": 5000 } }).catch(function () { return []; })
             ]).then(function (aResult) {
                 var aEmpShift = aResult[0] || [];
                 var aOtPlan = aResult[1] || [];

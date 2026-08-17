@@ -23,7 +23,7 @@
             <Table id="disputeTable"
                    items="{
                        path: '/Dispute',
-                       sorter: { path: 'WorkDate', descending: true }
+                       sorter: { path: 'CreatedAt', descending: true }
                    }"
                    growing="true"
                    class="sapUiElevationCore3">

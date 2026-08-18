@@ -31,7 +31,6 @@
                 <!-- Table Columns Definition -->
                 <columns hAlign="Center">
                     <Column id="colEmpId" width="150px"><Text id="txtEmpId" text="{i18n>colEmpId}" /></Column>
-                    <Column id="colShiftId" width="125px"><Text id="txtShiftId" text="{i18n>colShift}" /></Column>
                     <Column id="colReqType"><Text id="txtReqType" text="{i18n>colReqType}" /></Column>
                     <Column id="colWorkDate"><Text id="txtWorkDate" text="{i18n>colDate}" /></Column>
                     <Column id="colTimeEdit"><Text id="txtTimeEdit" text="{i18n>colTimeEdit}" /></Column>
@@ -46,11 +45,13 @@
                 <items>
                     <ColumnListItem id="cliDisputeItem">
                         <cells>
-                            <ObjectIdentifier id="objEmpId" title="{Pernr}" />
-                            <Text id="txtShiftIdVal" text="{ShiftId}" />
+                            <ObjectIdentifier id="objEmpId" title="{Pernr}" text="Shift {ShiftId}"/>
                             <Text id="txtReqTypeVal" text="{RequestType}" />
                             <Text id="txtWorkDateVal" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                            <Text id="txtTimeEditVal" text="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' } - { path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" />
+                            <Text id="txtTimeEditVal" 
+                              text="{= (${RequestType} === 'LEAVE' || ${RequestType} === 'REMOVE_WAR') 
+                                     ? 'N/A' 
+                                     : ${path: 'NewActIn', type: 'sap.ui.model.odata.type.Time'} + ' - ' + ${path: 'NewActOut', type: 'sap.ui.model.odata.type.Time'} }" />
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }" />
                             <Text id="txtReasonVal" text="{Reason}" wrapping="true" />
                             <ObjectStatus id="objStatusVal" text="{Status}" state="{= ${Status} === 'APPROVED' ? 'Success' : (${Status} === 'REJECTED' ? 'Error' : 'Warning') }" />

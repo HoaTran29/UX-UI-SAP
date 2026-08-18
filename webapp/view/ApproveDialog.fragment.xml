@@ -8,12 +8,12 @@
             <layout:VerticalLayout class="sapUiContentPadding" width="100%">
                 
                 <!-- Manager Adjusted Time In Field -->
-                <Label text="{i18n>lblInTimeMgr}" design="Bold"/>
-                <TimePicker id="tpNewIn" value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
+                <Label text="{i18n>lblInTimeMgr}" design="Bold" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
+                <TimePicker id="tpNewIn" value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
                 
                 <!-- Manager Adjusted Time Out Field -->
-                <Label text="{i18n>lblOutTimeMgr}" design="Bold" class="sapUiSmallMarginTop" />
-                <TimePicker id="tpNewOut" value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%"/>
+                <Label text="{i18n>lblOutTimeMgr}" design="Bold" class="sapUiSmallMarginTop" visible="{= ${RequestType} !== 'REMOVE_WAR' }" />
+                <TimePicker id="tpNewOut" value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
                 
                 <!-- Employee Request Reason Display -->
                 <Label text="{i18n>lblEmpReason}" class="sapUiSmallMarginTop" design="Bold"/>

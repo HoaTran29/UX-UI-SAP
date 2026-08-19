@@ -20,8 +20,7 @@
                         <Title id="appTitle" text="{i18n>appTitle}" />
                         <ToolbarSpacer id="spacer" />
                         <!-- Utility Actions: Notifications and User Profile -->
-                        <Button id="btnNotif" icon="sap-icon://bell" type="Transparent" tooltip="{i18n>ttNotifications}" />
-                        <Button id="btnUser" icon="sap-icon://account" type="Transparent" tooltip="{i18n>ttUserProfile}" />
+                        <Button id="btnPolicy" icon="sap-icon://course-book" text="{i18n>btnPolicyText}" type="Transparent" tooltip="{i18n>btnPolicyTooltip}" press=".onOpenPolicy" />
                     </tnt:ToolHeader>
                 </tnt:header>
 

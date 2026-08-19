@@ -1,0 +1,18 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:core="sap.ui.core">
+    <Dialog 
+        title="{i18n>lblPolicyText}" 
+        contentWidth="700px" 
+        contentHeight="500px" 
+        horizontalScrolling="false">
+        <content>
+            <VBox class="sapUiMediumMargin">
+                <FormattedText htmlText="{Content}" />
+            </VBox>
+        </content>
+        <endButton>
+            <Button text="{i18n>btnClose}" type="Reject" press=".onClosePolicy" />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

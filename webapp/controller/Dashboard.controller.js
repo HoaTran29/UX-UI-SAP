@@ -115,7 +115,7 @@ sap.ui.define([
             }
             this._pEmpValueHelpDialog.then(function (oPopover) {
                 var oList = this.byId("empValueHelpList");
-                if (oList) { 
+                if (oList) {
                     oList.getBinding("items").filter([]);
                     oList.removeSelections(true);
                 }
@@ -174,7 +174,7 @@ sap.ui.define([
             }
             this._pDeptValueHelpDialog.then(function (oPopover) {
                 var oList = this.byId("deptValueHelpList");
-                if (oList) { 
+                if (oList) {
                     oList.getBinding("items").filter([]);
                     oList.removeSelections(true);
                 }
@@ -337,22 +337,37 @@ sap.ui.define([
                 oSheet.destroy();
             });
         },
-        
+
         // =========================================================
         // FORMATTERS
         // =========================================================
-        formatTimeDisplay: function (oTime) {
-            // Nếu giờ bằng 0 hoặc trống thì trả về 00:00:00 cho gọn
-            if (!oTime || oTime.ms === 0 || oTime === "PT00H00M00S") {
-                return "00:00:00"; 
+        formatTimeDisplay: function (oTime, sWorkDate, sStatus) {
+            if (sWorkDate === 'ABSENT' || sWorkDate === 'LEAVE' || sWorkDate === 'COMPLETED' || sWorkDate === 'CHECK_IN') {
+                sStatus = sWorkDate;
             }
 
-            // Ép định dạng 24h
+            if (sStatus === "ABSENT" || sStatus === "LEAVE") {
+                return "N/A";
+            }
+
+           if (sStatus === "CHECK_IN" && oTime && (oTime.ms === 0 || oTime === "PT00H00M00S")) {
+                return "N/A";
+            }
+
+            if (!oTime) {
+                return "";
+            }
+
             var timeFormat = sap.ui.core.format.DateFormat.getTimeInstance({
                 pattern: "HH:mm:ss",
                 UTC: true
             });
-            return timeFormat.format(new Date(oTime.ms));
+            
+            if (oTime.ms !== undefined) {
+                return timeFormat.format(new Date(oTime.ms));
+            } 
+            
+            return oTime;
         }
     });
 });

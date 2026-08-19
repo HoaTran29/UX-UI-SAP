@@ -105,8 +105,8 @@
                             <ObjectStatus 
                                     text="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusText' }" 
                                     state="{ parts: ['Status', 'WorkDate'], formatter: '.formatStatusState' }" />
-                            <Text text="{ parts: ['ActIn', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
-                            <Text text="{ parts: ['ActOut', 'WorkDate'], formatter: '.formatTimeDisplay' }" />
+                            <Text text="{ parts: ['ActIn', 'WorkDate', 'Status'], formatter: '.formatTimeDisplay' }" />
+                            <Text text="{ parts: ['ActOut', 'WorkDate', 'Status'], formatter: '.formatTimeDisplay' }" />
                             <ObjectNumber number="{WorkHours}" />
                             <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
                             <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>

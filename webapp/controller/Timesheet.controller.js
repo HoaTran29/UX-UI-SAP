@@ -349,9 +349,9 @@ sap.ui.define(
         }
 
         // Map backend status to UI color states
-        if (sStatus === "ABSENT") return "Error"; // Red
+        if (sStatus === "ABSENT") return "Warning"; // Yellow
         if (sStatus === "COMPLETED") return "Success"; // Green
-        if (sStatus === "WARNING") return "Warning"; // Yellow
+        if (sStatus === "WARNING") return "Error"; // Red
         if (sStatus === "LEAVE") return "Information"; // Blue
         return "None";
       },

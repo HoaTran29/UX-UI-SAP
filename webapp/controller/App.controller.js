@@ -1,6 +1,7 @@
 sap.ui.define([
-    "sap/ui/core/mvc/Controller"
-], function (Controller) {
+    "sap/ui/core/mvc/Controller",
+    "sap/ui/core/Fragment"
+], function (Controller, Fragment) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.App", {
@@ -44,6 +45,34 @@ sap.ui.define([
             if (sKey) {
                 var oRouter = this.getOwnerComponent().getRouter();
                 oRouter.navTo(sKey);
+            }
+        },
+
+        onOpenPolicy: function (oEvent) {
+            var oView = this.getView();
+
+            if (!this._oPolicyDialog) {
+                Fragment.load({
+                    id: oView.getId(),
+                    name: "com.app.zu26g13.app.view.PolicyDialog", 
+                    controller: this
+                }).then(function (oDialog) {
+                    this._oPolicyDialog = oDialog;
+
+                    oView.addDependent(this._oPolicyDialog);
+                    
+                    this._oPolicyDialog.bindElement("/Policy('POL_1')");
+                    
+                    this._oPolicyDialog.open();
+                }.bind(this));
+            } else {
+                this._oPolicyDialog.open();
+            }
+        },
+
+        onClosePolicy: function () {
+            if (this._oPolicyDialog) {
+                this._oPolicyDialog.close();
             }
         }
 

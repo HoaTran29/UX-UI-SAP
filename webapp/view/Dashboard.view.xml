@@ -127,8 +127,7 @@
                    items="{
                        path: '/Timesheet',
                        sorter: [
-                           { path: 'WorkDate', descending: false },
-                           { path: 'DeptId', descending: false }
+                           { path: 'WorkDate', descending: true }
                        ]
                    }"
                    growing="true"
@@ -163,7 +162,7 @@
                             <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Shift {ShiftId}"/>
                             <Text id="txtCellDept" text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
                             <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                            <Text id="txtCellTime" text="{ path: 'ActIn', formatter: '.formatTimeDisplay' } - { path: 'ActOut', formatter: '.formatTimeDisplay' }" />
+                            <Text id="txtCellTime" text="{ parts: ['ActIn', 'Status'], formatter: '.formatTimeDisplay' } - { parts: ['ActOut', 'Status'], formatter: '.formatTimeDisplay' }" />
                             <ObjectNumber id="objNumStd" number="{WorkHours}" />
                             <ObjectNumber id="objNumAct"
                                 number="{TotHours}" 
@@ -175,10 +174,10 @@
                             <ObjectStatus id="objStatStatus"
                                 text="{Status}" 
                                 inverted="true"
-                                state="{= ${Status} === 'APPROVED' ? 'Success' : 
-                                        (${Status} === 'PENDING' ? 'Warning' : 
-                                        (${Status} === 'LATE_IN' || ${Status} === 'EARLY_OUT' ? 'Error' : 
-                                        (${Status} === 'ON_TIME' ? 'Indication05' : 'None'))) }" />
+                                state="{= ${Status} === 'COMPLETED' ? 'Success' : 
+                                        (${Status} === 'ABSENT' ? 'Warning' : 
+                                        (${Status} === 'WARNING' ? 'Error' :
+                                        (${Status} === 'LEAVE' ? 'Information' : 'None'))) }" />
                         </cells>
                     </ColumnListItem>
                 </items>

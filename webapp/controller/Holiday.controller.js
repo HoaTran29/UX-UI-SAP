@@ -20,6 +20,9 @@ sap.ui.define([
                 new JSONModel(this._getDefaultHolidayData()),
                 "holidayModel"
             );
+            
+            this.getView().setModel(new JSONModel({ payTypes: [] }), "payTypeModel");
+            this._loadPayTypes();
 
             this._attachAutoReloadHandlers();
         },
@@ -37,6 +40,7 @@ sap.ui.define([
             return {
                 HolDate: new Date(),
                 HolDesc: "",
+                HolPayCode: "",
                 isEdit: false,
                 sPath: ""
             };
@@ -84,6 +88,7 @@ sap.ui.define([
             this.getView().getModel("holidayModel").setData({
                 HolDate: this._toDate(oData.HolDate),
                 HolDesc: oData.HolDesc || "",
+                HolPayCode: oData.HolPayCode || "",
                 isEdit: true,
                 sPath: this._buildHolidayPath(oODataModel, oData.HolDate)
             });
@@ -144,15 +149,22 @@ sap.ui.define([
                 return;
             }
 
+            if (!sHolPayCode) {
+                MessageBox.error(this._getI18nText("msgMissingPayCode"), { title: "Error" });
+                return;
+            }
+
             oHolidayModel.setProperty("/HolDesc", sHolDesc);
 
             var oPayloadCreate = {
                 HolDate: this._toODataDate(dHolDate),
-                HolDesc: sHolDesc
+                HolDesc: sHolDesc,
+                HolPayCode: sHolPayCode
             };
 
             var oPayloadUpdate = {
-                HolDesc: sHolDesc
+                HolDesc: sHolDesc,
+                HolPayCode: sHolPayCode
             };
 
             sap.ui.core.BusyIndicator.show(0);
@@ -360,7 +372,16 @@ sap.ui.define([
             }
 
             return sDefaultMessage || this._getI18nText("msgUnexpectedError");
-        }
+        },
+
+        _loadPayTypes: function () {
+            var oODataModel = this.getOwnerComponent().getModel();
+            oODataModel.read("/PayTypeConfig", {
+                success: function (oData) {
+                    this.getView().getModel("payTypeModel").setProperty("/payTypes", oData.results || []);
+                }.bind(this)
+            });
+        },
 
     });
 });

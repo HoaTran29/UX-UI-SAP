@@ -84,33 +84,83 @@
                     </OverflowToolbar>
                 </headerToolbar>
 
-                <!-- Table Columns Definition -->
+                <!-- Table Columns Definition: Chỉ còn 5 Cột chính -->
                 <columns>
-                    <Column mergeDuplicates="true"><Text text="{i18n>colEmpId}" /></Column>
-                    <Column><Text text="{i18n>colMonthYear}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colStdPayCode}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colStdRateFactor}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colOtPayCode}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colOtRateFactor}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colTotalStdHours}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colTotalActHours}" /></Column>
-                    <Column hAlign="Center"><Text text="{i18n>colTotalOtHours}" /></Column>
+                    <Column width="180px" mergeDuplicates="true"><Text text="{i18n>colEmpId}" /></Column>
+                    <Column width="100px" hAlign="Center"><Text text="{i18n>colMonthYear}" /></Column>
+                    
+                    <Column hAlign="End"><Text text="Thông tin Ngày Thường"/></Column>
+                    <Column hAlign="End"><Text text="Thông tin Cuối Tuần"/></Column>
+                    <Column hAlign="End"><Text text="Thông tin Ngày Lễ"/></Column>
                 </columns>
                 
                 <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem type="Active">
                         <cells>
-                            <ObjectIdentifier title="{Pernr}" text="{EmployeeName}"/>
+                            <ObjectIdentifier title="{EmployeeName}" text="{Pernr}"/>
                             <Text text="{MonthYear}" />
-                            <ObjectStatus text="{Standard_PayCode}" state="Information"/>
-                            <ObjectNumber number="{Standard_RateFactor}" />
-                            <ObjectStatus text="{OT_PayCode}" state="Warning"/>
-                            <ObjectNumber number="{OT_RateFactor}" />
-                            <ObjectNumber number="{TotalStdHours}" unit="{i18n>unitHours}" />
-                            <ObjectNumber number="{TotalActHours}" unit="{i18n>unitHours}" 
-                                         state="{= parseFloat(${TotalActHours}) >= parseFloat(${TotalStdHours}) ? 'Success' : 'Error' }"/>
-                            <ObjectNumber number="{TotalOtHours}" unit="{i18n>unitHours}" state="Warning"/>
+                            
+                            <!-- CỘT 1: NGÀY THƯỜNG -->
+                            <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
+                                <HBox>
+                                    <Text text="Số ca:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{RegularShiftCount}"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Giờ làm:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{RegularPaidHours}" unit="h" state="Information"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Giờ OT:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{RegularOtHours}" unit="h" state="Warning"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Hệ số:" class="sapUiTinyMarginEnd"/>
+                                    <Text text="x{RegularRate} | OT: x{RegularOtRate}"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- CỘT 2: CUỐI TUẦN -->
+                            <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
+                                <HBox>
+                                    <Text text="Số ca:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{WeekendShiftCount}"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Giờ làm:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{WeekendPaidHours}" unit="h" state="Information"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Giờ OT:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{WeekendOtHours}" unit="h" state="Warning"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Hệ số:" class="sapUiTinyMarginEnd"/>
+                                    <Text text="x{WeekendRate}"/>
+                                </HBox>
+                            </VBox>
+
+                            <!-- CỘT 3: NGÀY LỄ -->
+                            <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
+                                <HBox>
+                                    <Text text="Số ca:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{HolidayShiftCount}"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Giờ làm:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{HolidayPaidHours}" unit="h" state="Information"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Giờ OT:" class="sapUiTinyMarginEnd"/>
+                                    <ObjectNumber number="{HolidayOtHours}" unit="h" state="Warning"/>
+                                </HBox>
+                                <HBox>
+                                    <Text text="Hệ số:" class="sapUiTinyMarginEnd"/>
+                                    <Text text="x{HolidayRate}"/>
+                                </HBox>
+                            </VBox>
+
                         </cells>
                     </ColumnListItem>
                 </items>

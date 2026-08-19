@@ -54,6 +54,10 @@
                             <Text text="{i18n>colEndTime}"/>
                         </Column>
 
+                        <Column width="100px" hAlign="Center"><Text text="{i18n>colStdRate}"/></Column>
+                        <Column width="100px" hAlign="Center"><Text text="{i18n>colWeekendRate}"/></Column>
+                        <Column width="100px" hAlign="Center"><Text text="{i18n>colOtRate}"/></Column>
+
                         <Column width="130px" hAlign="Center">
                             <Text text="{i18n>colNextDay}"/>
                         </Column>
@@ -86,6 +90,10 @@
 
                                 <!-- Shift End Time Cell (Centered) -->
                                 <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}" textAlign="Center"/>
+
+                                <Text text="x{StdRateFactor}" />
+                                <Text text="x{WeekendRateFactor}" />
+                                <Text text="x{OtRateFactor}" />
 
                                 <!-- Next Day Indicator Status Cell -->
                                 <ObjectStatus

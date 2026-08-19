@@ -2,40 +2,20 @@
     <Dialog id="dlgPayType" title="{localModel>/title}" contentWidth="400px">
         <f:SimpleForm editable="true" layout="ResponsiveGridLayout">
             <f:content>
-                <!-- Reuse existing labels from i18n -->
                 <Label text="{i18n>lblPayCode}" required="true"/>
-                <Input value="{localModel>/PayCode}" editable="{localModel>/isNew}" maxLength="4"/>
+                <Input value="{localModel>/PayCode}" editable="{localModel>/isNew}" maxLength="4" placeholder="VD: X10, X20, OT..."/>
                 
-                <Label text="{i18n>lblCategory}" required="true"/>
-                <Input value="{localModel>/PayCategory}" maxLength="2"/>
-                
-                <!-- Bind new i18n texts -->
-                <Label text="{i18n>lblRateFactor}"/>
-                <Input value="{localModel>/RateFactor}" type="Number"/>
-                
-                <Label text="{i18n>lblDescription}"/>
-                <Input value="{localModel>/PayDesc}"/>
-                
-                <Label text="{i18n>lblNightShiftFlag}"/>
-                <Select selectedKey="{localModel>/IsNight}">
-                    <core:Item key=" " text="{i18n>txtNoNormal}"/>
-                    <core:Item key="X" text="{i18n>txtYesNight}"/>
-                </Select>
-                
-                <Label text="{i18n>lblDayType}"/>
-                <Select selectedKey="{localModel>/DayType}">
-                    <core:Item key="N" text="{i18n>txtDayNormal}"/>
-                    <core:Item key="W" text="{i18n>txtDayWeekend}"/>
-                    <core:Item key="H" text="{i18n>txtDayHoliday}"/>
-                </Select>
+                <Label text="{i18n>lblDescription}" required="true"/>
+                <Input value="{localModel>/PayDesc}" placeholder="Mô tả hệ số..."/>
+
+                <Label text="{i18n>lblRateFactor}" required="true"/>
+                <Input value="{localModel>/RateFactor}" type="Number" placeholder="VD: 1.0, 1.5, 2.0..."/>
             </f:content>
         </f:SimpleForm>
         <beginButton>
-            <!-- Reuse existing btnSave -->
             <Button text="{i18n>btnSave}" type="Emphasized" press=".onSaveDialog"/>
         </beginButton>
         <endButton>
-            <!-- Reuse existing btnCancel -->
             <Button text="{i18n>btnCancel}" press=".onCancelDialog"/>
         </endButton>
     </Dialog>

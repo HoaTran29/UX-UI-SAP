@@ -20,8 +20,19 @@ sap.ui.define([
                 new JSONModel(this._getDefaultShiftData()),
                 "shiftModel"
             );
+            this.getView().setModel(new JSONModel({ payTypes: [] }), "payTypeModel");
+            this._loadPayTypes();
 
             this._attachAutoReloadHandlers();
+        },
+
+        _loadPayTypes: function () {
+            var oODataModel = this.getOwnerComponent().getModel();
+            oODataModel.read("/PayTypeConfig", {
+                success: function (oData) {
+                    this.getView().getModel("payTypeModel").setProperty("/payTypes", oData.results || []);
+                }.bind(this)
+            });
         },
 
         // =========================================================
@@ -38,6 +49,9 @@ sap.ui.define([
                 StdHours: "8",
                 TimeIn: "070000",
                 TimeOut: "150000",
+                StdPayCode: "",
+                WeekendPayCode: "",
+                OtPayCode: "",
                 NextDay: "",
                 NextDayBool: false,
                 GraceMins: "0",
@@ -90,6 +104,9 @@ sap.ui.define([
                 StdHours: oData.StdHours !== undefined && oData.StdHours !== null ? String(oData.StdHours) : "8",
                 TimeIn: this._edmTimeToHHmmss(oData.TimeIn),
                 TimeOut: this._edmTimeToHHmmss(oData.TimeOut),
+                StdPayCode: oData.StdPayCode || "",
+                WeekendPayCode: oData.WeekendPayCode || "",
+                OtPayCode: oData.OtPayCode || "",
                 NextDay: oData.NextDay,
                 NextDayBool: this._isNextDayTrue(oData.NextDay),
                 GraceMins: oData.GraceMins !== undefined && oData.GraceMins !== null ? String(oData.GraceMins) : "0",
@@ -135,7 +152,9 @@ sap.ui.define([
             var oODataModel = this.getView().getModel();
             var oShiftModel = this.getView().getModel("shiftModel");
             var oShiftData = oShiftModel.getData();
-
+            var sStdPayCode = oShiftData.StdPayCode;
+            var sWeekendPayCode = oShiftData.WeekendPayCode;
+            var sOtPayCode = oShiftData.OtPayCode;
             var sShiftId = String(oShiftData.ShiftId || "").trim().toUpperCase();
             var sStdHours = String(oShiftData.StdHours || "").trim().replace(",", ".");
             var sGraceMins = String(oShiftData.GraceMins || "0").trim();
@@ -157,6 +176,11 @@ sap.ui.define([
 
             if (!sStdHours) {
                 MessageBox.error(this._getI18nText("msgMissingStdHours"), { title: this._getI18nText("titleMissingStdHours") });
+                return;
+            }
+
+            if (!sStdPayCode || !sWeekendPayCode || !sOtPayCode) {
+                MessageBox.error(this._getI18nText("msgMissingPayCode"), { title: "Error" });
                 return;
             }
 
@@ -234,7 +258,10 @@ sap.ui.define([
                 TimeIn: this._hhmmssToEdmTime(sTimeIn),
                 TimeOut: this._hhmmssToEdmTime(sTimeOut),
                 NextDay: vNextDayPayload,
-                GraceMins: iGraceMins
+                GraceMins: iGraceMins,
+                StdPayCode: sStdPayCode,
+                WeekendPayCode: sWeekendPayCode,
+                OtPayCode: sOtPayCode
             };
 
             var oPayloadUpdate = {
@@ -242,7 +269,10 @@ sap.ui.define([
                 TimeIn: this._hhmmssToEdmTime(sTimeIn),
                 TimeOut: this._hhmmssToEdmTime(sTimeOut),
                 NextDay: vNextDayPayload,
-                GraceMins: iGraceMins
+                GraceMins: iGraceMins,
+                StdPayCode: sStdPayCode,
+                WeekendPayCode: sWeekendPayCode,
+                OtPayCode: sOtPayCode
             };
 
             sap.ui.core.BusyIndicator.show(0);

@@ -74,66 +74,33 @@ sap.ui.define(
       },
 
       // =========================================================
-      // EXPORT EXCEL LOGIC
+      // EXPORT EXCEL LOGIC (ĐÃ CẬP NHẬT CỘT MỚI)
       // =========================================================
 
       _createColumnConfig: function () {
         return [
-          {
-            label: this._getI18nText("colEmpId"),
-            property: "Pernr",
-            type: "String",
-          },
-          {
-            label: this._getI18nText("colEmpName"),
-            property: "EmployeeName",
-            type: "String",
-          }, // Remove this line if backend lacks 'Ename' column
-          {
-            label: this._getI18nText("colMonthYear"),
-            property: "MonthYear",
-            type: "String",
-          },
-          {
-            label: this._getI18nText("colStdPayCode"),
-            property: "Standard_PayCode",
-            type: "String",
-          },
-          {
-            label: this._getI18nText("colStdRateFactor"),
-            property: "Standard_RateFactor",
-            type: "Number",
-            scale: 2,
-          },
-          {
-            label: this._getI18nText("colOtPayCode"),
-            property: "OT_PayCode",
-            type: "String",
-          },
-          {
-            label: this._getI18nText("colOtRateFactor"),
-            property: "OT_RateFactor",
-            type: "Number",
-            scale: 2,
-          },
-          {
-            label: this._getI18nText("colTotalStdHours"),
-            property: "TotalStdHours",
-            type: "Number",
-            scale: 2,
-          },
-          {
-            label: this._getI18nText("colTotalActHours"),
-            property: "TotalActHours",
-            type: "Number",
-            scale: 2,
-          },
-          {
-            label: this._getI18nText("colTotalOtHours"),
-            property: "TotalOtHours",
-            type: "Number",
-            scale: 2,
-          },
+          { label: this._getI18nText("colEmpId"), property: "Pernr", type: "String" },
+          { label: this._getI18nText("colEmpName"), property: "EmployeeName", type: "String" }, 
+          { label: this._getI18nText("colMonthYear"), property: "MonthYear", type: "String" },
+
+          // Ngày Thường
+          { label: this._getI18nText("colRegShifts"), property: "RegularShiftCount", type: "Number", scale: 0 },
+          { label: this._getI18nText("colRegHours"), property: "RegularPaidHours", type: "Number", scale: 2 },
+          { label: this._getI18nText("colRegOtHours"), property: "RegularOtHours", type: "Number", scale: 2 },
+          { label: this._getI18nText("colRegRate"), property: "RegularRate", type: "Number", scale: 2 },
+          { label: this._getI18nText("colRegOtRate"), property: "RegularOtRate", type: "Number", scale: 2 },
+
+          // Cuối Tuần
+          { label: this._getI18nText("colWeShifts"), property: "WeekendShiftCount", type: "Number", scale: 0 },
+          { label: this._getI18nText("colWeHours"), property: "WeekendPaidHours", type: "Number", scale: 2 },
+          { label: this._getI18nText("colWeOtHours"), property: "WeekendOtHours", type: "Number", scale: 2 },
+          { label: this._getI18nText("colWeRate"), property: "WeekendRate", type: "Number", scale: 2 },
+
+          // Lễ
+          { label: this._getI18nText("colHolShifts"), property: "HolidayShiftCount", type: "Number", scale: 0 },
+          { label: this._getI18nText("colHolHours"), property: "HolidayPaidHours", type: "Number", scale: 2 },
+          { label: this._getI18nText("colHolOtHours"), property: "HolidayOtHours", type: "Number", scale: 2 },
+          { label: this._getI18nText("colHolRate"), property: "HolidayRate", type: "Number", scale: 2 }
         ];
       },
 

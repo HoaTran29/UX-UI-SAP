@@ -12,28 +12,26 @@ sap.ui.define([
     return Controller.extend("com.app.zu26g13.app.controller.PayTypeConfig", {
 
         onInit: function () {
-            // Create a local model to manage data on the Dialog (Pop-up)
             this.getView().setModel(new JSONModel({}), "localModel");
         },
 
-        // Helper function to get i18n texts dynamically
         _getI18nText: function (sKey) {
             return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
         },
 
         // ==========================================
-        // 1. SEARCH & FILTER FUNCTIONALITY
+        // 1. SEARCH & FILTER
         // ==========================================
         onSearch: function () {
             var aFilters = [];
             var sCode = this.byId("fltPayCode").getValue();
-            var sCategory = this.byId("fltCategory").getValue();
+            var sDesc = this.byId("fltPayDesc").getValue();
 
             if (sCode) {
                 aFilters.push(new Filter("PayCode", FilterOperator.Contains, sCode));
             }
-            if (sCategory) {
-                aFilters.push(new Filter("PayCategory", FilterOperator.EQ, sCategory));
+            if (sDesc) {
+                aFilters.push(new Filter("PayDesc", FilterOperator.Contains, sDesc));
             }
 
             var oTable = this.byId("payTypeTable");
@@ -42,12 +40,12 @@ sap.ui.define([
 
         onClear: function () {
             this.byId("fltPayCode").setValue("");
-            this.byId("fltCategory").setValue("");
+            this.byId("fltPayDesc").setValue("");
             this.onSearch();
         },
 
         // ==========================================
-        // 2. OPEN CREATE / EDIT DIALOG
+        // 2. OPEN DIALOGS
         // ==========================================
         _openDialog: function () {
             var oView = this.getView();
@@ -68,17 +66,12 @@ sap.ui.define([
 
         onCreatePress: function () {
             var oLocalModel = this.getView().getModel("localModel");
-            
-            // Set empty data for the Create screen using i18n
             oLocalModel.setData({
                 title: this._getI18nText("titleCreatePayRate"),
                 isNew: true,
                 PayCode: "",
-                PayCategory: "ST",
                 RateFactor: "1.0",
-                PayDesc: "",
-                IsNight: " ",
-                DayType: "N"
+                PayDesc: ""
             });
             this._openDialog();
         },
@@ -86,21 +79,15 @@ sap.ui.define([
         onEditPress: function (oEvent) {
             var oItem = oEvent.getSource().getParent().getParent(); 
             var oData = oItem.getBindingContext().getObject();      
-            
             var oLocalModel = this.getView().getModel("localModel");
-            var sIsNightKey = (oData.IsNight === true || oData.IsNight === 'X') ? "X" : " ";
             
-            // Load data into the Dialog for editing using i18n
             oLocalModel.setData({
                 title: this._getI18nText("titleEditPayRate") + " " + oData.PayCode,
                 isNew: false, 
                 path: oItem.getBindingContext().getPath(),
                 PayCode: oData.PayCode,
-                PayCategory: oData.PayCategory,
                 RateFactor: oData.RateFactor,
-                PayDesc: oData.PayDesc,
-                IsNight: sIsNightKey,
-                DayType: oData.DayType
+                PayDesc: oData.PayDesc
             });
             this._openDialog();
         },
@@ -110,40 +97,65 @@ sap.ui.define([
         },
 
         // ==========================================
-        // 3. SAVE (CREATE / UPDATE) AND DELETE
+        // 3. SAVE (VALIDATION INCLUDED) & DELETE
         // ==========================================
         onSaveDialog: function () {
             var oModel = this.getView().getModel();
             var oLocalData = this.getView().getModel("localModel").getData();
             var that = this;
-            var bIsNightPayload = (oLocalData.IsNight === "X" || oLocalData.IsNight === true);
+
+            // --- FE VALIDATION START ---
+            var sPayCode = String(oLocalData.PayCode || "").trim().toUpperCase();
+            var sPayDesc = String(oLocalData.PayDesc || "").trim();
+            var fRateFactor = parseFloat(oLocalData.RateFactor);
+
+            if (!sPayCode) {
+                MessageBox.error("Mã hệ số (Pay Code) không được để trống!");
+                return;
+            }
+            if (sPayCode.length > 4) {
+                MessageBox.error("Mã hệ số không được dài quá 4 ký tự!");
+                return;
+            }
+            if (!sPayDesc) {
+                MessageBox.error("Vui lòng nhập mô tả cho hệ số này!");
+                return;
+            }
+            if (isNaN(fRateFactor) || fRateFactor <= 0) {
+                MessageBox.error("Hệ số (Rate Factor) phải là một số lớn hơn 0!");
+                return;
+            }
+            // --- FE VALIDATION END ---
 
             var oPayload = {
-                PayCode: oLocalData.PayCode.toUpperCase(),
-                PayCategory: oLocalData.PayCategory.toUpperCase(),
-                RateFactor: oLocalData.RateFactor,
-                PayDesc: oLocalData.PayDesc,
-                IsNight: bIsNightPayload,
-                DayType: oLocalData.DayType
+                PayCode: sPayCode,
+                PayDesc: sPayDesc,
+                RateFactor: String(fRateFactor)
             };
+
+            sap.ui.core.BusyIndicator.show(0); // Hiển thị loading
 
             if (oLocalData.isNew) {
                 oModel.create("/PayTypeConfig", oPayload, {
                     success: function () {
+                        sap.ui.core.BusyIndicator.hide();
                         MessageToast.show(that._getI18nText("msgCreatePayRateSuccess"));
                         that.onCancelDialog();
                     },
                     error: function (oError) {
+                        sap.ui.core.BusyIndicator.hide();
                         MessageBox.error(that._getI18nText("msgCreatePayRateError"));
                     }
                 });
             } else {
                 oModel.update(oLocalData.path, oPayload, {
                     success: function () {
+                        sap.ui.core.BusyIndicator.hide();
                         MessageToast.show(that._getI18nText("msgUpdatePayRateSuccess"));
                         that.onCancelDialog();
                     },
                     error: function (oError) {
+                        sap.ui.core.BusyIndicator.hide();
                         MessageBox.error(that._getI18nText("msgUpdatePayRateError"));
                     }
                 });
@@ -154,37 +166,27 @@ sap.ui.define([
             var oItem = oEvent.getSource().getParent().getParent();
             var sPath = oItem.getBindingContext().getPath();
             var oModel = this.getView().getModel();
-            var that = this; // Store context for i18n access inside callbacks
+            var that = this; 
 
             MessageBox.confirm(this._getI18nText("msgConfirmDeletePayRate"), {
                 icon: MessageBox.Icon.WARNING,
-                title: this._getI18nText("titleConfirmDelete"), // Using existing key from your i18n
+                title: this._getI18nText("titleConfirmDelete"), 
                 onClose: function (sAction) {
                     if (sAction === MessageBox.Action.OK) {
+                        sap.ui.core.BusyIndicator.show(0);
                         oModel.remove(sPath, {
                             success: function () {
+                                sap.ui.core.BusyIndicator.hide();
                                 MessageToast.show(that._getI18nText("msgDeletePayRateSuccess"));
                             },
                             error: function () {
+                                sap.ui.core.BusyIndicator.hide();
                                 MessageBox.error(that._getI18nText("msgDeletePayRateError"));
                             }
                         });
                     }
                 }
             });
-        },
-        formatNightShiftText: function (vIsNight) {
-            if (vIsNight === true || vIsNight === "X" || vIsNight === "x") {
-                return this._getI18nText("txtYes");
-            }
-            return this._getI18nText("txtNo");
-        },
-
-        formatNightShiftState: function (vIsNight) {
-            if (vIsNight === true || vIsNight === "X" || vIsNight === "x") {
-                return "Warning";
-            }
-            return "None";
         }
     });
 });

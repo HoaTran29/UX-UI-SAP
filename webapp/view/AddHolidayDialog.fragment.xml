@@ -26,6 +26,16 @@
                     value="{holidayModel>/HolDesc}"
                     placeholder="{i18n>phHolidayDesc}"/>
 
+                <Label text="{i18n>lblHolPayCode}" required="true" class="sapUiTopMarginSmall"/>
+                <Select 
+                    selectedKey="{holidayModel>/HolPayCode}"
+                    items="{payTypeModel>/payTypes}"
+                    width="100%">
+                    <core:Item 
+                        key="{payTypeModel>PayCode}" 
+                        text="{payTypeModel>PayCode} - {payTypeModel>PayDesc} (x{payTypeModel>RateFactor})" />
+                </Select>
+
             </VBox>
         </content>
 

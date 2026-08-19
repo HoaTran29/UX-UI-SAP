@@ -52,6 +52,21 @@
                     customTextOn="{i18n>switchYes}"
                     customTextOff="{i18n>switchNo}"/>
 
+                <Label text="{i18n>lblStdPayCode}" required="true" class="sapUiTopMarginSmall"/>
+                <Select selectedKey="{shiftModel>/StdPayCode}" items="{payTypeModel>/payTypes}" width="100%">
+                    <core:Item key="{payTypeModel>PayCode}" text="{payTypeModel>PayCode} (x{payTypeModel>RateFactor})" />
+                </Select>
+
+                <Label text="{i18n>lblWeekendPayCode}" required="true" class="sapUiTopMarginSmall"/>
+                <Select selectedKey="{shiftModel>/WeekendPayCode}" items="{payTypeModel>/payTypes}" width="100%">
+                    <core:Item key="{payTypeModel>PayCode}" text="{payTypeModel>PayCode} (x{payTypeModel>RateFactor})" />
+                </Select>
+
+                <Label text="{i18n>lblOtPayCode}" required="true" class="sapUiTopMarginSmall"/>
+                <Select selectedKey="{shiftModel>/OtPayCode}" items="{payTypeModel>/payTypes}" width="100%">
+                    <core:Item key="{payTypeModel>PayCode}" text="{payTypeModel>PayCode} (x{payTypeModel>RateFactor})" />
+                </Select>
+
                 <!-- Grace Period Minutes Field -->
                 <Label text="{i18n>lblGraceMins}" class="sapUiTopMarginSmall"/>
                 <Input

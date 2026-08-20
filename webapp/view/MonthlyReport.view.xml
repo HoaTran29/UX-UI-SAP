@@ -1,16 +1,13 @@
 <mvc:View controllerName="com.app.zu26g13.app.controller.MonthlyReport"
     xmlns:mvc="sap.ui.core.mvc" 
     xmlns="sap.m" 
-    xmlns:core="sap.ui.core" 
     xmlns:f="sap.f"
     xmlns:fb="sap.ui.comp.filterbar">
     
-    <!-- Monthly Report Dynamic Page Layout -->
-    <f:DynamicPage id="dynamicPageMonthlyReport">
-        
-        <!-- Page Title & Navigation Back Action Section -->
+    <f:DynamicPage>
+        <!-- tiêu đề báo cáo -->
         <f:title>
-            <f:DynamicPageTitle id="pageTitleMonthly">
+            <f:DynamicPageTitle>
                 <f:heading>
                     <Title text="{i18n>titleMonthlyReport}" level="H1"/>
                 </f:heading>
@@ -20,62 +17,36 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- Page Header Section Containing Filter Bar -->
+        <!-- thanh công cụ tìm kiếm -->
         <f:header>
-            <f:DynamicPageHeader id="headerMonthly">
-                
-                <!-- Standard FilterBar with Custom Clear Filter Action -->
-                <fb:FilterBar id="monthlyFilter" 
-                             search=".onSearch" 
-                             showGoOnFB="false" 
-                             showClearOnFB="false" 
-                             showFilterConfiguration="false" 
-                             useToolbar="false" 
-                             class="sapUiBottomMargin">
+            <f:DynamicPageHeader>
+                <fb:FilterBar search=".onSearch" showGoOnFB="false" showClearOnFB="false" showFilterConfiguration="false" useToolbar="false" class="sapUiBottomMargin">
                     <fb:filterGroupItems>
-                        
-                        <!-- Month/Year Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Month" label="{i18n>filterMonthYear}" visibleInFilterBar="true">
                             <fb:control>
                                 <DatePicker id="fltMonth" displayFormat="MM/yyyy" placeholder="{i18n>phSelectMonthYear}" change=".onSearch" />
                             </fb:control>
                         </fb:FilterGroupItem>
-                        
-                        <!-- Employee ID Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                             <fb:control>
                                 <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" showValueHelp="true" valueHelpRequest=".onEmployeeValueHelpRequest" change=".onSearch" valueHelpOnly="true"/>
                             </fb:control>
                         </fb:FilterGroupItem>
-
-                        <!-- Custom Clear Filters Action Button -->
                         <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
                             <fb:control>
                                 <HBox alignItems="Center">
-                                    <Button
-                                        icon="sap-icon://clear-filter"
-                                        tooltip="{i18n>ttClearFilter}"
-                                        type="Transparent"
-                                        press=".onClear"/>
+                                    <Button icon="sap-icon://clear-filter" tooltip="{i18n>ttClearFilter}" type="Transparent" press=".onClear"/>
                                 </HBox>                                        
                             </fb:control>
                         </fb:FilterGroupItem>
-
                     </fb:filterGroupItems>
                 </fb:FilterBar>
-                
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- Main Content Area: Monthly Summary Table -->
+        <!-- bảng báo cáo tổng hợp -->
         <f:content>
-            <Table id="monthlyTable"
-                   items="{ path: '/MonthlyTimesheet', sorter: { path: 'Pernr' } }"
-                   growing="true" 
-                   growingThreshold="20" 
-                   class="sapUiElevationCore3">
-                
-                <!-- Table Header Toolbar -->
+            <Table id="monthlyTable" items="{ path: '/MonthlyTimesheet', sorter: { path: 'Pernr' } }" growing="true" growingThreshold="20" class="sapUiElevationCore3">
                 <headerToolbar>
                     <OverflowToolbar>
                         <Title text="{i18n>titleMonthlyDetails}" level="H4"/>
@@ -84,89 +55,47 @@
                     </OverflowToolbar>
                 </headerToolbar>
 
-                <!-- Table Columns Definition: Chỉ còn 5 Cột chính -->
                 <columns>
                     <Column width="180px" mergeDuplicates="true"><Text text="{i18n>colEmpId}" /></Column>
                     <Column width="100px" hAlign="Center"><Text text="{i18n>colMonthYear}" /></Column>
-                    
-                    <Column hAlign="End"><Text text="Thông tin Ngày Thường"/></Column>
-                    <Column hAlign="End"><Text text="Thông tin Cuối Tuần"/></Column>
-                    <Column hAlign="End"><Text text="Thông tin Ngày Lễ"/></Column>
+                    <Column hAlign="End"><Text text="{i18n>colRegInfo}"/></Column>
+                    <Column hAlign="End"><Text text="{i18n>colWeInfo}"/></Column>
+                    <Column hAlign="End"><Text text="{i18n>colHolInfo}"/></Column>
                 </columns>
                 
-                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem type="Active">
                         <cells>
                             <ObjectIdentifier title="{EmployeeName}" text="{Pernr}"/>
                             <Text text="{MonthYear}" />
                             
-                            <!-- CỘT 1: NGÀY THƯỜNG -->
+                            <!-- cột 1: ngày thường -->
                             <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
-                                <HBox>
-                                    <Text text="Số ca:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{RegularShiftCount}"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Giờ làm:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{RegularPaidHours}" unit="h" state="Information"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Giờ OT:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{RegularOtHours}" unit="h" state="Warning"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Hệ số:" class="sapUiTinyMarginEnd"/>
-                                    <Text text="x{RegularRate} | OT: x{RegularOtRate}"/>
-                                </HBox>
+                                <HBox><Text text="Số ca:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularShiftCount}"/></HBox>
+                                <HBox><Text text="Giờ làm:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularPaidHours}" unit="h" state="Information"/></HBox>
+                                <HBox><Text text="Giờ OT:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularOtHours}" unit="h" state="Warning"/></HBox>
+                                <HBox><Text text="Hệ số:" class="sapUiTinyMarginEnd"/><Text text="x{RegularRate} | OT: x{RegularOtRate}"/></HBox>
                             </VBox>
 
-                            <!-- CỘT 2: CUỐI TUẦN -->
+                            <!-- cột 2: cuối tuần -->
                             <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
-                                <HBox>
-                                    <Text text="Số ca:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{WeekendShiftCount}"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Giờ làm:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{WeekendPaidHours}" unit="h" state="Information"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Giờ OT:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{WeekendOtHours}" unit="h" state="Warning"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Hệ số:" class="sapUiTinyMarginEnd"/>
-                                    <Text text="x{WeekendRate}"/>
-                                </HBox>
+                                <HBox><Text text="Số ca:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendShiftCount}"/></HBox>
+                                <HBox><Text text="Giờ làm:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendPaidHours}" unit="h" state="Information"/></HBox>
+                                <HBox><Text text="Giờ OT:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendOtHours}" unit="h" state="Warning"/></HBox>
+                                <HBox><Text text="Hệ số:" class="sapUiTinyMarginEnd"/><Text text="x{WeekendRate}"/></HBox>
                             </VBox>
 
-                            <!-- CỘT 3: NGÀY LỄ -->
+                            <!-- cột 3: ngày lễ -->
                             <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
-                                <HBox>
-                                    <Text text="Số ca:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{HolidayShiftCount}"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Giờ làm:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{HolidayPaidHours}" unit="h" state="Information"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Giờ OT:" class="sapUiTinyMarginEnd"/>
-                                    <ObjectNumber number="{HolidayOtHours}" unit="h" state="Warning"/>
-                                </HBox>
-                                <HBox>
-                                    <Text text="Hệ số:" class="sapUiTinyMarginEnd"/>
-                                    <Text text="x{HolidayRate}"/>
-                                </HBox>
+                                <HBox><Text text="Số ca:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayShiftCount}"/></HBox>
+                                <HBox><Text text="Giờ làm:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayPaidHours}" unit="h" state="Information"/></HBox>
+                                <HBox><Text text="Giờ OT:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayOtHours}" unit="h" state="Warning"/></HBox>
+                                <HBox><Text text="Hệ số:" class="sapUiTinyMarginEnd"/><Text text="x{HolidayRate}"/></HBox>
                             </VBox>
-
                         </cells>
                     </ColumnListItem>
                 </items>
-                
             </Table>
         </f:content>
-        
     </f:DynamicPage>
 </mvc:View>

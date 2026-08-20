@@ -4,8 +4,8 @@
     xmlns:f="sap.f"
     xmlns:fb="sap.ui.comp.filterbar">
     
-    <f:DynamicPage id="pagePayType">
-        <!-- HEADER: Page Title -->
+    <f:DynamicPage>
+        <!-- tiêu đề trang -->
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
@@ -14,14 +14,9 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- CONTENT: Data Table -->
+        <!-- bảng dữ liệu mã hệ số -->
         <f:content>
-            <Table id="payTypeTable"
-                   items="{ path: '/PayTypeConfig', sorter: { path: 'PayCode' } }"
-                   growing="true" 
-                   growingThreshold="20" 
-                   class="sapUiElevationCore3">
-                
+            <Table id="payTypeTable" items="{ path: '/PayTypeConfig', sorter: { path: 'PayCode' } }" growing="true" growingThreshold="20" class="sapUiElevationCore3">
                 <headerToolbar>
                     <OverflowToolbar>
                         <Title text="{i18n>titlePayRateList}" level="H4"/>

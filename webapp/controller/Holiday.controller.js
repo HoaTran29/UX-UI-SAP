@@ -11,86 +11,53 @@ sap.ui.define([
 
         onInit: function () {
             var oODataModel = this.getOwnerComponent().getModel();
+            if (oODataModel && oODataModel.setUseBatch) oODataModel.setUseBatch(false);
 
-            if (oODataModel && oODataModel.setUseBatch) {
-                oODataModel.setUseBatch(false);
-            }
-
-            this.getView().setModel(
-                new JSONModel(this._getDefaultHolidayData()),
-                "holidayModel"
-            );
-            
+            this.getView().setModel(new JSONModel(this._getDefaultHolidayData()), "holidayModel");
             this.getView().setModel(new JSONModel({ payTypes: [] }), "payTypeModel");
+            
             this._loadPayTypes();
-
-            this._attachAutoReloadHandlers();
+            // load lại bảng mỗi khi vào màn hình này
+            this.getOwnerComponent().getRouter().getRoute("holiday").attachPatternMatched(this._reloadViewData, this);
         },
 
-        // =========================================================
-        // HELPER FUNCTIONS
-        // =========================================================
-
-        // Lấy text từ i18n, hỗ trợ truyền tham số động (VD: [param1])
         _getI18nText: function (sKey, aArgs) {
             return this.getView().getModel("i18n").getResourceBundle().getText(sKey, aArgs);
         },
 
         _getDefaultHolidayData: function () {
-            return {
-                HolDate: new Date(),
-                HolDesc: "",
-                HolPayCode: "",
-                isEdit: false,
-                sPath: ""
-            };
+            return { HolDate: new Date(), HolDesc: "", HolPayCode: "", isEdit: false, sPath: "" };
         },
 
-        _attachAutoReloadHandlers: function () {
-            var oRouter = this.getOwnerComponent().getRouter();
-            var oRoute = oRouter && oRouter.getRoute("holiday");
-
-            if (oRoute && !this._bRouteAttached) {
-                oRoute.attachPatternMatched(this._reloadViewData, this);
-                this._bRouteAttached = true;
-            }
-        },
-
+        // đẩy event để app biết là data bị đổi
         _publishDataChanged: function (sAction) {
             sap.ui.getCore().getEventBus().publish("codesap", "DataChanged", {
-                source: "Holiday",
-                action: sAction || "refresh",
-                timestamp: Date.now()
+                source: "Holiday", action: sAction || "refresh", timestamp: Date.now()
             });
         },
 
         // =========================================================
-        // DIALOG OPERATIONS
+        // quản lý popup
         // =========================================================
-
         onOpenAddDialog: function () {
-            var oHolidayModel = this.getView().getModel("holidayModel");
-            oHolidayModel.setData(this._getDefaultHolidayData());
+            this.getView().getModel("holidayModel").setData(this._getDefaultHolidayData());
             this._openDialog();
         },
 
         onEditHoliday: function (oEvent) {
             var oContext = oEvent.getSource().getBindingContext();
-
             if (!oContext) {
                 MessageBox.error(this._getI18nText("msgErrorGetHolidayData"));
                 return;
             }
 
             var oData = oContext.getObject();
-            var oODataModel = this.getView().getModel();
-
             this.getView().getModel("holidayModel").setData({
                 HolDate: this._toDate(oData.HolDate),
                 HolDesc: oData.HolDesc || "",
                 HolPayCode: oData.HolPayCode || "",
                 isEdit: true,
-                sPath: this._buildHolidayPath(oODataModel, oData.HolDate)
+                sPath: this._buildHolidayPath(this.getView().getModel(), oData.HolDate)
             });
 
             this._openDialog();
@@ -98,71 +65,43 @@ sap.ui.define([
 
         _openDialog: function () {
             var oView = this.getView();
-
             if (!this.pDialog) {
                 this.pDialog = Fragment.load({
-                    id: oView.getId(),
-                    name: "com.app.zu26g13.app.view.AddHolidayDialog",
-                    controller: this
+                    id: oView.getId(), name: "com.app.zu26g13.app.view.AddHolidayDialog", controller: this
                 }).then(function (oDialog) {
                     oView.addDependent(oDialog);
                     return oDialog;
                 });
             }
-
-            this.pDialog.then(function (oDialog) {
-                oDialog.open();
-            });
+            this.pDialog.then(function (oDialog) { oDialog.open(); });
         },
 
         onCloseDialog: function () {
-            if (this.pDialog) {
-                this.pDialog.then(function (oDialog) {
-                    oDialog.close();
-                });
-            }
+            if (this.pDialog) this.pDialog.then(function (oDialog) { oDialog.close(); });
         },
 
         // =========================================================
-        // CRUD OPERATIONS
+        // thêm, sửa, xóa
         // =========================================================
-
         onSaveHoliday: function () {
             var oODataModel = this.getView().getModel();
             var oHolidayModel = this.getView().getModel("holidayModel");
             var oHolidayData = oHolidayModel.getData();
-
+            
+            var sHolPayCode = String(oHolidayData.HolPayCode || "").trim();
             var dHolDate = this._toDate(oHolidayData.HolDate);
             var sHolDesc = String(oHolidayData.HolDesc || "").trim();
 
-            if (!dHolDate) {
-                MessageBox.error(this._getI18nText("msgSelectHolidayDate"), {
-                    title: this._getI18nText("titleMissingDate")
-                });
-                return;
-            }
-
-            if (!sHolDesc) {
-                MessageBox.error(this._getI18nText("msgMissingDesc"), {
-                    title: this._getI18nText("titleMissingDesc")
-                });
-                return;
-            }
-
-            if (!sHolPayCode) {
-                MessageBox.error(this._getI18nText("msgMissingPayCode"), { title: "Error" });
-                return;
-            }
+            // validate chặn
+            if (!dHolDate) return MessageBox.error(this._getI18nText("msgSelectHolidayDate"), { title: this._getI18nText("titleMissingDate") });
+            if (!sHolDesc) return MessageBox.error(this._getI18nText("msgMissingDesc"), { title: this._getI18nText("titleMissingDesc") });
+            if (!sHolPayCode) return MessageBox.error(this._getI18nText("msgMissingPayCode"), { title: "Error" });
 
             oHolidayModel.setProperty("/HolDesc", sHolDesc);
+            oHolidayModel.setProperty("/HolPayCode", sHolPayCode);
 
-            var oPayloadCreate = {
+            var oPayload = {
                 HolDate: this._toODataDate(dHolDate),
-                HolDesc: sHolDesc,
-                HolPayCode: sHolPayCode
-            };
-
-            var oPayloadUpdate = {
                 HolDesc: sHolDesc,
                 HolPayCode: sHolPayCode
             };
@@ -171,8 +110,7 @@ sap.ui.define([
 
             if (oHolidayData.isEdit) {
                 var sUpdatePath = oHolidayData.sPath || this._buildHolidayPath(oODataModel, dHolDate);
-
-                oODataModel.update(sUpdatePath, oPayloadUpdate, {
+                oODataModel.update(sUpdatePath, { HolDesc: sHolDesc, HolPayCode: sHolPayCode }, {
                     success: function () {
                         sap.ui.core.BusyIndicator.hide();
                         MessageToast.show(this._getI18nText("msgHolidayUpdated"));
@@ -182,206 +120,114 @@ sap.ui.define([
                     }.bind(this),
                     error: function (oError) {
                         sap.ui.core.BusyIndicator.hide();
-                        console.error("Error updating /Holiday:", oError);
-                        MessageBox.error(
-                            this._getODataErrorMessage(oError, this._getI18nText("msgUpdateHolidayError")),
-                            { title: this._getI18nText("titleUpdateError") }
-                        );
+                        MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgUpdateHolidayError")), { title: this._getI18nText("titleUpdateError") });
                     }.bind(this)
                 });
-                return;
+            } else {
+                oODataModel.create("/Holiday", oPayload, {
+                    success: function () {
+                        sap.ui.core.BusyIndicator.hide();
+                        MessageToast.show(this._getI18nText("msgHolidayCreated"));
+                        this.onCloseDialog();
+                        this._publishDataChanged("create");
+                        this._reloadViewData();
+                    }.bind(this),
+                    error: function (oError) {
+                        sap.ui.core.BusyIndicator.hide();
+                        MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgCreateHolidayError")), { title: this._getI18nText("titleCreateError") });
+                    }.bind(this)
+                });
             }
-
-            oODataModel.create("/Holiday", oPayloadCreate, {
-                success: function () {
-                    sap.ui.core.BusyIndicator.hide();
-                    MessageToast.show(this._getI18nText("msgHolidayCreated"));
-                    this.onCloseDialog();
-                    this._publishDataChanged("create");
-                    this._reloadViewData();
-                }.bind(this),
-                error: function (oError) {
-                    sap.ui.core.BusyIndicator.hide();
-                    console.error("Error creating /Holiday:", oError);
-                    MessageBox.error(
-                        this._getODataErrorMessage(oError, this._getI18nText("msgCreateHolidayError")),
-                        { title: this._getI18nText("titleCreateError") }
-                    );
-                }.bind(this)
-            });
         },
 
         onDeleteHoliday: function (oEvent) {
             var oContext = oEvent.getSource().getBindingContext();
-
-            if (!oContext) {
-                MessageBox.error(this._getI18nText("msgErrorGetDeleteRow"));
-                return;
-            }
+            if (!oContext) return MessageBox.error(this._getI18nText("msgErrorGetDeleteRow"));
 
             var oData = oContext.getObject();
             var oODataModel = this.getView().getModel();
             var sPath = this._buildHolidayPath(oODataModel, oData.HolDate);
 
-            MessageBox.confirm(
-                this._getI18nText("msgConfirmDeleteHoliday", [this.formatDate(oData.HolDate)]),
-                {
-                    title: this._getI18nText("titleConfirmDeleteHoliday"),
-                    actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
-                    emphasizedAction: MessageBox.Action.OK,
-                    onClose: function (sAction) {
-                        if (sAction !== MessageBox.Action.OK) {
-                            return;
-                        }
+            MessageBox.confirm(this._getI18nText("msgConfirmDeleteHoliday", [this.formatDate(oData.HolDate)]), {
+                title: this._getI18nText("titleConfirmDeleteHoliday"),
+                actions: [MessageBox.Action.OK, MessageBox.Action.CANCEL],
+                emphasizedAction: MessageBox.Action.OK,
+                onClose: function (sAction) {
+                    if (sAction !== MessageBox.Action.OK) return;
 
-                        sap.ui.core.BusyIndicator.show(0);
-
-                        oODataModel.remove(sPath, {
-                            success: function () {
-                                sap.ui.core.BusyIndicator.hide();
-                                MessageToast.show(this._getI18nText("msgHolidayDeleted"));
-                                this._publishDataChanged("delete");
-                                this._reloadViewData();
-                            }.bind(this),
-                            error: function (oError) {
-                                sap.ui.core.BusyIndicator.hide();
-                                console.error("Error deleting /Holiday:", oError);
-                                MessageBox.error(
-                                    this._getODataErrorMessage(oError, this._getI18nText("msgDeleteHolidayError")),
-                                    { title: this._getI18nText("titleDeleteError") }
-                                );
-                            }.bind(this)
-                        });
-                    }.bind(this)
-                }
-            );
-        },
-
-        // =========================================================
-        // DATA FORMATTING & UTILITIES
-        // =========================================================
-
-        _reloadViewData: function () {
-            var oODataModel = this.getView().getModel();
-            var oTable = this.byId("holidayTable");
-            var oBinding = oTable && oTable.getBinding("items");
-
-            if (oODataModel) {
-                oODataModel.refresh(true);
-                if (oODataModel.updateBindings) {
-                    oODataModel.updateBindings(true);
-                }
-            }
-
-            if (oBinding) {
-                oBinding.refresh(true);
-            }
-        },
-
-        formatDate: function (vDate) {
-            var dDate = this._toDate(vDate);
-            if (!dDate) {
-                return "";
-            }
-            return dDate.toLocaleDateString("en-GB", {
-                timeZone: "Asia/Ho_Chi_Minh",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-            });
-        },
-
-        _toDate: function (vDate) {
-            if (!vDate) {
-                return null;
-            }
-            if (vDate instanceof Date) {
-                return vDate;
-            }
-            if (typeof vDate === "string" && vDate.indexOf("/Date(") === 0) {
-                var iTime = parseInt(vDate.replace(/\D/g, ""), 10);
-                return new Date(iTime);
-            }
-            return new Date(vDate);
-        },
-
-        _normalizeDate: function (vDate) {
-            var dDate = this._toDate(vDate);
-            if (!dDate) {
-                return null;
-            }
-            dDate = new Date(dDate);
-            dDate.setHours(0, 0, 0, 0);
-            return dDate;
-        },
-
-        /*
-         * Format date to UTC 00:00:00 to prevent GMT+7 shifting during OData payload submission
-         */
-        _toODataDate: function (vDate) {
-            var dDate = this._normalizeDate(vDate);
-            if (!dDate) {
-                return null;
-            }
-            return new Date(Date.UTC(dDate.getFullYear(), dDate.getMonth(), dDate.getDate(), 0, 0, 0));
-        },
-
-        _buildHolidayPath: function (oODataModel, vHolDate) {
-            return oODataModel.createKey("/Holiday", {
-                HolDate: this._toODataDate(vHolDate)
-            });
-        },
-
-        _getODataErrorMessage: function (oError, sDefaultMessage) {
-            var aMessages = [];
-
-            var fnAddMessage = function (sMessage) {
-                if (!sMessage) { return; }
-                sMessage = String(sMessage).trim();
-                if (!sMessage || sMessage === "HTTP request failed") { return; }
-                if (aMessages.indexOf(sMessage) === -1) {
-                    aMessages.push(sMessage);
-                }
-            };
-
-            try {
-                if (oError && oError.responseText) {
-                    var oBody = JSON.parse(oError.responseText);
-
-                    if (oBody && oBody.error && oBody.error.innererror && oBody.error.innererror.errordetails && oBody.error.innererror.errordetails.length) {
-                        oBody.error.innererror.errordetails.forEach(function (item) {
-                            fnAddMessage(item.message);
-                        });
-                    }
-                    if (oBody && oBody.error && oBody.error.message && oBody.error.message.value) {
-                        fnAddMessage(oBody.error.message.value);
-                    }
-                }
-            } catch (e) {
-                if (oError && oError.responseText) {
-                    fnAddMessage(oError.responseText);
-                }
-            }
-
-            if (oError && oError.message) {
-                fnAddMessage(oError.message);
-            }
-
-            if (aMessages.length > 0) {
-                return aMessages.join("\n");
-            }
-
-            return sDefaultMessage || this._getI18nText("msgUnexpectedError");
-        },
-
-        _loadPayTypes: function () {
-            var oODataModel = this.getOwnerComponent().getModel();
-            oODataModel.read("/PayTypeConfig", {
-                success: function (oData) {
-                    this.getView().getModel("payTypeModel").setProperty("/payTypes", oData.results || []);
+                    sap.ui.core.BusyIndicator.show(0);
+                    oODataModel.remove(sPath, {
+                        success: function () {
+                            sap.ui.core.BusyIndicator.hide();
+                            MessageToast.show(this._getI18nText("msgHolidayDeleted"));
+                            this._publishDataChanged("delete");
+                            this._reloadViewData();
+                        }.bind(this),
+                        error: function (oError) {
+                            sap.ui.core.BusyIndicator.hide();
+                            MessageBox.error(this._getODataErrorMessage(oError, this._getI18nText("msgDeleteHolidayError")), { title: this._getI18nText("titleDeleteError") });
+                        }.bind(this)
+                    });
                 }.bind(this)
             });
         },
 
+        // =========================================================
+        // các hàm tiện ích (utilities)
+        // =========================================================
+        _reloadViewData: function () {
+            var oODataModel = this.getView().getModel();
+            var oTable = this.byId("holidayTable");
+            
+            if (oODataModel) {
+                oODataModel.refresh(true);
+                if (oODataModel.updateBindings) oODataModel.updateBindings(true);
+            }
+            if (oTable && oTable.getBinding("items")) oTable.getBinding("items").refresh(true);
+        },
+
+        formatDate: function (vDate) {
+            var dDate = this._toDate(vDate);
+            if (!dDate) return "";
+            return dDate.toLocaleDateString("en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric" });
+        },
+
+        _toDate: function (vDate) {
+            if (!vDate) return null;
+            if (vDate instanceof Date) return vDate;
+            if (typeof vDate === "string" && vDate.indexOf("/Date(") === 0) return new Date(parseInt(vDate.replace(/\D/g, ""), 10));
+            return new Date(vDate);
+        },
+
+        _toODataDate: function (vDate) {
+            var dDate = this._toDate(vDate);
+            if (!dDate) return null;
+            return new Date(Date.UTC(dDate.getFullYear(), dDate.getMonth(), dDate.getDate(), 0, 0, 0));
+        },
+
+        _buildHolidayPath: function (oODataModel, vHolDate) {
+            return oODataModel.createKey("/Holiday", { HolDate: this._toODataDate(vHolDate) });
+        },
+
+        // lấy lỗi từ backend odata
+        _getODataErrorMessage: function (oError, sDefaultMessage) {
+            try {
+                if (oError && oError.responseText) {
+                    var oBody = JSON.parse(oError.responseText);
+                    if (oBody && oBody.error && oBody.error.message && oBody.error.message.value) {
+                        return oBody.error.message.value;
+                    }
+                }
+            } catch (e) {}
+            return sDefaultMessage || this._getI18nText("msgUnexpectedError");
+        },
+
+        _loadPayTypes: function () {
+            this.getOwnerComponent().getModel().read("/PayTypeConfig", {
+                success: function (oData) {
+                    this.getView().getModel("payTypeModel").setProperty("/payTypes", oData.results || []);
+                }.bind(this)
+            });
+        }
     });
 });

@@ -1,4 +1,6 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form">
+    
+    <!-- popup thêm/sửa mã hệ số -->
     <Dialog id="dlgPayType" title="{localModel>/title}" contentWidth="400px">
         <f:SimpleForm editable="true" layout="ResponsiveGridLayout">
             <f:content>
@@ -6,12 +8,13 @@
                 <Input value="{localModel>/PayCode}" editable="{localModel>/isNew}" maxLength="4" placeholder="VD: X10, X20, OT..."/>
                 
                 <Label text="{i18n>lblDescription}" required="true"/>
-                <Input value="{localModel>/PayDesc}" placeholder="Mô tả hệ số..."/>
+                <Input value="{localModel>/PayDesc}" placeholder="{i18n>exPayrateDesc}"/>
 
                 <Label text="{i18n>lblRateFactor}" required="true"/>
-                <Input value="{localModel>/RateFactor}" type="Number" placeholder="VD: 1.0, 1.5, 2.0..."/>
+                <Input value="{localModel>/RateFactor}" type="Number"/>
             </f:content>
         </f:SimpleForm>
+        
         <beginButton>
             <Button text="{i18n>btnSave}" type="Emphasized" press=".onSaveDialog"/>
         </beginButton>
@@ -19,4 +22,5 @@
             <Button text="{i18n>btnCancel}" press=".onCancelDialog"/>
         </endButton>
     </Dialog>
+    
 </core:FragmentDefinition>

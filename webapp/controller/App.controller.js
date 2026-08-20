@@ -7,47 +7,37 @@ sap.ui.define([
     return Controller.extend("com.app.zu26g13.app.controller.App", {
         
         onInit: function () {
-            // Initialize router and attach global route matched event
-            var oRouter = this.getOwnerComponent().getRouter();
-            oRouter.attachRouteMatched(this._onGlobalRouteMatched, this);
+            // khởi tạo router và bắt sự kiện chuyển trang để xử lý global
+            this.getOwnerComponent().getRouter().attachRouteMatched(this._onGlobalRouteMatched, this);
         },
 
         _onGlobalRouteMatched: function (oEvent) {
-            // Force model data refresh
+            // ép model refresh lại data mới nhất
             var oModel = this.getOwnerComponent().getModel();
-            if (oModel) {
-                oModel.refresh(true);
-            }
+            if (oModel) oModel.refresh(true);
 
-            // Auto-highlight the active menu item in SideNavigation
+            // tự động highlight menu đang chọn ở thanh điều hướng bên trái
             var sRouteName = oEvent.getParameter("name"); 
             var oSideNav = this.byId("sideNavigation"); 
             
-            if (oSideNav && sRouteName) {
-                oSideNav.setSelectedKey(sRouteName);
-            }
+            if (oSideNav && sRouteName) oSideNav.setSelectedKey(sRouteName);
         },
 
         onCollapseExpandPress: function () {
-            // Toggle side menu (collapse/expand)
+            // thu gọn hoặc mở rộng thanh menu bên trái
             var oToolPage = this.byId("toolPage"); 
-            if (oToolPage) {
-                var bExpanded = oToolPage.getSideExpanded();
-                oToolPage.setSideExpanded(!bExpanded);
-            }
+            if (oToolPage) oToolPage.setSideExpanded(!oToolPage.getSideExpanded());
         },
 
         onItemSelect: function (oEvent) {
-            // Handle side menu item selection and navigate to the matched route
-            var oItem = oEvent.getParameter("item");
-            var sKey = oItem.getKey(); 
-
-            if (sKey) {
-                var oRouter = this.getOwnerComponent().getRouter();
-                oRouter.navTo(sKey);
-            }
+            // chuyển trang khi user bấm vào item trên menu
+            var sKey = oEvent.getParameter("item").getKey(); 
+            if (sKey) this.getOwnerComponent().getRouter().navTo(sKey);
         },
 
+        // =========================================================
+        // popup chính sách (policy dialog)
+        // =========================================================
         onOpenPolicy: function (oEvent) {
             var oView = this.getView();
 
@@ -58,11 +48,8 @@ sap.ui.define([
                     controller: this
                 }).then(function (oDialog) {
                     this._oPolicyDialog = oDialog;
-
                     oView.addDependent(this._oPolicyDialog);
-                    
                     this._oPolicyDialog.bindElement("/Policy('POL_1')");
-                    
                     this._oPolicyDialog.open();
                 }.bind(this));
             } else {
@@ -71,10 +58,7 @@ sap.ui.define([
         },
 
         onClosePolicy: function () {
-            if (this._oPolicyDialog) {
-                this._oPolicyDialog.close();
-            }
+            if (this._oPolicyDialog) this._oPolicyDialog.close();
         }
-
     });
 });

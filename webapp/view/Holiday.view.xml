@@ -5,85 +5,50 @@
     xmlns:f="sap.f"
     displayBlock="true">
 
-    <!-- Fiori 3 Dynamic Page Layout for Holiday Configuration -->
-    <f:DynamicPage id="dynamicPageHoliday" class="sapUiContentPadding">
+    <f:DynamicPage class="sapUiContentPadding">
         
-        <!-- Header Section: Title and Actions -->
+        <!-- header: tiêu đề và nút thêm -->
         <f:title>
             <f:DynamicPageTitle>
                 <f:heading>
                     <Title text="{i18n>titleHolidayConfig}" level="H1"/>
                 </f:heading>
-                
                 <f:actions>
-                    <Button
-                        id="btnAddHoliday"
-                        icon="sap-icon://add"
-                        text="{i18n>btnAddHoliday}"
-                        type="Emphasized"
-                        press="onOpenAddDialog"/>
+                    <Button icon="sap-icon://add" text="{i18n>btnAddHoliday}" type="Emphasized" press="onOpenAddDialog"/>
                 </f:actions>
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- Header Content: Information Message Strip -->
         <f:header>
             <f:DynamicPageHeader pinnable="false">
-                <MessageStrip
-                    text="{i18n>msgSundayAutoDetect}"
-                    type="Information"
-                    showIcon="true"/>
+                <MessageStrip text="{i18n>msgSundayAutoDetect}" type="Information" showIcon="true"/>
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- Main Content: Holiday Configuration Table -->
+        <!-- nội dung: bảng danh sách ngày lễ -->
         <f:content>
-            <Table
-                id="holidayTable"
-                items="{/Holiday}"
-                growing="true"
-                growingScrollToLoad="true"
-                class="sapUiElevationCore3">
-
-                <!-- Table Columns Definition -->
+            <Table id="holidayTable" items="{/Holiday}" growing="true" growingScrollToLoad="true" class="sapUiElevationCore3">
                 <columns>
-                    <Column width="180px">
-                        <Text text="{i18n>colHolidayDate}"/>
-                    </Column>
-
-                    <Column>
-                        <Text text="{i18n>colHolidayDesc}"/>
-                    </Column>
-
-                    <Column width="140px" hAlign="Center">
-                        <Text text="{i18n>colAction}"/>
-                    </Column>
+                    <Column width="180px"><Text text="{i18n>colHolidayDate}"/></Column>
+                    <Column><Text text="{i18n>colHolidayDesc}"/></Column>
+                    <Column width="150px" hAlign="Center"><Text text="{i18n>colHolPayRate}"/></Column>
+                    <Column width="140px" hAlign="Center"><Text text="{i18n>colAction}"/></Column>
                 </columns>
 
-                <!-- Table Rows Binding Template -->
                 <items>
                     <ColumnListItem vAlign="Middle">
                         <cells>
-                            <!-- Holiday Date Cell -->
                             <Text text="{path: 'HolDate', formatter: '.formatDate'}"/>
-
-                            <!-- Holiday Description Cell -->
                             <Text text="{HolDesc}"/>
-
-                            <!-- Row Action Buttons: Edit & Delete -->
+                            <HBox alignItems="Center" justifyContent="Center">
+                                <ObjectStatus text="{HolPayCode}" state="Information" class="sapUiTinyMarginEnd"/>
+                                <ObjectNumber number="x{HolRateFactor}" />
+                            </HBox>
+                            
+                            <!-- nút thao tác -->
                             <HBox justifyContent="Center">
-                                <Button
-                                    icon="sap-icon://edit"
-                                    type="Transparent"
-                                    tooltip="{i18n>ttEditHoliday}"
-                                    press="onEditHoliday"
-                                    class="sapUiTinyMarginEnd"/>
-
-                                <Button
-                                    icon="sap-icon://delete"
-                                    type="Reject"
-                                    tooltip="{i18n>ttDeleteHoliday}"
-                                    press="onDeleteHoliday"/>
+                                <Button icon="sap-icon://edit" type="Transparent" tooltip="{i18n>ttEditHoliday}" press="onEditHoliday" class="sapUiTinyMarginEnd"/>
+                                <Button icon="sap-icon://delete" type="Reject" tooltip="{i18n>ttDeleteHoliday}" press="onDeleteHoliday"/>
                             </HBox>
                         </cells>
                     </ColumnListItem>

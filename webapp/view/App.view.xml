@@ -4,27 +4,21 @@
     xmlns="sap.m"
     xmlns:tnt="sap.tnt">
     
-    <!-- Shell Container -->
-    <Shell id="shellId" appWidthLimited="false"> 
-        <App id="appId">
-            
-            <!-- Main ToolPage Layout (Header, Side Navigation, and Content Area) -->
+    <Shell appWidthLimited="false"> 
+        <App>
             <tnt:ToolPage id="toolPage">
                 
-                <!-- ToolPage Header Section -->
+                <!-- header thanh công cụ ở trên cùng -->
                 <tnt:header>
-                    <tnt:ToolHeader id="toolHeader">
-                        <!-- Sidebar Collapse/Expand Toggle Button -->
-                        <Button id="sideNavigationToggleButton" icon="sap-icon://menu2" type="Transparent" press=".onCollapseExpandPress" />
-                        <!-- Application Title -->
-                        <Title id="appTitle" text="{i18n>appTitle}" />
-                        <ToolbarSpacer id="spacer" />
-                        <!-- Utility Actions: Notifications and User Profile -->
-                        <Button id="btnPolicy" icon="sap-icon://course-book" text="{i18n>btnPolicyText}" type="Transparent" tooltip="{i18n>btnPolicyTooltip}" press=".onOpenPolicy" />
+                    <tnt:ToolHeader>
+                        <Button icon="sap-icon://menu2" type="Transparent" press=".onCollapseExpandPress" />
+                        <Title text="{i18n>appTitle}" />
+                        <ToolbarSpacer />
+                        <Button icon="sap-icon://course-book" text="{i18n>btnPolicyText}" type="Transparent" tooltip="{i18n>btnPolicyTooltip}" press=".onOpenPolicy" />
                     </tnt:ToolHeader>
                 </tnt:header>
 
-                <!-- ToolPage Side Navigation Menu -->
+                <!-- menu điều hướng bên trái -->
                 <tnt:sideContent>
                     <tnt:SideNavigation id="sideNavigation" itemSelect=".onItemSelect">
                         <tnt:item>
@@ -36,25 +30,23 @@
                             </tnt:NavigationList>
                         </tnt:item>
                         
-                        <!-- Fixed Footer Navigation Items (Master Data Setup) -->
                         <tnt:fixedItem>
                             <tnt:NavigationList>
                                 <tnt:NavigationListItem text="{i18n>menuMasterData}" icon="sap-icon://action-settings" expanded="false">
-                                    <tnt:NavigationListItem id="menuEmployeeConfigId" text="{i18n>menuEmployees}" key="employeeConfig" />
+                                    <tnt:NavigationListItem text="{i18n>menuEmployees}" key="employeeConfig" />
                                     <tnt:NavigationListItem text="{i18n>menuSchedules}" key="schedule" />
                                     <tnt:NavigationListItem text="{i18n>menuHolidays}" key="holiday" />
-                                    <tnt:NavigationListItem id="navShiftConfig" text="{i18n>menuShifts}" icon="sap-icon://fob-watch" key="shiftConfig"/>
-                                    <tnt:NavigationListItem text="{i18n>configPayRate}" key="payTypeConfig" />
+                                    <tnt:NavigationListItem text="{i18n>menuShifts}" key="shiftConfig"/>
+                                    <tnt:NavigationListItem text="{i18n>menuPayRates}" key="payTypeConfig" />
                                 </tnt:NavigationListItem>
                             </tnt:NavigationList>
                         </tnt:fixedItem>
                     </tnt:SideNavigation>
                 </tnt:sideContent>
 
-                <!-- Main Content Container Area -->
+                <!-- khung chứa nội dung các trang con -->
                 <tnt:mainContents>
-                    <NavContainer id="pageContainer">
-                    </NavContainer>
+                    <NavContainer id="pageContainer"></NavContainer>
                 </tnt:mainContents>
 
             </tnt:ToolPage>

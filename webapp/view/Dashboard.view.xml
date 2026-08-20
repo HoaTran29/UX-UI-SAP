@@ -7,10 +7,8 @@
     xmlns:fb="sap.ui.comp.filterbar"
     xmlns:core="sap.ui.core">
 
-    <!-- Main Dynamic Page Layout -->
     <f:DynamicPage id="dynamicPageDashboard">
-
-        <!-- Page Title Header Section -->
+        <!-- header: tiêu đề app -->
         <f:title>
             <f:DynamicPageTitle id="pageTitleDashboardId">
                 <f:heading>
@@ -19,170 +17,119 @@
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- Page Header Area (KPI Tiles & Filter Bar) -->
+        <!-- header area: gạch kpi và thanh tìm kiếm -->
         <f:header>
             <f:DynamicPageHeader id="dynamicPageHeaderDashboardId">
-                
                 <VBox>
-                    <!-- KPI Summary Cards Grid -->
+                    <!-- lưới chứa 4 thẻ kpi -->
                     <layout:Grid id="gridKPI" defaultSpan="XL3 L3 M6 S12" class="sapUiBottomMargin">
                         
-                        <!-- Total Employees KPI Tile -->
-                        <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalEmp}" subheader="{i18n>tileTotalEmpSub}" 
-                        frameType="OneByOne" press=".onNavToEmployee">
+                        <!-- tổng nhân sự -->
+                        <GenericTile id="tileEmp" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalEmp}" subheader="{i18n>tileTotalEmpSub}" frameType="OneByOne" press=".onNavToEmployee">
                             <TileContent id="tcEmp">
                                 <NumericContent id="ncEmp" value="{kpi>/totalEmp}" icon="sap-icon://employee" valueColor="Good"/>
                             </TileContent>
                         </GenericTile>
 
-                        <!-- Total Overtime (OT) KPI Tile -->
-                        <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalOt}" subheader="{i18n>tileTotalOtSub}" 
-                        frameType="OneByOne" press=".onNavToMonthlyReport">
+                        <!-- tổng ot -->
+                        <GenericTile id="tileOT" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileTotalOt}" subheader="{i18n>tileTotalOtSub}" frameType="OneByOne" press=".onNavToMonthlyReport">
                             <TileContent id="tcOT">
                                 <NumericContent id="ncOT" value="{kpi>/totalOT}" icon="sap-icon://history" valueColor="Critical"/>
                             </TileContent>
                         </GenericTile>
 
-                        <!-- Pending Dispute Reports KPI Tile -->
+                        <!-- khiếu nại chờ duyệt -->
                         <GenericTile id="tileReport" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileReport}" subheader="{i18n>tileReportSub}" frameType="OneByOne" press=".onGoToDispute">
                             <TileContent id="tcReport">
                                 <NumericContent id="ncReport" value="{kpi>/pendingDisputes}" icon="sap-icon://alert" valueColor="Error"/>
                             </TileContent>
                         </GenericTile>
 
-                        <!-- Shift Schedule Management Tile -->
+                        <!-- lịch làm việc -->
                         <GenericTile id="tileSchedule" class="sapUiTinyMarginBegin sapUiTinyMarginTop" header="{i18n>tileSchedule}" subheader="{i18n>tileScheduleSub}" frameType="OneByOne" press=".onNavToSchedule">
                             <TileContent id="tcSchedule">
-                                <ImageContent src="sap-icon://calendar" />
+                                <NumericContent value="{kpi>/totalScheduled}" icon="sap-icon://calendar" valueColor="Neutral"/>
                             </TileContent>
                         </GenericTile>
                     </layout:Grid>
 
-                    <!-- Section Title: Timesheet Tracker -->
                     <Title id="titleTimesheet" text="{i18n>titleTimesheet}" titleStyle="H3" class="sapUiSmallMarginBottom sapUiMediumMarginTop"/>
                     
-                    <!-- Filter Bar Section -->
-                    <fb:FilterBar id="filterBar" 
-                        search=".onSearch" 
-                        showGoOnFB="false" 
-                        showClearOnFB="false" 
-                        showFilterConfiguration="false" 
-                        useToolbar="false" 
-                        class="sapUiBottomMargin">
-                        
+                    <!-- thanh lọc (filter bar) -->
+                    <fb:FilterBar id="filterBar" search=".onSearch" showGoOnFB="false" showClearOnFB="false" showFilterConfiguration="false" useToolbar="false" class="sapUiBottomMargin">
                         <fb:filterGroupItems>
-                            <!-- Employee ID Filter Item -->
+                            <!-- lọc theo mã nv -->
                             <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                                 <fb:control>
-                                    <Input id="fltEmp" 
-                                           placeholder="{i18n>phEnterEmpId}" 
-                                           showValueHelp="true" 
-                                           valueHelpOnly="true"
-                                           valueHelpRequest=".onEmpValueHelpRequest"
-                                           change=".onSearch"/>
+                                    <Input id="fltEmp" placeholder="{i18n>phEnterEmpId}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onEmpValueHelpRequest" change=".onSearch"/>
                                 </fb:control>
                             </fb:FilterGroupItem>
 
-                            <!-- Department Filter Item -->
+                            <!-- lọc theo phòng ban -->
                             <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
                                 <fb:control>
-                                    <Input id="fltDept" 
-                                           placeholder="{i18n>phSelectDeptFilter}" 
-                                           showValueHelp="true" 
-                                           valueHelpOnly="true"
-                                           valueHelpRequest=".onDeptValueHelpRequest"
-                                           change=".onSearch" />
+                                    <Input id="fltDept" placeholder="{i18n>phSelectDeptFilter}" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onDeptValueHelpRequest" change=".onSearch" />
                                 </fb:control>
                             </fb:FilterGroupItem>
 
-                            <!-- Work Date Filter Item -->
+                            <!-- lọc theo ngày -->
                             <fb:FilterGroupItem groupName="G1" name="Date" label="{i18n>filterDate}" visibleInFilterBar="true">
                                 <fb:control>
                                     <DatePicker id="fltDate" displayFormat="dd/MM/yyyy" placeholder="{i18n>phSelectDate}" change=".onSearch"/>
                                 </fb:control>
                             </fb:FilterGroupItem>
 
-                            <!-- Clear Filters Action Button -->
+                            <!-- nút xóa bộ lọc -->
                             <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
                                 <fb:control>
                                     <HBox alignItems="Center">
-                                        <Button
-                                            icon="sap-icon://clear-filter"
-                                            tooltip="{i18n>ttClearFilter}"
-                                            type="Transparent"
-                                            press=".onClear"/>
+                                        <Button icon="sap-icon://clear-filter" tooltip="{i18n>ttClearFilter}" type="Transparent" press=".onClear"/>
                                     </HBox>                                        
                                 </fb:control>
                             </fb:FilterGroupItem>
                         </fb:filterGroupItems>
                     </fb:FilterBar>
                 </VBox>
-                
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- Main Page Content Area (Timesheet Data Table) -->
+        <!-- main content: bảng dữ liệu chấm công hàng ngày -->
         <f:content>
-            <Table id="timesheetTable"
-                   items="{
-                       path: '/Timesheet',
-                       sorter: [
-                           { path: 'WorkDate', descending: true }
-                       ]
-                   }"
-                   growing="true"
-                   growingThreshold="10"
-                   class="sapUiElevationCore3">
+            <Table id="timesheetTable" items="{ path: '/Timesheet', sorter: [{ path: 'WorkDate', descending: true }] }" growing="true" growingThreshold="10" class="sapUiElevationCore3">
             
-                <!-- Table Toolbar Header -->
                 <headerToolbar>
                     <OverflowToolbar>
                         <Title text="{i18n>titleWorkDetails}" level="H4"/>
                         <ToolbarSpacer/>
-                        <Button id="btnExport" icon="sap-icon://excel-attachment" text="{i18n>btnExportExcel}" type="Success" press=".onExportExcel" tooltip="{i18n>ttExportExcel}"/>
                     </OverflowToolbar>
                 </headerToolbar>
                 
-                <!-- Table Columns Definition -->
                 <columns>
-                    <Column id="colEmp"><Text id="txtColEmp" text="{i18n>colEmpShift}" /></Column>
-                    <Column id="colDept"><Text id="txtColDept" text="{i18n>colDept}" /></Column>
-                    <Column id="colDate"><Text id="txtColDate" text="{i18n>filterDate}" /></Column>
-                    <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text id="txtColTime" text="{i18n>colTimeInOut}" /></Column>
-                    <Column id="colStdHours" hAlign="Center"><Text id="txtColStdHours" text="{i18n>colStdHours}" /></Column>
-                    <Column id="colActHours" hAlign="Center"><Text id="txtColActHours" text="{i18n>colActHours}" /></Column>
-                    <Column id="colOtHours" hAlign="Center"><Text id="txtColOtHours" text="{i18n>colOtHours}" /></Column>
-                    <Column id="colStatus" hAlign="Center"><Text id="txtColStatus" text="{i18n>colStatus}" /></Column>
+                    <Column id="colEmp"><Text text="{i18n>colEmpShift}" /></Column>
+                    <Column id="colDept"><Text text="{i18n>colDept}" /></Column>
+                    <Column id="colDate"><Text text="{i18n>filterDate}" /></Column>
+                    <Column id="colTime" demandPopin="true" minScreenWidth="Tablet"><Text text="{i18n>colTimeInOut}" /></Column>
+                    <Column id="colStdHours" hAlign="Center"><Text text="{i18n>colStdHours}" /></Column>
+                    <Column id="colActHours" hAlign="Center"><Text text="{i18n>colActHours}" /></Column>
+                    <Column id="colOtHours" hAlign="Center"><Text text="{i18n>colOtHours}" /></Column>
+                    <Column id="colStatus" hAlign="Center"><Text text="{i18n>colStatus}" /></Column>
                 </columns>
 
-                <!-- Table Rows Binding Template -->
                 <items>
-                    <ColumnListItem id="cliTimesheet" type="Active">
+                    <ColumnListItem type="Active">
                         <cells>
-                            <ObjectIdentifier id="objIdEmp" title="{Pernr}" text="Shift {ShiftId}"/>
-                            <Text id="txtCellDept" text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
-                            <Text id="txtCellDate" text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
-                            <Text id="txtCellTime" text="{ parts: ['ActIn', 'Status'], formatter: '.formatTimeDisplay' } - { parts: ['ActOut', 'Status'], formatter: '.formatTimeDisplay' }" />
-                            <ObjectNumber id="objNumStd" number="{WorkHours}" />
-                            <ObjectNumber id="objNumAct"
-                                number="{TotHours}" 
-                                state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
-                            <ObjectNumber id="objNumOt"
-                                number="{OtHours}" 
-                                state="Warning"
-                                visible="{= parseFloat(${OtHours}) > 0 }"/>
-                            <ObjectStatus id="objStatStatus"
-                                text="{Status}" 
-                                inverted="true"
-                                state="{= ${Status} === 'COMPLETED' ? 'Success' : 
-                                        (${Status} === 'ABSENT' ? 'Warning' : 
-                                        (${Status} === 'WARNING' ? 'Error' :
-                                        (${Status} === 'LEAVE' ? 'Information' : 'None'))) }" />
+                            <ObjectIdentifier title="{Pernr}" text="{ShiftId}"/>
+                            <Text text="{= ${deptLookup>/}[${DeptId}] ? ${deptLookup>/}[${DeptId}] : ${DeptId} }" />
+                            <Text text="{ path: 'WorkDate', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd/MM/yyyy' } }" />
+                            <Text text="{ parts: ['ActIn', 'WorkDate', 'Status'], formatter: '.formatTimeDisplay' } - { parts: ['ActOut', 'WorkDate', 'Status'], formatter: '.formatTimeDisplay' }" />
+                            <ObjectNumber number="{WorkHours}" />
+                            <ObjectNumber number="{TotHours}" state="{= parseFloat(${TotHours}) >= parseFloat(${WorkHours}) ? 'Success' : 'Error' }"/>
+                            <ObjectNumber number="{OtHours}" state="Warning" visible="{= parseFloat(${OtHours}) > 0 }"/>
+                            <ObjectStatus text="{Status}" inverted="true" state="{= ${Status} === 'COMPLETED' ? 'Success' : (${Status} === 'ABSENT' ? 'Warning' : (${Status} === 'WARNING' ? 'Error' : (${Status} === 'LEAVE' ? 'Information' : 'None'))) }" />
                         </cells>
                     </ColumnListItem>
                 </items>
             </Table>
         </f:content>
-        
     </f:DynamicPage>
 </mvc:View>

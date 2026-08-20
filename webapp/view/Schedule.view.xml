@@ -5,69 +5,32 @@
     xmlns:unified="sap.ui.unified"
     displayBlock="true">
 
-    <!-- Schedule & Overtime Management Page -->
-    <Page id="page" title="{i18n>titleScheduleOt}">
+    <Page title="{i18n>titleScheduleOt}">
 
-        <!-- Page Header Content: Search Inputs, Filter Clear, and Create Action -->
+        <!-- thanh công cụ tìm kiếm trên header -->
         <headerContent>
-            <!-- Employee Search Input Field -->
-            <Input
-                id="HeaderEmployeeSearchInput"
-                value="{headerSearchModel>/employeeQuery}"
-                placeholder="{i18n>phSearchSelectEmp}"
-                width="260px"
-                showValueHelp="true"
-                valueHelpOnly="true"
-                valueHelpRequest=".onHeaderEmployeeValueHelpRequest"
-                liveChange=".onHeaderEmployeeLiveChange"
-                submit=".onHeaderEmployeeSubmit"
-                class="sapUiSmallMarginEnd"/>
+            <!-- tìm nhân viên -->
+            <Input id="HeaderEmployeeSearchInput" value="{headerSearchModel>/employeeQuery}" placeholder="{i18n>phSearchSelectEmp}" width="260px" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onHeaderEmployeeValueHelpRequest" liveChange=".onHeaderEmployeeLiveChange" submit=".onHeaderEmployeeSubmit" class="sapUiSmallMarginEnd"/>
 
-            <!-- Department Search Input Field -->
-            <Input
-                id="HeaderDepartmentSearchInput"
-                value="{headerSearchModel>/deptQuery}"
-                placeholder="{i18n>phSearchSelectDept}"
-                width="260px"
-                showValueHelp="true"
-                valueHelpOnly="true"
-                valueHelpRequest=".onHeaderDepartmentValueHelpRequest"
-                liveChange=".onHeaderDepartmentLiveChange"
-                submit=".onHeaderDepartmentSubmit"
-                class="sapUiSmallMarginEnd"/>
+            <!-- tìm phòng ban -->
+            <Input id="HeaderDepartmentSearchInput" value="{headerSearchModel>/deptQuery}" placeholder="{i18n>phSearchSelectDept}" width="260px" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onHeaderDepartmentValueHelpRequest" liveChange=".onHeaderDepartmentLiveChange" submit=".onHeaderDepartmentSubmit" class="sapUiSmallMarginEnd"/>
 
-            <!-- Clear Filters Button -->
-            <Button
-                icon="sap-icon://clear-filter"
-                type="Transparent"
-                tooltip="{i18n>ttClearFilter}"
-                press=".onClearHeaderFilters"
-                class="sapUiSmallMarginEnd"/>
+            <!-- xóa tìm kiếm -->
+            <Button icon="sap-icon://clear-filter" type="Transparent" tooltip="{i18n>ttClearFilter}" press=".onClearHeaderFilters" class="sapUiSmallMarginEnd"/>
 
-            <!-- Create New Schedule Action Button -->
-            <Button 
-                icon="sap-icon://add"
-                text="{i18n>btnAddSchedule}"
-                type="Emphasized"
-                press="onOpenCreateDialog"/>
+            <!-- tạo lịch mới -->
+            <Button icon="sap-icon://add" text="{i18n>btnAddSchedule}" type="Emphasized" press="onOpenCreateDialog"/>
         </headerContent>
 
-        <!-- Main Page Content: Planning Calendar Component -->
+        <!-- phần lịch xếp ca (planning calendar) -->
         <content>
-            <PlanningCalendar 
-                id="idPlanningCalendar"
-                viewKey="Week"
-                rows="{calendarModel>/employees}"
-                appointmentSelect=".onAppointmentSelect">
+            <PlanningCalendar id="idPlanningCalendar" viewKey="Week" rows="{calendarModel>/employees}" appointmentSelect=".onAppointmentSelect">
 
-                <!-- Calendar Rows Binding Template -->
                 <rows>
-                    <PlanningCalendarRow 
-                        title="{calendarModel>EmployeeName} ({calendarModel>Pernr})"
-                        text="{= ${calendarModel>DeptName} ? ${calendarModel>DeptName} + ' - ' + ${calendarModel>DeptId} : ${calendarModel>DeptId} }"
-                        appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
+                    <!-- thông tin nhân sự bên trái -->
+                    <PlanningCalendarRow title="{calendarModel>EmployeeName} ({calendarModel>Pernr})" text="{= ${calendarModel>DeptName} ? ${calendarModel>DeptName} + ' - ' + ${calendarModel>DeptId} : ${calendarModel>DeptId} }" appointments="{ path: 'calendarModel>appointments', templateShareable: false }">
 
-                        <!-- Calendar Appointments Binding Template -->
+                        <!-- lịch làm việc (appointment) -->
                         <appointments>
                             <unified:CalendarAppointment 
                                 startDate="{calendarModel>StartDate}"
@@ -75,17 +38,12 @@
                                 title="{calendarModel>AppointmentTitle}"
                                 text="{calendarModel>AppointmentText}"
                                 tooltip="{calendarModel>AppointmentTooltip}"
-                                type="{
-                                    parts: [
-                                        {path: 'calendarModel>ShiftId'},
-                                        {path: 'calendarModel>OtHours'}
-                                    ],
-                                    formatter: '.formatAppointmentType'
-                                }"/>
+                                type="{ parts: [ {path: 'calendarModel>ShiftId'}, {path: 'calendarModel>OtHours'} ], formatter: '.formatAppointmentType' }"/>
                         </appointments>
 
                     </PlanningCalendarRow>
                 </rows>
+
             </PlanningCalendar>
         </content>
     </Page>

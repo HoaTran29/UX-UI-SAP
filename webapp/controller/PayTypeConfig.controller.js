@@ -12,6 +12,7 @@ sap.ui.define([
     return Controller.extend("com.app.zu26g13.app.controller.PayTypeConfig", {
 
         onInit: function () {
+            // khởi tạo model nội bộ cho dialog
             this.getView().setModel(new JSONModel({}), "localModel");
         },
 
@@ -19,23 +20,15 @@ sap.ui.define([
             return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
         },
 
-        // ==========================================
-        // 1. SEARCH & FILTER
-        // ==========================================
         onSearch: function () {
             var aFilters = [];
             var sCode = this.byId("fltPayCode").getValue();
             var sDesc = this.byId("fltPayDesc").getValue();
 
-            if (sCode) {
-                aFilters.push(new Filter("PayCode", FilterOperator.Contains, sCode));
-            }
-            if (sDesc) {
-                aFilters.push(new Filter("PayDesc", FilterOperator.Contains, sDesc));
-            }
+            if (sCode) aFilters.push(new Filter("PayCode", FilterOperator.Contains, sCode));
+            if (sDesc) aFilters.push(new Filter("PayDesc", FilterOperator.Contains, sDesc));
 
-            var oTable = this.byId("payTypeTable");
-            oTable.getBinding("items").filter(aFilters);
+            this.byId("payTypeTable").getBinding("items").filter(aFilters);
         },
 
         onClear: function () {
@@ -44,11 +37,10 @@ sap.ui.define([
             this.onSearch();
         },
 
-        // ==========================================
-        // 2. OPEN DIALOGS
-        // ==========================================
         _openDialog: function () {
             var oView = this.getView();
+            
+            // tải và mở dialog fragment
             if (!this._pDialog) {
                 this._pDialog = Fragment.load({
                     id: oView.getId(),
@@ -66,13 +58,16 @@ sap.ui.define([
 
         onCreatePress: function () {
             var oLocalModel = this.getView().getModel("localModel");
+            
+            // chuẩn bị dữ liệu rỗng cho form tạo mới
             oLocalModel.setData({
                 title: this._getI18nText("titleCreatePayRate"),
-                isNew: true,
+                isNew: true, 
                 PayCode: "",
                 RateFactor: "1.0",
                 PayDesc: ""
             });
+            
             this._openDialog();
         },
 
@@ -81,6 +76,7 @@ sap.ui.define([
             var oData = oItem.getBindingContext().getObject();      
             var oLocalModel = this.getView().getModel("localModel");
             
+            // đưa dữ liệu từ dòng được chọn lên form sửa
             oLocalModel.setData({
                 title: this._getI18nText("titleEditPayRate") + " " + oData.PayCode,
                 isNew: false, 
@@ -89,6 +85,7 @@ sap.ui.define([
                 RateFactor: oData.RateFactor,
                 PayDesc: oData.PayDesc
             });
+            
             this._openDialog();
         },
 
@@ -96,36 +93,32 @@ sap.ui.define([
             this.byId("dlgPayType").close();
         },
 
-        // ==========================================
-        // 3. SAVE (VALIDATION INCLUDED) & DELETE
-        // ==========================================
         onSaveDialog: function () {
             var oModel = this.getView().getModel();
             var oLocalData = this.getView().getModel("localModel").getData();
             var that = this;
 
-            // --- FE VALIDATION START ---
             var sPayCode = String(oLocalData.PayCode || "").trim().toUpperCase();
             var sPayDesc = String(oLocalData.PayDesc || "").trim();
             var fRateFactor = parseFloat(oLocalData.RateFactor);
 
+            // kiểm tra tính hợp lệ của dữ liệu
             if (!sPayCode) {
-                MessageBox.error("Mã hệ số (Pay Code) không được để trống!");
+                MessageBox.error(this._getI18nText("msgErrMissingPayCode"));
                 return;
             }
             if (sPayCode.length > 4) {
-                MessageBox.error("Mã hệ số không được dài quá 4 ký tự!");
+                MessageBox.error(this._getI18nText("msgErrPayCodeLength"));
                 return;
             }
             if (!sPayDesc) {
-                MessageBox.error("Vui lòng nhập mô tả cho hệ số này!");
+                MessageBox.error(this._getI18nText("msgErrMissingPayDesc"));
                 return;
             }
             if (isNaN(fRateFactor) || fRateFactor <= 0) {
-                MessageBox.error("Hệ số (Rate Factor) phải là một số lớn hơn 0!");
+                MessageBox.error(this._getI18nText("msgErrInvalidRate"));
                 return;
             }
-            // --- FE VALIDATION END ---
 
             var oPayload = {
                 PayCode: sPayCode,
@@ -133,7 +126,7 @@ sap.ui.define([
                 RateFactor: String(fRateFactor)
             };
 
-            sap.ui.core.BusyIndicator.show(0); // Hiển thị loading
+            sap.ui.core.BusyIndicator.show(0); 
 
             if (oLocalData.isNew) {
                 oModel.create("/PayTypeConfig", oPayload, {
@@ -142,7 +135,7 @@ sap.ui.define([
                         MessageToast.show(that._getI18nText("msgCreatePayRateSuccess"));
                         that.onCancelDialog();
                     },
-                    error: function (oError) {
+                    error: function () {
                         sap.ui.core.BusyIndicator.hide();
                         MessageBox.error(that._getI18nText("msgCreatePayRateError"));
                     }
@@ -154,7 +147,7 @@ sap.ui.define([
                         MessageToast.show(that._getI18nText("msgUpdatePayRateSuccess"));
                         that.onCancelDialog();
                     },
-                    error: function (oError) {
+                    error: function () {
                         sap.ui.core.BusyIndicator.hide();
                         MessageBox.error(that._getI18nText("msgUpdatePayRateError"));
                     }
@@ -174,6 +167,7 @@ sap.ui.define([
                 onClose: function (sAction) {
                     if (sAction === MessageBox.Action.OK) {
                         sap.ui.core.BusyIndicator.show(0);
+                        
                         oModel.remove(sPath, {
                             success: function () {
                                 sap.ui.core.BusyIndicator.hide();

@@ -1,144 +1,86 @@
 <mvc:View
-    id="employeeConfigView"
     controllerName="com.app.zu26g13.app.controller.EmployeeConfig"
     xmlns:mvc="sap.ui.core.mvc"
-    xmlns:sap.m="sap.m"
     xmlns="sap.m"
     xmlns:f="sap.f"
-    xmlns:fb="sap.ui.comp.filterbar"
-    xmlns:core="sap.ui.core">
+    xmlns:fb="sap.ui.comp.filterbar">
 
-    <!-- Employee Configuration Dynamic Page Layout -->
-    <f:DynamicPage id="dynamicPageId">
-        
-        <!-- Page Title Header Section -->
+    <f:DynamicPage>
         <f:title>
-            <f:DynamicPageTitle id="pageTitleId">
+            <f:DynamicPageTitle>
                 <f:heading>
-                    <Title id="mainTitleId" text="{i18n>titleEmpConfig}" />
+                    <Title text="{i18n>titleEmpConfig}" level="H1"/>
                 </f:heading>
             </f:DynamicPageTitle>
         </f:title>
 
-        <!-- Filter Header Section -->
+        <!-- bộ lọc tìm kiếm -->
         <f:header>
-            <f:DynamicPageHeader id="dynamicPageHeaderId">
-                
-                <!-- SAP Standard FilterBar -->
-                <fb:FilterBar id="filterBar" 
-                    search=".onSearch" 
-                    showGoOnFB="false" 
-                    showClearOnFB="false" 
-                    showFilterConfiguration="false" 
-                    useToolbar="false">
-                    
+            <f:DynamicPageHeader>
+                <fb:FilterBar search=".onSearch" showGoOnFB="false" showClearOnFB="false" showFilterConfiguration="false" useToolbar="false">
                     <fb:filterGroupItems>
-                        
-                        <!-- Employee ID Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Pernr" label="{i18n>filterEmpId}" visibleInFilterBar="true">
                             <fb:control>
-                                <Input id="filterPernr"
-                                    placeholder="{i18n>phSelectEmpFilter}"
-                                    showValueHelp="true"
-                                    valueHelpOnly="true"
-                                    change=".onSearch"
-                                    valueHelpRequest=".onPernrInputValueHelpRequest"/>
+                                <Input id="filterPernr" placeholder="{i18n>phSelectEmpFilter}" showValueHelp="true" valueHelpOnly="true" change=".onSearch" valueHelpRequest=".onPernrInputValueHelpRequest"/>
                             </fb:control>
                         </fb:FilterGroupItem>
 
-                        <!-- Department Filter Item -->
                         <fb:FilterGroupItem groupName="G1" name="Dept" label="{i18n>filterDept}" visibleInFilterBar="true">
                             <fb:control>
-                                <Input id="filterDept"
-                                    placeholder="{i18n>phSelectDeptFilter}"
-                                    showValueHelp="true"
-                                    valueHelpOnly="true"
-                                    change=".onSearch"
-                                    valueHelpRequest=".onDeptInputValueHelpRequest"/>
+                                <Input id="filterDept" placeholder="{i18n>phSelectDeptFilter}" showValueHelp="true" valueHelpOnly="true" change=".onSearch" valueHelpRequest=".onDeptInputValueHelpRequest"/>
                             </fb:control>
                         </fb:FilterGroupItem>
 
-                        <!-- Custom Clear Filters Action Button -->
                         <fb:FilterGroupItem groupName="G1" name="ClearBtn" label="{i18n>ttClearFilter}" visibleInFilterBar="true">
                             <fb:control>
                                 <HBox alignItems="Center">
-                                    <Button
-                                        icon="sap-icon://clear-filter"
-                                        tooltip="{i18n>ttClearFilter}"
-                                        type="Transparent"
-                                        press=".onClearFilters"/>
+                                    <Button icon="sap-icon://clear-filter" tooltip="{i18n>ttClearFilter}" type="Transparent" press=".onClear"/>
                                 </HBox>
                             </fb:control>
                         </fb:FilterGroupItem>
-
                     </fb:filterGroupItems>
                 </fb:FilterBar>
-
             </f:DynamicPageHeader>
         </f:header>
 
-        <!-- Main Content Section: Employee Table -->
+        <!-- bảng danh sách nhân viên -->
         <f:content>
-            <Table id="employeeTable"
-                   items="{path: '/Employee'}"
-                   growing="true"
-                   growingThreshold="20">
-                    
-                <!-- Table Header Toolbar -->
+            <Table id="employeeTable" items="{path: '/Employee'}" growing="true" growingThreshold="20">
                 <headerToolbar>
-                    <OverflowToolbar id="tableToolbarId">
-                        <Title id="tableTitleId" text="{i18n>titleEmpList}" level="H2"/>
-                        <ToolbarSpacer id="toolbarSpacerId" />
-                        <Button id="btnCreateId"
-                                text="{i18n>btnCreateEmp}" 
-                                icon="sap-icon://add" 
-                                type="Emphasized" 
-                                press=".onOpenCreateDialog" />
+                    <OverflowToolbar>
+                        <Title text="{i18n>titleEmpList}" level="H2"/>
+                        <ToolbarSpacer />
+                        <Button text="{i18n>btnCreateEmp}" icon="sap-icon://add" type="Emphasized" press=".onOpenCreateDialog" />
                     </OverflowToolbar>
                 </headerToolbar>
                 
-                <!-- Table Columns Definition -->
                 <columns>
-                    <Column id="colPernr"><Text id="txtColPernr" text="{i18n>colEmpId}" /></Column>
-                    <Column id="colEname"><Text id="txtColEname" text="{i18n>colEmpName}" /></Column>
-                    <Column id="colCardId"><Text id="txtColCardId" text="{i18n>colCardId}" /></Column>
-                    <Column id="colDept"><Text id="txtColDept" text="{i18n>colDept}" /></Column>
-                    <Column id="colRole"><Text id="txtColRole" text="{i18n>colRole}" /></Column>
-                    <Column id="colAction" width="12rem" hAlign="Center">
-                        <Text id="txtColAction" text="{i18n>colAction}" />
-                    </Column>
+                    <Column><Text text="{i18n>colEmpId}" /></Column>
+                    <Column><Text text="{i18n>colEmpName}" /></Column>
+                    <Column><Text text="{i18n>colCardId}" /></Column>
+                    <Column><Text text="{i18n>colDept}" /></Column>
+                    <Column><Text text="{i18n>colRole}" /></Column>
+                    <Column width="12rem" hAlign="Center"><Text text="{i18n>colAction}" /></Column>
                 </columns>
                 
-                <!-- Table Rows Binding Template -->
                 <items>
-                    <ColumnListItem id="rowTemplateId" vAlign="Middle">
+                    <ColumnListItem vAlign="Middle">
                         <cells>
-                            <Text id="cellPernr" text="{Pernr}" />
-                            <Text id="cellEname" text="{Ename}" />
-                            <Text id="cellCardId" text="{CardId}" />
-                            <ObjectAttribute id="cellDept" text="{DeptName}" />
-                            <ObjectAttribute id="cellRole" text="{RoleDesc}" />
+                            <Text text="{Pernr}" />
+                            <Text text="{Ename}" />
+                            <Text text="{CardId}" />
+                            <ObjectAttribute text="{DeptName}" />
+                            <ObjectAttribute text="{RoleDesc}" />
                             
-                            <!-- Row Action Buttons: Edit & Delete -->
-                            <HBox id="actionBoxId" alignItems="Center" justifyContent="Center">
-                                <Button id="btnEditRowId"
-                                        icon="sap-icon://edit" 
-                                        text="{i18n>btnEdit}"
-                                        type="Transparent" 
-                                        press=".onOpenEditDialog" />
-                                        
-                                <Button id="btnDeleteRowId"
-                                        icon="sap-icon://delete" 
-                                        text="{i18n>btnDelete}"
-                                        type="Reject" 
-                                        press=".onDeleteEmployee" />
+                            <!-- nút sửa xóa -->
+                            <HBox alignItems="Center" justifyContent="Center">
+                                <Button icon="sap-icon://edit" text="{i18n>btnEdit}" type="Transparent" press=".onOpenEditDialog" class="sapUiTinyMarginEnd"/>
+                                <Button icon="sap-icon://delete" text="{i18n>btnDelete}" type="Reject" press=".onDeleteEmployee" />
                             </HBox>
                         </cells>
                     </ColumnListItem>
                 </items>
-                
             </Table>
         </f:content>
-        
     </f:DynamicPage>
 </mvc:View>

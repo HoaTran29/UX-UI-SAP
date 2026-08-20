@@ -5,120 +5,53 @@
     xmlns:core="sap.ui.core"
     displayBlock="true">
 
-    <!-- Shift Configuration Management Page Container -->
-    <Page id="pageShiftConfig" showHeader="false" class="shiftConfigPage">
+    <Page showHeader="false" class="shiftConfigPage">
         <content>
-            <!-- Added sapUiResponsiveMargin to align header content nicely inside -->
             <VBox class="shiftConfigWrapper sapUiResponsiveMargin">
 
-                <!-- Page Header Section with Title, Description, and Add Shift Action -->
+                <!-- tiêu đề trang và nút tạo mới -->
                 <HBox class="shiftConfigHeader sapUiMediumMarginBottom" alignItems="Center" justifyContent="SpaceBetween">
                     <VBox>
                         <Title text="{i18n>titleShiftConfig}" titleStyle="H2" class="shiftConfigTitle"/>
                     </VBox>
-
-                    <Button
-                        icon="sap-icon://add"
-                        text="{i18n>btnAddShift}"
-                        type="Emphasized"
-                        press="onOpenAddDialog"/>
+                    <Button icon="sap-icon://add" text="{i18n>btnAddShift}" type="Emphasized" press="onOpenAddDialog"/>
                 </HBox>
 
-                <!-- Shift Configuration Data Table -->
-                <Table
-                    id="shiftTable"
-                    items="{/Schedule}"
-                    growing="true"
-                    growingScrollToLoad="true"
-                    class="shiftConfigTable"
-                    width="auto">
-
-                    <!-- Table Columns Definition -->
+                <!-- bảng danh sách ca làm việc -->
+                <Table id="shiftTable" items="{/Schedule}" growing="true" growingScrollToLoad="true" class="shiftConfigTable" width="auto">
                     <columns>
-                        <Column width="130px">
-                            <Text text="{i18n>lblShiftId}"/>
-                        </Column>
-
-                        <!-- Centered Standard Hours Column -->
-                        <Column width="140px" hAlign="Center">
-                            <Text text="{i18n>lblStdHours}"/>
-                        </Column>
-
-                        <!-- Centered Start Time Column -->
-                        <Column width="150px" hAlign="Center">
-                            <Text text="{i18n>colStartTime}"/>
-                        </Column>
-
-                        <!-- Centered End Time Column -->
-                        <Column width="150px" hAlign="Center">
-                            <Text text="{i18n>colEndTime}"/>
-                        </Column>
-
+                        <Column width="130px"><Text text="{i18n>lblShiftId}"/></Column>
+                        <Column width="140px" hAlign="Center"><Text text="{i18n>lblStdHours}"/></Column>
+                        <Column width="150px" hAlign="Center"><Text text="{i18n>colStartTime}"/></Column>
+                        <Column width="150px" hAlign="Center"><Text text="{i18n>colEndTime}"/></Column>
                         <Column width="100px" hAlign="Center"><Text text="{i18n>colStdRate}"/></Column>
                         <Column width="100px" hAlign="Center"><Text text="{i18n>colWeekendRate}"/></Column>
                         <Column width="100px" hAlign="Center"><Text text="{i18n>colOtRate}"/></Column>
-
-                        <Column width="130px" hAlign="Center">
-                            <Text text="{i18n>colNextDay}"/>
-                        </Column>
-
-                        <Column width="130px" hAlign="End">
-                            <Text text="{i18n>colGraceMins}"/>
-                        </Column>
-
-                        <Column width="140px" hAlign="Center">
-                            <Text text="{i18n>colAction}"/>
-                        </Column>
+                        <Column width="130px" hAlign="Center"><Text text="{i18n>colNextDay}"/></Column>
+                        <Column width="130px" hAlign="End"><Text text="{i18n>colGraceMins}"/></Column>
+                        <Column width="140px" hAlign="Center"><Text text="{i18n>colAction}"/></Column>
                     </columns>
 
-                    <!-- Table Rows Binding Template -->
                     <items>
                         <ColumnListItem vAlign="Middle">
                             <cells>
-                                <!-- Shift ID Identifier Cell -->
-                                <ObjectIdentifier
-                                    title="{ShiftId}"
-                                    text="{i18n>txtShift}"/>
-
-                                <!-- Standard Hours Number Cell (Centered) -->
-                                <ObjectNumber
-                                    number="{StdHours}"
-                                    unit="{i18n>unitH}"/>
-
-                                <!-- Shift Start Time Cell (Centered) -->
+                                <ObjectIdentifier title="{ShiftId}" text="{i18n>txtShift}"/>
+                                <ObjectNumber number="{StdHours}" unit="{i18n>unitH}"/>
+                                
+                                <!-- giờ bắt đầu và kết thúc -->
                                 <Text text="{path: 'TimeIn', formatter: '.formatODataTime'}" textAlign="Center"/>
-
-                                <!-- Shift End Time Cell (Centered) -->
                                 <Text text="{path: 'TimeOut', formatter: '.formatODataTime'}" textAlign="Center"/>
-
+                                
                                 <Text text="x{StdRateFactor}" />
                                 <Text text="x{WeekendRateFactor}" />
                                 <Text text="x{OtRateFactor}" />
+                                <ObjectStatus text="{path: 'NextDay', formatter: '.formatNextDayText'}" state="{path: 'NextDay', formatter: '.formatNextDayState'}"/>
+                                <ObjectNumber number="{GraceMins}" unit="{i18n>unitMins}"/>
 
-                                <!-- Next Day Indicator Status Cell -->
-                                <ObjectStatus
-                                    text="{path: 'NextDay', formatter: '.formatNextDayText'}"
-                                    state="{path: 'NextDay', formatter: '.formatNextDayState'}"/>
-
-                                <!-- Grace Minutes Number Cell -->
-                                <ObjectNumber
-                                    number="{GraceMins}"
-                                    unit="{i18n>unitMins}"/>
-
-                                <!-- Row Action Buttons: Edit & Delete -->
+                                <!-- nút sửa, xóa -->
                                 <HBox justifyContent="Center">
-                                    <Button
-                                        icon="sap-icon://edit"
-                                        type="Transparent"
-                                        tooltip="{i18n>ttEditShift}"
-                                        press="onEditShift"
-                                        class="sapUiTinyMarginEnd"/>
-
-                                    <Button
-                                        icon="sap-icon://delete"
-                                        type="Reject"
-                                        tooltip="{i18n>ttDeleteShift}"
-                                        press="onDeleteShift"/>
+                                    <Button icon="sap-icon://edit" type="Transparent" tooltip="{i18n>ttEditShift}" press="onEditShift" class="sapUiTinyMarginEnd"/>
+                                    <Button icon="sap-icon://delete" type="Reject" tooltip="{i18n>ttDeleteShift}" press="onDeleteShift"/>
                                 </HBox>
                             </cells>
                         </ColumnListItem>

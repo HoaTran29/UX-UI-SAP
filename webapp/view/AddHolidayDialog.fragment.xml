@@ -1,56 +1,31 @@
-<core:FragmentDefinition
-    xmlns="sap.m"
-    xmlns:core="sap.ui.core">
-
-    <!-- Holiday Add/Edit Dialog Fragment -->
-    <Dialog
-        title="{= ${holidayModel>/isEdit} ? ${i18n>dialogTitleEditHoliday} : ${i18n>dialogTitleAddHoliday} }"
-        contentWidth="460px"
-        class="holidayDialog">
-
-        <!-- Dialog Content Section -->
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    
+    <Dialog title="{= ${holidayModel>/isEdit} ? ${i18n>dialogTitleEditHoliday} : ${i18n>dialogTitleAddHoliday} }" contentWidth="460px">
         <content>
             <VBox class="sapUiMediumMargin">
 
-                <!-- Holiday Date Field -->
+                <!-- ngày nghỉ lễ -->
                 <Label text="{i18n>lblHolidayDate}" required="true" class="sapUiTopMarginSmall"/>
-                <DatePicker
-                    dateValue="{holidayModel>/HolDate}"
-                    displayFormat="dd/MM/yyyy"
-                    width="100%"
-                    editable="{= !${holidayModel>/isEdit} }"/>
+                <DatePicker dateValue="{holidayModel>/HolDate}" displayFormat="dd/MM/yyyy" width="100%" editable="{= !${holidayModel>/isEdit} }"/>
 
-                <!-- Holiday Description Field -->
+                <!-- mô tả ngày lễ -->
                 <Label text="{i18n>lblHolidayDesc}" required="true" class="sapUiTopMarginSmall"/>
-                <Input
-                    value="{holidayModel>/HolDesc}"
-                    placeholder="{i18n>phHolidayDesc}"/>
+                <Input value="{holidayModel>/HolDesc}" placeholder="{i18n>phHolidayDesc}"/>
 
+                <!-- mã hệ số lương ngày lễ -->
                 <Label text="{i18n>lblHolPayCode}" required="true" class="sapUiTopMarginSmall"/>
-                <Select 
-                    selectedKey="{holidayModel>/HolPayCode}"
-                    items="{payTypeModel>/payTypes}"
-                    width="100%">
-                    <core:Item 
-                        key="{payTypeModel>PayCode}" 
-                        text="{payTypeModel>PayCode} - {payTypeModel>PayDesc} (x{payTypeModel>RateFactor})" />
+                <Select selectedKey="{holidayModel>/HolPayCode}" items="{payTypeModel>/payTypes}" width="100%">
+                    <core:Item key="{payTypeModel>PayCode}" text="{payTypeModel>PayCode} - {payTypeModel>PayDesc} (x{payTypeModel>RateFactor})" />
                 </Select>
 
             </VBox>
         </content>
 
-        <!-- Dialog Actions: Save & Cancel Buttons -->
         <beginButton>
-            <Button
-                text="{i18n>btnSave}"
-                type="Emphasized"
-                press="onSaveHoliday"/>
+            <Button text="{i18n>btnSave}" type="Emphasized" press="onSaveHoliday"/>
         </beginButton>
-
         <endButton>
-            <Button
-                text="{i18n>btnCancel}"
-                press="onCloseDialog"/>
+            <Button text="{i18n>btnCancel}" press="onCloseDialog"/>
         </endButton>
     </Dialog>
 

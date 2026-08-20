@@ -1,147 +1,53 @@
-<core:FragmentDefinition
-    xmlns="sap.m"
-    xmlns:core="sap.ui.core">
-
-    <!-- Add/Edit OT Schedule Dialog Fragment -->
-    <Dialog 
-        id="addOtDialog"
-        title="{i18n>dialogTitleScheduleOt}"
-        contentWidth="520px">
-
-        <!-- Dialog Content Section -->
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog title="{i18n>dialogTitleScheduleOt}" contentWidth="520px">
         <content>
             <VBox class="sapUiSmallMargin">
 
-                <!-- Assignment Mode Selection Label -->
-                <Label
-                    text="{i18n>lblAssignBy}"
-                    class="sapUiTopMarginSmall"
-                    visible="{= !${dialogModel>/isEdit} }"/>
-
-                <!-- Segmented Button to switch between Employee and Department mode -->
-                <SegmentedButton
-                    selectedKey="{dialogModel>/AssignMode}"
-                    selectionChange=".onAssignModeChange"
-                    visible="{= !${dialogModel>/isEdit} }"
-                    width="100%">
-
+                <!-- chọn gán theo nv hay phòng ban -->
+                <Label text="{i18n>lblAssignBy}" class="sapUiTopMarginSmall" visible="{= !${dialogModel>/isEdit} }"/>
+                <SegmentedButton selectedKey="{dialogModel>/AssignMode}" selectionChange=".onAssignModeChange" visible="{= !${dialogModel>/isEdit} }" width="100%">
                     <items>
                         <SegmentedButtonItem key="EMP" text="{i18n>segBtnEmployee}"/>
                         <SegmentedButtonItem key="DEPT" text="{i18n>segBtnDept}"/>
                     </items>
                 </SegmentedButton>
 
-                <!-- Employee Selection Field -->
-                <Label
-                    text="{i18n>filterEmpId}"
-                    required="true"
-                    visible="{= ${dialogModel>/AssignMode} === 'EMP' }"
-                    class="sapUiTopMarginSmall"/>
+                <!-- chọn nhân viên -->
+                <Label text="{i18n>filterEmpId}" required="true" visible="{= ${dialogModel>/AssignMode} === 'EMP' }" class="sapUiTopMarginSmall"/>
+                <Input value="{dialogModel>/Pernr}" placeholder="{i18n>phSelectEmpHelp}" editable="{= !${dialogModel>/isEdit} }" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onPernrInputValueHelpRequest" visible="{= ${dialogModel>/AssignMode} === 'EMP' }"/>
+                <Text text="{= ${dialogModel>/EmployeeName} ? ${dialogModel>/EmployeeName} + ' - ' + ${dialogModel>/DeptId} : '' }" visible="{= ${dialogModel>/AssignMode} === 'EMP' &amp;&amp; !!${dialogModel>/EmployeeName} }" class="sapUiTinyMarginTop"/>
 
-                <Input
-                    id="PernrInput"
-                    value="{dialogModel>/Pernr}"
-                    placeholder="{i18n>phSelectEmpHelp}"
-                    editable="{= !${dialogModel>/isEdit} }"
-                    showValueHelp="true"
-                    valueHelpOnly="true"
-                    valueHelpRequest=".onPernrInputValueHelpRequest"
-                    liveChange=".onPernrInputLiveChange"
-                    visible="{= ${dialogModel>/AssignMode} === 'EMP' }"/>
+                <!-- chọn phòng ban -->
+                <Label text="{i18n>filterDept}" required="true" visible="{= ${dialogModel>/AssignMode} === 'DEPT' }" class="sapUiTopMarginSmall"/>
+                <Input value="{dialogModel>/DeptId}" placeholder="{i18n>phSelectDeptHelp}" editable="{= !${dialogModel>/isEdit} }" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".onDeptInputValueHelpRequest" visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"/>
+                <Text text="{dialogModel>/DeptName}" visible="{= ${dialogModel>/AssignMode} === 'DEPT' &amp;&amp; !!${dialogModel>/DeptName} }" class="sapUiTinyMarginTop"/>
 
-                <Text
-                    text="{= ${dialogModel>/EmployeeName} ? ${dialogModel>/EmployeeName} + ' - ' + ${dialogModel>/DeptId} : '' }"
-                    visible="{= ${dialogModel>/AssignMode} === 'EMP' &amp;&amp; !!${dialogModel>/EmployeeName} }"
-                    class="sapUiTinyMarginTop"/>
+                <!-- khoảng thời gian -->
+                <Label text="{i18n>lblSchedulePeriod}" required="true" class="sapUiTopMarginSmall" visible="{= !${dialogModel>/isEdit} }"/>
+                <DateRangeSelection dateValue="{dialogModel>/StartDate}" secondDateValue="{dialogModel>/EndDate}" displayFormat="dd/MM/yyyy" visible="{= !${dialogModel>/isEdit} }"/>
 
-                <!-- Department Selection Field -->
-                <Label
-                    text="{i18n>filterDept}"
-                    required="true"
-                    visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"
-                    class="sapUiTopMarginSmall"/>
+                <!-- ngày làm việc (chỉ hiện khi sửa) -->
+                <Label text="{i18n>lblWorkDate}" required="true" class="sapUiTopMarginSmall" visible="{dialogModel>/isEdit}"/>
+                <DatePicker dateValue="{dialogModel>/PlanDate}" displayFormat="dd/MM/yyyy" editable="false" visible="{dialogModel>/isEdit}"/>
 
-                <Input
-                    id="DeptInput"
-                    value="{dialogModel>/DeptId}"
-                    placeholder="{i18n>phSelectDeptHelp}"
-                    editable="{= !${dialogModel>/isEdit} }"
-                    showValueHelp="true"
-                    valueHelpOnly="true"
-                    valueHelpRequest=".onDeptInputValueHelpRequest"
-                    liveChange=".onDeptInputLiveChange"
-                    visible="{= ${dialogModel>/AssignMode} === 'DEPT' }"/>
-
-                <Text
-                    text="{dialogModel>/DeptName}"
-                    visible="{= ${dialogModel>/AssignMode} === 'DEPT' &amp;&amp; !!${dialogModel>/DeptName} }"
-                    class="sapUiTinyMarginTop"/>
-
-                <!-- Schedule Date Range (For Create Mode) -->
-                <Label 
-                    text="{i18n>lblSchedulePeriod}"
-                    required="true"
-                    class="sapUiTopMarginSmall"
-                    visible="{= !${dialogModel>/isEdit} }"/>
-
-                <DateRangeSelection 
-                    dateValue="{dialogModel>/StartDate}"
-                    secondDateValue="{dialogModel>/EndDate}"
-                    displayFormat="dd/MM/yyyy"
-                    visible="{= !${dialogModel>/isEdit} }"/>
-
-                <!-- Work Date (For Edit Mode) -->
-                <Label 
-                    text="{i18n>lblWorkDate}"
-                    required="true"
-                    class="sapUiTopMarginSmall"
-                    visible="{dialogModel>/isEdit}"/>
-
-                <DatePicker 
-                    dateValue="{dialogModel>/PlanDate}"
-                    displayFormat="dd/MM/yyyy"
-                    editable="false"
-                    visible="{dialogModel>/isEdit}"/>
-
-                <!-- Work Shift Selection -->
+                <!-- chọn ca làm việc -->
                 <Label text="{i18n>lblShift}" required="true" class="sapUiTopMarginSmall"/>
-
-                <Select 
-                    id="shiftSelect"
-                    selectedKey="{dialogModel>/ShiftId}"
-                    items="{shiftLookupModel>/shifts}"
-                    width="100%">
-
-                    <core:Item 
-                        key="{shiftLookupModel>ShiftId}"
-                        text="{shiftLookupModel>ShiftText}" />
+                <Select selectedKey="{dialogModel>/ShiftId}" items="{shiftLookupModel>/shifts}" width="100%">
+                    <core:Item key="{shiftLookupModel>ShiftId}" text="{shiftLookupModel>ShiftText}" />
                 </Select>
 
-                <!-- OT Hours Input -->
+                <!-- nhập giờ ot -->
                 <Label text="{i18n>lblOtHours}" class="sapUiTopMarginSmall"/>
-
-                <Input 
-                    value="{dialogModel>/OtHours}"
-                    type="Number"
-                    placeholder="{i18n>phEnterOtHours}" />
+                <Input value="{dialogModel>/OtHours}" type="Number" placeholder="{i18n>phEnterOtHours}" />
 
             </VBox>
         </content>
 
-        <!-- Dialog Action Buttons: Save & Close -->
         <beginButton>
-            <Button 
-                text="{i18n>btnSave}"
-                type="Emphasized"
-                press=".onSaveOtPlan" />
+            <Button text="{i18n>btnSave}" type="Emphasized" press=".onSaveOtPlan" />
         </beginButton>
-
         <endButton>
-            <Button 
-                text="{i18n>btnClose}"
-                press=".onCloseAddDialog" />
+            <Button text="{i18n>btnClose}" press=".onCloseAddDialog" />
         </endButton>
-
     </Dialog>
-
 </core:FragmentDefinition>

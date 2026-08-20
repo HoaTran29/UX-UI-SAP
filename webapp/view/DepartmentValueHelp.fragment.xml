@@ -1,41 +1,25 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
     
-    <!-- Department Value Help Responsive Popover Fragment -->
-    <ResponsivePopover
-        id="deptValueHelpDialog"
-        title="{i18n>dialogTitleSelectDept}"
-        placement="Bottom"
-        contentWidth="350px"
-        contentHeight="400px">
+    <ResponsivePopover placement="Bottom" contentWidth="350px" contentHeight="400px" title="{i18n>dialogTitleSelectDept}">
         
-        <!-- Popover Footer Action Button -->
-        <endButton>
-            <Button text="{i18n>btnClose}" press=".onDeptValueHelpCancel" />
-        </endButton>
-        
-        <!-- Search SubHeader Section -->
+        <!-- thanh tìm kiếm -->
         <subHeader>
             <Toolbar>
                 <SearchField placeholder="{i18n>phSearchSelectDept}" search=".onDeptValueHelpSearch" liveChange=".onDeptValueHelpSearch" width="100%" />
             </Toolbar>
         </subHeader>
         
-        <!-- Popover Content Area: Department List Selection -->
+        <!-- danh sách phòng ban đổ từ odata -->
         <content>
-            <List
-                id="deptValueHelpList"
-                items="{/Department}"
-                mode="SingleSelectMaster"
-                selectionChange=".onDeptValueHelpConfirm"
-                noDataText="{i18n>noDataDept}">
-                
-                <!-- Department Item Template -->
-                <StandardListItem
-                    title="{DeptName}"
-                    description="{DeptId}"
-                    type="Active" />
+            <List id="deptValueHelpList" items="{/Department}" mode="SingleSelectMaster" selectionChange=".onDeptValueHelpConfirm" noDataText="{i18n>noDataDept}">
+                <StandardListItem title="{DeptName}" description="{DeptId}" type="Active" />
             </List>
         </content>
         
+        <endButton>
+            <Button text="{i18n>btnClose}" press=".onDeptValueHelpCancel" />
+        </endButton>
+        
     </ResponsivePopover>
+
 </core:FragmentDefinition>

@@ -1,8 +1,9 @@
 <core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    
     <Dialog title="{i18n>titlePunchDetails} - {Pernr}" contentWidth="450px">
-        <Table id="punchLogTable" 
-               items="{ path: '/PunchDetail', templateShareable: false }" 
-               noDataText="No punch records found">
+        
+        <!-- bảng lịch sử quét thẻ -->
+        <Table id="punchLogTable" items="{ path: '/PunchDetail', templateShareable: false }" noDataText="No punch records found">
             <columns>
                 <Column hAlign="Center"><Text text="Punch Time" /></Column>
                 <Column hAlign="Center"><Text text="Punch Type" /></Column>
@@ -11,16 +12,19 @@
             <items>
                 <ColumnListItem>
                     <cells>
-                        <Text text="{ path: 'PunchTime', type: 'sap.ui.model.odata.type.Time' }" />
-                        <ObjectStatus text="{PunchType}" 
-                                      state="{= ${PunchType} === 'IN' ? 'Success' : 'Warning' }" />
+                        <!-- ép định dạng 24h (hh:mm:ss) -->
+                        <Text text="{ path: 'PunchTime', type: 'sap.ui.model.odata.type.Time', formatOptions: { pattern: 'HH:mm:ss' } }" />
+                        
+                        <ObjectStatus text="{PunchType}" state="{= ${PunchType} === 'IN' ? 'Success' : 'Warning' }" />
                         <Text text="{CardId}" />
                     </cells>
                 </ColumnListItem>
             </items>
         </Table>
+
         <endButton>
             <Button text="Close" press=".onClosePunchLogDialog" />
         </endButton>
     </Dialog>
+
 </core:FragmentDefinition>

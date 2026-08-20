@@ -8,19 +8,15 @@ sap.ui.define([
 
     return Controller.extend("com.app.zu26g13.app.controller.Dispute", {
 
-        onInit: function () {
-        },
+        onInit: function () {},
 
-        // Helper to get text from i18n properties
         _getI18nText: function (sKey) {
             return this.getView().getModel("i18n").getResourceBundle().getText(sKey);
         },
 
         // ==============================================================
-        // APPROVAL LOGIC
+        // logic phê duyệt (approve)
         // ==============================================================
-
-        // 1. Open Approval Dialog
         onOpenDialog: function (oEvent) {
             var oView = this.getView();
             var oContext = oEvent.getSource().getBindingContext();
@@ -41,29 +37,22 @@ sap.ui.define([
             });
         },
 
-        // 2. Cancel & Close Approval Dialog
         onCancelDialog: function () {
             this.getView().getModel().resetChanges();
             this.byId("approveDialog").close();
         },
 
-        // 3. Confirm Approval
         onConfirmApprove: function () {
-            var oView = this.getView();
             var oDialog = this.byId("approveDialog");
             var oContext = oDialog.getBindingContext();
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
-
             var oTextArea = this.byId("approveNoteInput");
-            if (oTextArea) {
-                var sNote = oTextArea.getValue().trim();
 
-                // Default logic: Auto-fill "APPROVED" if note is empty
-                if (!sNote) {
-                    sNote = "APPROVED";
-                    oTextArea.setValue(sNote);
-                }
+            // tự động điền chữ "APPROVED" nếu không comment
+            if (oTextArea) {
+                var sNote = oTextArea.getValue().trim() || "APPROVED";
+                if (!oTextArea.getValue().trim()) oTextArea.setValue(sNote);
                 oModel.setProperty(oContext.getPath() + "/ApproverComment", sNote); 
             }
 
@@ -84,7 +73,6 @@ sap.ui.define([
             }
         },
 
-        // 4. Call Backend Approve Action
         _callApproveAction: function (sDisputeId, oModel, oDialog) {
             oModel.callFunction("/Approve", { 
                 method: "POST",
@@ -95,7 +83,7 @@ sap.ui.define([
                     if (oDialog) oDialog.close();
                     oModel.refresh();
                 }.bind(this),
-                error: function (oError) {
+                error: function () {
                     BusyIndicator.hide();
                     MessageToast.show(this._getI18nText("msgApproveError"));
                 }.bind(this)
@@ -103,10 +91,8 @@ sap.ui.define([
         },
 
         // ==============================================================
-        // REJECTION LOGIC
+        // logic từ chối (reject)
         // ==============================================================
-
-        // 1. Open Reject Dialog
         onOpenRejectDialog: function (oEvent) {
             var oView = this.getView();
             var oContext = oEvent.getSource().getBindingContext();
@@ -127,35 +113,28 @@ sap.ui.define([
             });
         },
 
-        // 2. Cancel & Close Reject Dialog
         onCancelReject: function () {
             this.getView().getModel().resetChanges();
             this.byId("rejectDialog").close();
         },
 
-        // 3. Confirm Rejection
         onConfirmReject: function () {
-            var oView = this.getView();
             var oDialog = this.byId("rejectDialog");
             var oContext = oDialog.getBindingContext();
             var oModel = this.getView().getModel();
             var sDisputeId = oContext.getProperty("DisputeId");
-
             var oTextArea = this.byId("rejectReasonInput");
             var sReason = oTextArea.getValue().trim();
 
+            // từ chối thì bắt buộc phải nhập lý do
             if (!sReason) {
                 MessageToast.show(this._getI18nText("msgRejectEmptyReason"));
                 oTextArea.setValueState("Error");
                 return;
-            } else {
-                oTextArea.setValueState("None");
-            }
-
-            if (oTextArea) {
-                var sNote = oTextArea.getValue();
-                oModel.setProperty(oContext.getPath() + "/ApproverComment", sNote);
-            }
+            } 
+            
+            oTextArea.setValueState("None");
+            oModel.setProperty(oContext.getPath() + "/ApproverComment", sReason);
 
             BusyIndicator.show(0);
 
@@ -174,7 +153,6 @@ sap.ui.define([
             }
         },
 
-        // 4. Call Backend Reject Action
         _callRejectAction: function (sDisputeId, oModel, oDialog) {
             oModel.callFunction("/Reject", {
                 method: "POST",
@@ -182,12 +160,10 @@ sap.ui.define([
                 success: function () {
                     BusyIndicator.hide();
                     MessageToast.show(this._getI18nText("msgRejectSuccess"));
-                    if (oDialog) {
-                        oDialog.close();
-                    }
+                    if (oDialog) oDialog.close();
                     oModel.refresh();
                 }.bind(this),
-                error: function (oError) {
+                error: function () {
                     BusyIndicator.hide();
                     MessageToast.show(this._getI18nText("msgRejectError"));
                 }.bind(this)

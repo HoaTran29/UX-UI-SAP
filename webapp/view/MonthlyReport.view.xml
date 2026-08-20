@@ -71,26 +71,26 @@
                             
                             <!-- cột 1: ngày thường -->
                             <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
-                                <HBox><Text text="Số ca:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularShiftCount}"/></HBox>
-                                <HBox><Text text="Giờ làm:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularPaidHours}" unit="h" state="Information"/></HBox>
-                                <HBox><Text text="Giờ OT:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularOtHours}" unit="h" state="Warning"/></HBox>
-                                <HBox><Text text="Hệ số:" class="sapUiTinyMarginEnd"/><Text text="x{RegularRate} | OT: x{RegularOtRate}"/></HBox>
+                                <HBox><Text text="{i18n>totalShifts}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularShiftCount}"/></HBox>
+                                <HBox><Text text="{i18n>totalHours}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularPaidHours}" unit="h" state="Information"/></HBox>
+                                <HBox><Text text="{i18n>totalOtHours}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{RegularOtHours}" unit="h" state="Warning"/></HBox>
+                                <HBox><Text text="{i18n>payRate}" class="sapUiTinyMarginEnd"/><Text text="x{RegularRate} | {i18n>OT} x{RegularOtRate}"/></HBox>
                             </VBox>
 
                             <!-- cột 2: cuối tuần -->
                             <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
-                                <HBox><Text text="Số ca:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendShiftCount}"/></HBox>
-                                <HBox><Text text="Giờ làm:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendPaidHours}" unit="h" state="Information"/></HBox>
-                                <HBox><Text text="Giờ OT:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendOtHours}" unit="h" state="Warning"/></HBox>
-                                <HBox><Text text="Hệ số:" class="sapUiTinyMarginEnd"/><Text text="x{WeekendRate}"/></HBox>
+                                <HBox><Text text="{i18n>totalShifts}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendShiftCount}"/></HBox>
+                                <HBox><Text text="{i18n>totalHours}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendPaidHours}" unit="h" state="Information"/></HBox>
+                                <HBox><Text text="{i18n>totalOtHours}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{WeekendOtHours}" unit="h" state="Warning"/></HBox>
+                                <HBox><Text text="{i18n>payRate}" class="sapUiTinyMarginEnd"/><Text text="x{WeekendRate}"/></HBox>
                             </VBox>
 
                             <!-- cột 3: ngày lễ -->
                             <VBox alignItems="End" class="sapUiTinyMarginTopBottom">
-                                <HBox><Text text="Số ca:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayShiftCount}"/></HBox>
-                                <HBox><Text text="Giờ làm:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayPaidHours}" unit="h" state="Information"/></HBox>
-                                <HBox><Text text="Giờ OT:" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayOtHours}" unit="h" state="Warning"/></HBox>
-                                <HBox><Text text="Hệ số:" class="sapUiTinyMarginEnd"/><Text text="x{HolidayRate}"/></HBox>
+                                <HBox><Text text="{i18n>totalShifts}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayShiftCount}"/></HBox>
+                                <HBox><Text text="{i18n>totalHours}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayPaidHours}" unit="h" state="Information"/></HBox>
+                                <HBox><Text text="{i18n>totalOtHours}" class="sapUiTinyMarginEnd"/><ObjectNumber number="{HolidayOtHours}" unit="h" state="Warning"/></HBox>
+                                <HBox><Text text="{i18n>payRate}" class="sapUiTinyMarginEnd"/><Text text="x{HolidayRate}"/></HBox>
                             </VBox>
                         </cells>
                     </ColumnListItem>

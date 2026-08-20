@@ -40,7 +40,13 @@ sap.ui.define([
         // quản lý popup
         // =========================================================
         onOpenAddDialog: function () {
-            this.getView().getModel("holidayModel").setData(this._getDefaultHolidayData());
+            var oDefaultData = this._getDefaultHolidayData();
+            var aPayTypes = this.getView().getModel("payTypeModel").getProperty("/payTypes");
+            if (aPayTypes && aPayTypes.length > 0) {
+                oDefaultData.HolPayCode = aPayTypes[0].PayCode;
+            }
+
+            this.getView().getModel("holidayModel").setData(oDefaultData);
             this._openDialog();
         },
 
@@ -52,10 +58,13 @@ sap.ui.define([
             }
 
             var oData = oContext.getObject();
+            var aPayTypes = this.getView().getModel("payTypeModel").getProperty("/payTypes");
+            var sDefaultPayCode = (aPayTypes && aPayTypes.length > 0) ? aPayTypes[0].PayCode : "";
+
             this.getView().getModel("holidayModel").setData({
                 HolDate: this._toDate(oData.HolDate),
                 HolDesc: oData.HolDesc || "",
-                HolPayCode: oData.HolPayCode || "",
+                HolPayCode: oData.HolPayCode || sDefaultPayCode, 
                 isEdit: true,
                 sPath: this._buildHolidayPath(this.getView().getModel(), oData.HolDate)
             });

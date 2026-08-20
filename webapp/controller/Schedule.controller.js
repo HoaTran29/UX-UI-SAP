@@ -1,12 +1,13 @@
 sap.ui.define([
     "sap/ui/core/mvc/Controller",
     "sap/m/MessageBox",
+    "sap/m/MessageToast",
     "sap/ui/core/Fragment",
     "sap/ui/model/json/JSONModel",
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "sap/ui/thirdparty/jquery"
-], function (Controller, MessageBox, Fragment, JSONModel, Filter, FilterOperator, jQuery) {
+], function (Controller, MessageBox, MessageToast, Fragment, JSONModel, Filter, FilterOperator, jQuery) {
     "use strict";
 
     return Controller.extend("com.app.zu26g13.app.controller.Schedule", {

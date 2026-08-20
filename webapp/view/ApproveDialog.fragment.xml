@@ -5,11 +5,11 @@
                 
                 <!-- giờ in -->
                 <Label text="{i18n>lblInTimeMgr}" design="Bold" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
-                <TimePicker value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
+                <TimePicker value="{ path: 'NewActIn', type: 'sap.ui.model.odata.type.Time', formatOptions: { pattern: 'HH:mm:ss' } }" width="100%" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
                 
-                <!-- giờ out -->
+                <!-- giờ out     -->
                 <Label text="{i18n>lblOutTimeMgr}" design="Bold" class="sapUiSmallMarginTop" visible="{= ${RequestType} !== 'REMOVE_WAR' }" />
-                <TimePicker value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time' }" valueFormat="HH:mm:ss" displayFormat="HH:mm:ss" width="100%" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
+                <TimePicker value="{ path: 'NewActOut', type: 'sap.ui.model.odata.type.Time', formatOptions: { pattern: 'HH:mm:ss' } }" width="100%" visible="{= ${RequestType} !== 'REMOVE_WAR' }"/>
                 
                 <!-- lý do của nhân viên -->
                 <Label text="{i18n>lblEmpReason}" class="sapUiSmallMarginTop" design="Bold"/>

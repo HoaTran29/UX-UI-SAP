@@ -55,6 +55,14 @@ sap.ui.define([
         // quản lý popup
         // =========================================================
         onOpenAddDialog: function () {
+            var oDefaultData = this._getDefaultShiftData();
+            var aPayTypes = this.getView().getModel("payTypeModel").getProperty("/payTypes");
+
+            if (aPayTypes && aPayTypes.length > 0) {
+                oDefaultData.StdPayCode = aPayTypes[0].PayCode;
+                oDefaultData.WeekendPayCode = aPayTypes[0].PayCode;
+                oDefaultData.OtPayCode = aPayTypes[0].PayCode;
+            }
             this.getView().getModel("shiftModel").setData(this._getDefaultShiftData());
             this._openDialog();
         },
